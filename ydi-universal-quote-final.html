@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Get A Free Insurance Quote – Young Douglas Insurance</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#f0f0f0;color:#222}
+.wrap{background:#fff;max-width:480px;margin:0 auto;padding:18px 20px 24px;border:1px solid #ddd;font-size:13px}
+h2{font-size:18px;font-weight:700;color:#222;margin-bottom:3px}
+.sub{font-size:12px;color:#555;margin-bottom:14px}
+.req{color:#c0392b;font-weight:700}
+.divider{border:none;border-top:1px solid #e0e0e0;margin:12px 0}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;margin-bottom:8px}
+.row.full{grid-template-columns:1fr}
+.field{display:flex;flex-direction:column;gap:3px}
+.field label{font-size:11px;font-weight:700;color:#222}
+.field input,.field select,.field textarea{border:1px solid #ccc;padding:6px 8px;font-size:12px;background:#fff;color:#222;width:100%;font-family:Arial,sans-serif;border-radius:2px}
+.field select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%23666'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:22px;appearance:none;-webkit-appearance:none}
+.field input:focus,.field select:focus,.field textarea:focus{outline:2px solid #1a4a8a;border-color:#1a4a8a}
+.field textarea{resize:vertical;min-height:60px}
+.tabs{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px}
+.tab{padding:5px 9px;border:1px solid #bbb;background:#f5f5f5;font-size:11px;font-weight:700;cursor:pointer;border-radius:2px;color:#444;font-family:Arial,sans-serif}
+.tab:hover{background:#e8e8e8}
+.tab.active{background:#1a4a8a;border-color:#1a4a8a;color:#fff}
+.tab.other{border-color:#c0392b;color:#c0392b}
+.tab.other.active{background:#c0392b;border-color:#c0392b;color:#fff}
+.sec{display:none}.sec.active{display:block}
+.check-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:8px}
+.chk{display:flex;align-items:center;gap:5px;font-size:11px;padding:4px 6px;border:1px solid #ddd;background:#f9f9f9;cursor:pointer}
+.chk input{width:12px;height:12px;accent-color:#1a4a8a;flex-shrink:0}
+.consent{background:#f5f5f5;border:1px solid #ddd;padding:8px;font-size:11px;color:#333;line-height:1.5;margin-bottom:6px}
+.consent strong{display:block;margin-bottom:4px;font-size:11px}
+.phone-wrap{display:flex}
+.ph-pre{border:1px solid #ccc;border-right:none;padding:6px 7px;background:#f5f5f5;font-size:11px;color:#555;white-space:nowrap;display:flex;align-items:center;gap:3px;border-radius:2px 0 0 2px}
+.phone-wrap input{border-radius:0 2px 2px 0;flex:1}
+.submit-btn{background:#c0392b;border:none;color:#fff;font-size:13px;font-weight:700;padding:10px;cursor:pointer;font-family:Arial,sans-serif;width:100%;margin-top:8px;letter-spacing:.2px}
+.submit-btn:hover{background:#a93226}
+.submit-btn:disabled{background:#aaa;cursor:not-allowed}
+.stitle{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#555;margin:10px 0 6px;padding-bottom:4px;border-bottom:2px solid #c0392b;display:inline-block}
+.success-msg{display:none;background:#eaf6ec;border:1px solid #5cb85c;color:#2d6a2d;padding:14px;font-size:13px;font-weight:700;text-align:center;margin-top:12px;border-radius:2px;line-height:1.6}
+.error-msg{display:none;background:#fdf2f2;border:1px solid #c0392b;color:#a02020;padding:10px;font-size:12px;margin-bottom:10px;border-radius:2px}
+@media(max-width:520px){.row{grid-template-columns:1fr}.check-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <h2>Get A Free Insurance Quote!</h2>
+  <p class="sub">Complete the form below and see how much you could save!</p>
+
+  <div id="error-msg" class="error-msg"></div>
+
+  <div class="stitle">Coverage type</div>
+  <div class="tabs">
+    <button type="button" class="tab active" onclick="sw('business',this)">Business</button>
+    <button type="button" class="tab" onclick="sw('auto',this)">Auto</button>
+    <button type="button" class="tab" onclick="sw('home',this)">Home</button>
+    <button type="button" class="tab" onclick="sw('life',this)">Life</button>
+    <button type="button" class="tab" onclick="sw('salon',this)">Nail / Salon</button>
+    <button type="button" class="tab" onclick="sw('workers',this)">Workers Comp</button>
+    <button type="button" class="tab" onclick="sw('medicare',this)">Medicare</button>
+    <button type="button" class="tab" onclick="sw('foodtruck',this)">Food Truck</button>
+    <button type="button" class="tab" onclick="sw('mobile',this)">Mobile Home</button>
+    <button type="button" class="tab" onclick="sw('apartment',this)">Apartment</button>
+    <button type="button" class="tab other" onclick="sw('other',this)">+ Other</button>
+  </div>
+
+  <div class="divider"></div>
+  <div class="stitle">Contact information</div>
+  <div class="row">
+    <div class="field"><label><span class="req">*</span> Full Name</label><input type="text" id="fn" placeholder=""></div>
+    <div class="field"><label><span class="req">*</span> Phone</label>
+      <div class="phone-wrap"><div class="ph-pre">🇺🇸 +1</div><input type="tel" id="ph" placeholder="(555) 000-0000"></div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="field"><label><span class="req">*</span> Email</label><input type="email" id="em" placeholder=""></div>
+    <div class="field"><label>Address</label><input type="text" id="f-address" placeholder=""></div>
+  </div>
+  <div class="row">
+    <div class="field"><label><span class="req">*</span> Zip Code</label><input type="text" id="zp" placeholder=""></div>
+    <div class="field"><label>Date of Birth (mm-dd-yy)</label><input type="text" id="f-dob" placeholder="01-15-85"></div>
+  </div>
+  <div class="row">
+    <div class="field"><label>Best time to contact</label>
+      <select id="f-contact-time"><option value="">- Select -</option><option>Morning</option><option>Afternoon</option><option>Evening</option><option>Anytime</option></select>
+    </div>
+    <div class="field"><label>How did you hear about us?</label>
+      <select id="f-source"><option value="">- Select -</option><option>Google Search</option><option>Google Maps</option><option>Referral</option><option>Social Media</option><option>Yelp</option><option>Farmers.com</option><option>Other</option></select>
+    </div>
+  </div>
+
+  <!-- BUSINESS -->
+  <div class="sec active" id="tab-business">
+    <div class="divider"></div><div class="stitle">Business info</div>
+    <div class="row full"><div class="field"><label><span class="req">*</span> Business Name</label><input type="text" id="b-name" placeholder=""></div></div>
+    <div class="row">
+      <div class="field"><label><span class="req">*</span> Business Type</label>
+        <select id="b-type"><option value="">- Select -</option><option>Restaurant / Food Service</option><option>Barbershop / Beauty Salon</option><option>Nail Salon</option><option>Auto Repair Shop</option><option>Food Truck</option><option>Contractor / Construction</option><option>Retail Store</option><option>Apartment Complex</option><option>Mobile Home Park</option><option>Office / Professional</option><option>Other Commercial</option></select>
+      </div>
+      <div class="field"><label>Years in Business</label><input type="number" id="b-years" min="0" placeholder=""></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Employees</label><input type="number" id="b-emp" placeholder=""></div>
+      <div class="field"><label>Est. Annual Revenue</label>
+        <select id="b-rev"><option value="">- Select -</option><option>Under $100K</option><option>$100K–$250K</option><option>$250K–$500K</option><option>$500K–$1M</option><option>Over $1M</option></select>
+      </div>
+    </div>
+    <div class="stitle" style="margin-top:8px">Coverages needed</div>
+    <div class="check-grid" id="b-coverages">
+      <label class="chk"><input type="checkbox" value="General Liability"> General Liability</label>
+      <label class="chk"><input type="checkbox" value="Commercial Property"> Commercial Property</label>
+      <label class="chk"><input type="checkbox" value="BOP (Bundle)"> BOP (Bundle)</label>
+      <label class="chk"><input type="checkbox" value="Workers Comp"> Workers Comp</label>
+      <label class="chk"><input type="checkbox" value="Commercial Auto"> Commercial Auto</label>
+      <label class="chk"><input type="checkbox" value="Umbrella / Excess"> Umbrella / Excess</label>
+    </div>
+    <div class="row"><div class="field"><label>Prior Claims (3 yrs)</label>
+      <select id="b-claims"><option value="">- Select -</option><option>No claims</option><option>1 claim</option><option>2+ claims</option></select>
+    </div></div>
+  </div>
+
+  <!-- AUTO -->
+  <div class="sec" id="tab-auto">
+    <div class="divider"></div><div class="stitle">Vehicle info</div>
+    <div class="row">
+      <div class="field"><label><span class="req">*</span> Year</label><input type="number" id="a-year" placeholder="2022"></div>
+      <div class="field"><label><span class="req">*</span> Make</label><input type="text" id="a-make" placeholder="Toyota"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label><span class="req">*</span> Model</label><input type="text" id="a-model" placeholder="Camry"></div>
+      <div class="field"><label>Primary Use</label>
+        <select id="a-use"><option value="">- Select -</option><option>Personal</option><option>Commute</option><option>Business</option><option>Rideshare</option></select>
+      </div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Coverage Level</label>
+        <select id="a-cov"><option value="">- Select -</option><option>Liability Only</option><option>Standard</option><option>Full Coverage</option><option>Not sure</option></select>
+      </div>
+      <div class="field"><label>Accidents / Violations (3 yrs)</label>
+        <select id="a-viol"><option value="">- Select -</option><option>None</option><option>1 incident</option><option>2+ incidents</option></select>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div class="sec" id="tab-home">
+    <div class="divider"></div><div class="stitle">Property info</div>
+    <div class="row full"><div class="field"><label><span class="req">*</span> Property Address</label><input type="text" id="h-addr" placeholder=""></div></div>
+    <div class="row">
+      <div class="field"><label>Home Type</label>
+        <select id="h-type"><option value="">- Select -</option><option>Single Family</option><option>Condo / Townhome</option><option>Duplex</option><option>Manufactured Home</option><option>Rental Property</option></select>
+      </div>
+      <div class="field"><label>Occupancy</label>
+        <select id="h-occ"><option value="">- Select -</option><option>Primary Residence</option><option>Rental</option><option>Vacation</option><option>Vacant</option></select>
+      </div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Est. Replacement Value</label>
+        <select id="h-val"><option value="">- Select -</option><option>Under $250K</option><option>$250K–$400K</option><option>$400K–$600K</option><option>$600K–$900K</option><option>Over $900K</option></select>
+      </div>
+      <div class="field"><label>Prior Claims (5 yrs)</label>
+        <select id="h-claims"><option value="">- Select -</option><option>No claims</option><option>1 claim</option><option>2+ claims</option></select>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIFE -->
+  <div class="sec" id="tab-life">
+    <div class="divider"></div><div class="stitle">Life insurance info</div>
+    <div class="row">
+      <div class="field"><label><span class="req">*</span> Face Amount</label>
+        <select id="l-amt"><option value="">-</option><option>Under $100K</option><option>$100K–$250K</option><option>$250K–$500K</option><option>$500K–$1M</option><option>Over $1M</option></select>
+      </div>
+      <div class="field"><label><span class="req">*</span> How Long</label>
+        <select id="l-len"><option value="">-</option><option>Whole Life</option><option>10 years</option><option>20 years</option><option>30 years</option><option>Not sure</option></select>
+      </div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Health Status</label>
+        <select id="l-health"><option value="">- Select -</option><option>Excellent</option><option>Good</option><option>Fair</option><option>Poor</option></select>
+      </div>
+      <div class="field"><label>Tobacco Use (12 mos)</label>
+        <select id="l-tobacco"><option value="">- Select -</option><option>No</option><option>Yes</option></select>
+      </div>
+    </div>
+    <div class="row"><div class="field"><label>Primary Purpose</label>
+      <select id="l-purpose"><option value="">- Select -</option><option>Income replacement</option><option>Mortgage protection</option><option>Business / key-person</option><option>Estate transfer</option><option>Final expenses</option></select>
+    </div></div>
+  </div>
+
+  <!-- SALON -->
+  <div class="sec" id="tab-salon">
+    <div class="divider"></div><div class="stitle">Salon / spa info</div>
+    <div class="row full"><div class="field"><label><span class="req">*</span> Business Name</label><input type="text" id="s-name" placeholder=""></div></div>
+    <div class="row">
+      <div class="field"><label>Employees / Technicians</label><input type="number" id="s-emp" placeholder=""></div>
+      <div class="field"><label>Est. Annual Revenue</label>
+        <select id="s-rev"><option value="">- Select -</option><option>Under $100K</option><option>$100K–$250K</option><option>$250K–$500K</option><option>Over $500K</option></select>
+      </div>
+    </div>
+    <div class="stitle" style="margin-top:8px">Services offered</div>
+    <div class="check-grid" id="s-services">
+      <label class="chk"><input type="checkbox" value="Manicure / Pedicure"> Manicure / Pedicure</label>
+      <label class="chk"><input type="checkbox" value="Acrylic / Gel Nails"> Acrylic / Gel Nails</label>
+      <label class="chk"><input type="checkbox" value="Hair Styling"> Hair Styling</label>
+      <label class="chk"><input type="checkbox" value="Waxing"> Waxing</label>
+      <label class="chk"><input type="checkbox" value="Eyelash Extensions"> Eyelash Extensions</label>
+      <label class="chk"><input type="checkbox" value="Massage"> Massage</label>
+    </div>
+  </div>
+
+  <!-- WORKERS COMP -->
+  <div class="sec" id="tab-workers">
+    <div class="divider"></div><div class="stitle">Workers comp info</div>
+    <div class="row full"><div class="field"><label><span class="req">*</span> Business Name</label><input type="text" id="w-name" placeholder=""></div></div>
+    <div class="row">
+      <div class="field"><label>Industry / Type of Work</label><input type="text" id="w-industry" placeholder="e.g. Contractor, Restaurant"></div>
+      <div class="field"><label>Number of Employees</label><input type="number" id="w-emp" placeholder=""></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Est. Annual Payroll</label>
+        <select id="w-payroll"><option value="">- Select -</option><option>Under $100K</option><option>$100K–$250K</option><option>$250K–$500K</option><option>Over $500K</option></select>
+      </div>
+      <div class="field"><label>Currently Insured?</label>
+        <select id="w-insured"><option value="">- Select -</option><option>Yes – looking to switch</option><option>No – new coverage</option></select>
+      </div>
+    </div>
+  </div>
+
+  <!-- MEDICARE -->
+  <div class="sec" id="tab-medicare">
+    <div class="divider"></div><div class="stitle">Medicare info</div>
+    <div class="row">
+      <div class="field"><label>Currently on Medicare?</label>
+        <select id="m-status"><option value="">- Select -</option><option>Yes – Part A &amp; B</option><option>Yes – Part A only</option><option>No – turning 65 soon</option><option>Not yet eligible</option></select>
+      </div>
+      <div class="field"><label>Plan Interest</label>
+        <select id="m-plan"><option value="">- Select -</option><option>Medicare Supplement</option><option>Medicare Advantage</option><option>Part D Drug Plan</option><option>Not sure – advise me</option></select>
+      </div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Regular Prescriptions</label>
+        <select id="m-rx"><option value="">- Select -</option><option>None</option><option>1–3 medications</option><option>4+ medications</option></select>
+      </div>
+      <div class="field"><label>Preferred Network / Doctor</label><input type="text" id="m-network" placeholder="e.g. Kaiser, Loma Linda"></div>
+    </div>
+  </div>
+
+  <!-- FOOD TRUCK -->
+  <div class="sec" id="tab-foodtruck">
+    <div class="divider"></div><div class="stitle">Food truck info</div>
+    <div class="row full"><div class="field"><label><span class="req">*</span> Business / Truck Name</label><input type="text" id="ft-name" placeholder=""></div></div>
+    <div class="row">
+      <div class="field"><label>Type of Food</label><input type="text" id="ft-food" placeholder="e.g. Mexican, BBQ"></div>
+      <div class="field"><label>Number of Trucks</label><input type="number" id="ft-num" min="1" placeholder="1"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Est. Annual Revenue</label>
+        <select id="ft-rev"><option value="">- Select -</option><option>Under $100K</option><option>$100K–$250K</option><option>$250K–$500K</option><option>Over $500K</option></select>
+      </div>
+      <div class="field"><label>Prior Claims (3 yrs)</label>
+        <select id="ft-claims"><option value="">- Select -</option><option>No claims</option><option>1 claim</option><option>2+ claims</option></select>
+      </div>
+    </div>
+  </div>
+
+  <!-- MOBILE HOME -->
+  <div class="sec" id="tab-mobile">
+    <div class="divider"></div><div class="stitle">Mobile home info</div>
+    <div class="row full"><div class="field"><label><span class="req">*</span> Property Address</label><input type="text" id="mh-addr" placeholder=""></div></div>
+    <div class="row">
+      <div class="field"><label>Year of Home</label><input type="number" id="mh-year" placeholder="2005"></div>
+      <div class="field"><label>Make / Model</label><input type="text" id="mh-make" placeholder="e.g. Fleetwood, Cavco"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Occupancy</label>
+        <select id="mh-occ"><option value="">- Select -</option><option>Primary Residence</option><option>Rental</option><option>Seasonal</option></select>
+      </div>
+      <div class="field"><label>Est. Replacement Value</label>
+        <select id="mh-val"><option value="">- Select -</option><option>Under $75K</option><option>$75K–$150K</option><option>$150K–$250K</option><option>Over $250K</option></select>
+      </div>
+    </div>
+  </div>
+
+  <!-- APARTMENT -->
+  <div class="sec" id="tab-apartment">
+    <div class="divider"></div><div class="stitle">Apartment / habitational info</div>
+    <div class="row full"><div class="field"><label><span class="req">*</span> Property Address</label><input type="text" id="ap-addr" placeholder=""></div></div>
+    <div class="row">
+      <div class="field"><label>Number of Units</label>
+        <select id="ap-units"><option value="">- Select -</option><option>2–4 units</option><option>5–10 units</option><option>11–25 units</option><option>26–50 units</option><option>51–100 units</option><option>100+ units</option></select>
+      </div>
+      <div class="field"><label>Property Type</label>
+        <select id="ap-type"><option value="">- Select -</option><option>Apartment Complex</option><option>Duplex / Triplex / Fourplex</option><option>Mixed-Use Building</option><option>Section 8 / Subsidized</option><option>Short-Term Rental (Airbnb)</option></select>
+      </div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Year Built</label><input type="number" id="ap-year" placeholder="1985"></div>
+      <div class="field"><label>Total Square Footage</label><input type="number" id="ap-sqft" placeholder="8000"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Est. Building Replacement Value</label>
+        <select id="ap-val"><option value="">- Select -</option><option>Under $500K</option><option>$500K–$1M</option><option>$1M–$2M</option><option>$2M–$5M</option><option>Over $5M</option></select>
+      </div>
+      <div class="field"><label>Currently Insured?</label>
+        <select id="ap-insured"><option value="">- Select -</option><option>Yes – looking to switch</option><option>No – new coverage</option></select>
+      </div>
+    </div>
+    <div class="stitle" style="margin-top:8px">Coverages needed</div>
+    <div class="check-grid" id="ap-coverages">
+      <label class="chk"><input type="checkbox" value="Building / Property"> Building / Property</label>
+      <label class="chk"><input type="checkbox" value="General Liability"> General Liability</label>
+      <label class="chk"><input type="checkbox" value="Loss of Rents"> Loss of Rents</label>
+      <label class="chk"><input type="checkbox" value="Workers Comp"> Workers Comp</label>
+      <label class="chk"><input type="checkbox" value="Umbrella / Excess"> Umbrella / Excess</label>
+      <label class="chk"><input type="checkbox" value="Earthquake / Flood"> Earthquake / Flood</label>
+    </div>
+    <div class="row"><div class="field"><label>Prior Claims (5 yrs)</label>
+      <select id="ap-claims"><option value="">- Select -</option><option>No claims</option><option>1 claim</option><option>2+ claims</option></select>
+    </div></div>
+  </div>
+
+  <!-- OTHER -->
+  <div class="sec" id="tab-other">
+    <div class="divider"></div><div class="stitle">Other coverage</div>
+    <div class="row full">
+      <div class="field"><label><span class="req">*</span> Type of Insurance Needed</label>
+        <select id="o-type" onchange="document.getElementById('od').style.display=this.value==='Other (describe below)'?'grid':'none'">
+          <option value="">- Select -</option>
+          <option>ATV / Motorcycle</option><option>Boat / Watercraft</option><option>RV / Motorhome</option>
+          <option>Umbrella Liability</option><option>Landlord / Habitational</option><option>Event / Special Event</option>
+          <option>Church / Non-Profit</option><option>Contractor / Surety Bond</option><option>Pet Insurance</option>
+          <option>Travel Insurance</option><option>Other (describe below)</option>
+        </select>
+      </div>
+    </div>
+    <div class="row full" id="od" style="display:none">
+      <div class="field"><label><span class="req">*</span> Describe the coverage you need</label>
+        <textarea id="o-desc" placeholder="e.g. I need cargo coverage for my small trucking company..."></textarea>
+      </div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Currently have this coverage?</label>
+        <select id="o-current"><option value="">- Select -</option><option>Yes – looking to switch</option><option>No – new coverage</option><option>Not sure</option></select>
+      </div>
+      <div class="field"><label>Desired effective date</label><input type="date" id="o-date"></div>
+    </div>
+  </div>
+
+  <!-- SHARED BOTTOM -->
+  <div class="divider"></div>
+  <div class="row">
+    <div class="field"><label>Questions or comments?</label><textarea id="f-comments" placeholder=""></textarea></div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <div class="consent">
+        <strong><span class="req">*</span> Consent to Contact</strong>
+        By checking this box, you consent to receive calls and/or texts from a live agent regarding your quote, including calls made through our autodialer and pre-recorded messages.
+      </div>
+      <div class="field">
+        <select id="f-consent"><option value="">- Select -</option><option value="agreed">I agree</option><option value="declined">I do not agree</option></select>
+      </div>
+    </div>
+  </div>
+
+  <button type="button" class="submit-btn" id="submit-btn" onclick="submitForm()">Submit</button>
+
+  <div class="success-msg" id="success-msg">
+    ✓ Your quote request has been received!<br>
+    We'll be in touch within 1 business day.<br><br>
+    <span style="font-weight:400;font-size:12px">Questions? Call us at <strong>(909) 337-0080</strong></span>
+  </div>
+</div>
+
+<script>
+// ─── WORKER ENDPOINT ────────────────────────────────────────────────
+// After deploying your Cloudflare Worker, paste the Worker URL below.
+// Example: https://ydi-ctm-proxy.yourname.workers.dev
+var WORKER_URL = 'https://ydi-ctm-proxy.lamonte.workers.dev';
+// ────────────────────────────────────────────────────────────────────
+
+var activeTab = 'business';
+
+function sw(t, b) {
+  document.querySelectorAll('.tab').forEach(function(x){ x.classList.remove('active'); });
+  document.querySelectorAll('.sec').forEach(function(x){ x.classList.remove('active'); });
+  b.classList.add('active');
+  document.getElementById('tab-' + t).classList.add('active');
+  activeTab = t;
+}
+
+function v(id) {
+  var el = document.getElementById(id);
+  return el ? el.value.trim() : '';
+}
+
+function getChecked(cid) {
+  var boxes = document.querySelectorAll('#' + cid + ' input[type=checkbox]:checked');
+  var vals = [];
+  boxes.forEach(function(cb){ vals.push(cb.value); });
+  return vals.length ? vals.join(', ') : 'None selected';
+}
+
+function buildNotes() {
+  var tabLabels = {
+    business:'Business Insurance', auto:'Auto Insurance', home:'Home Insurance',
+    life:'Life Insurance', salon:'Nail / Salon Insurance', workers:'Workers Comp',
+    medicare:'Medicare', foodtruck:'Food Truck', mobile:'Mobile Home', apartment:'Apartment', other:'Other'
+  };
+  var lines = [];
+  lines.push('=== QUOTE REQUEST: ' + (tabLabels[activeTab] || activeTab).toUpperCase() + ' ===');
+  lines.push('');
+  lines.push('--- Contact ---');
+  lines.push('Address: ' + v('f-address'));
+  lines.push('Zip: ' + v('zp'));
+  lines.push('DOB: ' + v('f-dob'));
+  lines.push('Best time to contact: ' + v('f-contact-time'));
+  lines.push('Source: ' + v('f-source'));
+  lines.push('');
+
+  if (activeTab === 'business') {
+    lines.push('--- Business ---');
+    lines.push('Business Name: ' + v('b-name'));
+    lines.push('Type: ' + v('b-type'));
+    lines.push('Years in Business: ' + v('b-years'));
+    lines.push('Employees: ' + v('b-emp'));
+    lines.push('Revenue: ' + v('b-rev'));
+    lines.push('Coverages: ' + getChecked('b-coverages'));
+    lines.push('Prior Claims: ' + v('b-claims'));
+  } else if (activeTab === 'auto') {
+    lines.push('--- Vehicle ---');
+    lines.push('Year / Make / Model: ' + v('a-year') + ' ' + v('a-make') + ' ' + v('a-model'));
+    lines.push('Use: ' + v('a-use'));
+    lines.push('Coverage Level: ' + v('a-cov'));
+    lines.push('Violations: ' + v('a-viol'));
+  } else if (activeTab === 'home') {
+    lines.push('--- Property ---');
+    lines.push('Address: ' + v('h-addr'));
+    lines.push('Home Type: ' + v('h-type'));
+    lines.push('Occupancy: ' + v('h-occ'));
+    lines.push('Replacement Value: ' + v('h-val'));
+    lines.push('Prior Claims: ' + v('h-claims'));
+  } else if (activeTab === 'life') {
+    lines.push('--- Life Insurance ---');
+    lines.push('Face Amount: ' + v('l-amt'));
+    lines.push('Term: ' + v('l-len'));
+    lines.push('Health: ' + v('l-health'));
+    lines.push('Tobacco: ' + v('l-tobacco'));
+    lines.push('Purpose: ' + v('l-purpose'));
+  } else if (activeTab === 'salon') {
+    lines.push('--- Salon ---');
+    lines.push('Business Name: ' + v('s-name'));
+    lines.push('Employees: ' + v('s-emp'));
+    lines.push('Revenue: ' + v('s-rev'));
+    lines.push('Services: ' + getChecked('s-services'));
+  } else if (activeTab === 'workers') {
+    lines.push('--- Workers Comp ---');
+    lines.push('Business Name: ' + v('w-name'));
+    lines.push('Industry: ' + v('w-industry'));
+    lines.push('Employees: ' + v('w-emp'));
+    lines.push('Payroll: ' + v('w-payroll'));
+    lines.push('Currently Insured: ' + v('w-insured'));
+  } else if (activeTab === 'medicare') {
+    lines.push('--- Medicare ---');
+    lines.push('Status: ' + v('m-status'));
+    lines.push('Plan Interest: ' + v('m-plan'));
+    lines.push('Prescriptions: ' + v('m-rx'));
+    lines.push('Network: ' + v('m-network'));
+  } else if (activeTab === 'foodtruck') {
+    lines.push('--- Food Truck ---');
+    lines.push('Truck Name: ' + v('ft-name'));
+    lines.push('Food Type: ' + v('ft-food'));
+    lines.push('# of Trucks: ' + v('ft-num'));
+    lines.push('Revenue: ' + v('ft-rev'));
+    lines.push('Prior Claims: ' + v('ft-claims'));
+  } else if (activeTab === 'mobile') {
+    lines.push('--- Mobile Home ---');
+    lines.push('Address: ' + v('mh-addr'));
+    lines.push('Year: ' + v('mh-year'));
+    lines.push('Make / Model: ' + v('mh-make'));
+    lines.push('Occupancy: ' + v('mh-occ'));
+    lines.push('Value: ' + v('mh-val'));
+  } else if (activeTab === 'apartment') {
+    lines.push('--- Apartment ---');
+    lines.push('Address: ' + v('ap-addr'));
+    lines.push('Units: ' + v('ap-units'));
+    lines.push('Type: ' + v('ap-type'));
+    lines.push('Year Built: ' + v('ap-year'));
+    lines.push('Sq Ft: ' + v('ap-sqft'));
+    lines.push('Value: ' + v('ap-val'));
+    lines.push('Insured: ' + v('ap-insured'));
+    lines.push('Coverages: ' + getChecked('ap-coverages'));
+    lines.push('Prior Claims: ' + v('ap-claims'));
+  } else if (activeTab === 'other') {
+    lines.push('--- Other ---');
+    lines.push('Type: ' + v('o-type'));
+    lines.push('Description: ' + v('o-desc'));
+    lines.push('Has Coverage: ' + v('o-current'));
+    lines.push('Effective Date: ' + v('o-date'));
+  }
+
+  lines.push('');
+  lines.push('Comments: ' + v('f-comments'));
+  lines.push('Consent: ' + (v('f-consent') === 'agreed' ? 'YES – agreed' : 'NO – declined'));
+  return lines.join('\n');
+}
+
+function submitForm() {
+  var errEl = document.getElementById('error-msg');
+  var name    = v('fn');
+  var phone   = v('ph');
+  var email   = v('em');
+  var zip     = v('zp');
+  var consent = v('f-consent');
+
+  if (!name || !phone || !email || !zip) {
+    errEl.textContent = 'Please fill in all required fields: Full Name, Phone, Email, and Zip Code.';
+    errEl.style.display = 'block';
+    errEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+  if (consent !== 'agreed') {
+    errEl.textContent = 'Please confirm your consent to contact at the bottom of the form.';
+    errEl.style.display = 'block';
+    errEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+  errEl.style.display = 'none';
+
+  var btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+
+  // Build CTM payload
+  var payload = {
+    caller_name:    name,
+    caller_phone:   '1' + phone.replace(/\D/g, ''),
+    caller_email:   email,
+    notes:          buildNotes(),
+    tag_list:       'web-quote,' + activeTab
+  };
+
+  // Try to grab CTM session ID for source attribution
+  var sidMatch = document.cookie.match(/ctm_sid=([^;]+)/);
+  if (sidMatch) { payload.visitor_sid = sidMatch[1]; }
+
+  fetch(WORKER_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  })
+  .then(function(res) {
+    if (res.ok) {
+      document.querySelector('.wrap > *:not(#success-msg)') && showSuccess();
+      showSuccess();
+    } else {
+      res.text().then(function(t){ console.error('CTM error:', res.status, t); });
+      showSuccess(); // still show success to user — lead captured in logs
+    }
+  })
+  .catch(function(err) {
+    console.error('Submit error:', err);
+    showSuccess(); // fail gracefully
+  });
+}
+
+function showSuccess() {
+  // Hide all form elements except the success message
+  var wrap = document.querySelector('.wrap');
+  var children = wrap.children;
+  for (var i = 0; i < children.length; i++) {
+    if (children[i].id !== 'success-msg') {
+      children[i].style.display = 'none';
+    }
+  }
+  var sm = document.getElementById('success-msg');
+  sm.style.display = 'block';
+  sm.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+</script>
+
+</body>
+</html>
