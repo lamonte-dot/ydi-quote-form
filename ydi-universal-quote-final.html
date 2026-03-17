@@ -48,6 +48,16 @@ h2{font-size:18px;font-weight:700;color:#222;margin-bottom:3px}
 .other-detail{display:none;margin-top:4px}
 @media(max-width:520px){.row{grid-template-columns:1fr}.check-grid{grid-template-columns:1fr}}
 </style>
+<!-- CTM Tracking -->
+<script>
+(function(d,s,id){
+  var js,fjs=d.getElementsByTagName(s)[0];
+  if(d.getElementById(id))return;
+  js=d.createElement(s);js.id=id;
+  js.src='//cdn.calltrackingmetrics.com/ctm.js';
+  fjs.parentNode.insertBefore(js,fjs);
+}(document,'script','ctm-jssdk'));
+</script>
 </head>
 <body>
 
@@ -382,8 +392,6 @@ h2{font-size:18px;font-weight:700;color:#222;margin-bottom:3px}
 
 <script>
 // ─── WORKER ENDPOINT ────────────────────────────────────────────────
-// After deploying your Cloudflare Worker, paste the Worker URL below.
-// Example: https://ydi-ctm-proxy.yourname.workers.dev
 var WORKER_URL = 'https://ydi-ctm-proxy.lamonte.workers.dev';
 // ────────────────────────────────────────────────────────────────────
 
@@ -519,7 +527,6 @@ function buildNotes() {
   }
 
   lines.push('');
-  lines.push('Comments: ' + v('f-comments'));
   lines.push('Consent: ' + (v('f-consent') === 'agreed' ? 'YES – agreed' : 'NO – declined'));
   return lines.join('\n');
 }
@@ -564,9 +571,13 @@ function submitForm() {
     tag_list:       'web-quote,' + activeTab
   };
 
-  // Try to grab CTM session ID for source attribution
-  var sidMatch = document.cookie.match(/ctm_sid=([^;]+)/);
-  if (sidMatch) { payload.visitor_sid = sidMatch[1]; }
+  // Try CTM JS object first (requires ctm.js to be loaded), then cookie fallback
+  var sid = (window._ctm && window._ctm.sid) ? window._ctm.sid : null;
+  if (!sid) {
+    var sidMatch = document.cookie.match(/ctm_sid=([^;]+)/);
+    if (sidMatch) sid = sidMatch[1];
+  }
+  if (sid) { payload.visitor_sid = sid; }
 
   fetch(WORKER_URL, {
     method: 'POST',
@@ -577,7 +588,6 @@ function submitForm() {
   })
   .then(function(res) {
     if (res.ok) {
-      document.querySelector('.wrap > *:not(#success-msg)') && showSuccess();
       showSuccess();
     } else {
       res.text().then(function(t){ console.error('CTM error:', res.status, t); });
@@ -591,7 +601,6 @@ function submitForm() {
 }
 
 function showSuccess() {
-  // Hide all form elements except the success message
   var wrap = document.querySelector('.wrap');
   var children = wrap.children;
   for (var i = 0; i < children.length; i++) {
