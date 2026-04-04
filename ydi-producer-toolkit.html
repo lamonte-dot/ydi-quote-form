@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="YDI Toolkit">
+<title>Producer's Commercial Toolkit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
+:root {
+  --navy: #0f2d4a; --blue: #1a5c8f; --accent: #e8a020; --accent2: #2dba8c;
+  --bg: #f0f2f5; --card: #ffffff; --border: #e2e6ea; --text: #1a2332; --muted: #6b7a8d;
+  --danger: #d63f3f; --warn: #d67c20; --good: #1e9b6b;
+  --danger-bg: #fff0f0; --warn-bg: #fff8ed; --good-bg: #f0faf5;
+}
+body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+#loginScreen { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; background:linear-gradient(145deg,var(--navy) 0%,var(--blue) 100%); padding:24px; }
+.login-card { background:#fff; border-radius:20px; padding:32px 28px; width:100%; max-width:360px; box-shadow:0 20px 60px rgba(0,0,0,0.3); }
+.login-logo { text-align:center; margin-bottom:24px; }
+.login-logo-small { font-size:11px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--muted); }
+.login-logo-name { font-size:21px; font-weight:700; color:var(--navy); margin-top:4px; line-height:1.2; }
+.login-logo-badge { display:inline-block; background:var(--accent); color:#fff; font-size:10px; font-weight:700; letter-spacing:1px; padding:3px 10px; border-radius:20px; margin-top:8px; text-transform:uppercase; }
+.lf { margin-bottom:14px; }
+.ll { font-size:11px; font-weight:700; color:var(--muted); letter-spacing:0.8px; text-transform:uppercase; margin-bottom:5px; display:block; }
+.li { width:100%; padding:12px 14px; border:1.5px solid var(--border); border-radius:10px; font-family:'DM Sans',sans-serif; font-size:15px; color:var(--text); outline:none; transition:border-color 0.2s; }
+.li:focus { border-color:var(--blue); }
+.login-btn { width:100%; padding:14px; border-radius:12px; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:15px; font-weight:700; background:linear-gradient(135deg,var(--navy),var(--blue)); color:#fff; margin-top:4px; transition:opacity 0.2s; }
+.login-btn:active { opacity:0.85; }
+.lerr { background:var(--danger-bg); border:1px solid #f5c0c0; color:var(--danger); border-radius:8px; padding:10px 12px; font-size:13px; margin-top:12px; text-align:center; display:none; }
+
+#changePwScreen { min-height:100vh; display:none; flex-direction:column; align-items:center; justify-content:center; background:linear-gradient(145deg,var(--navy) 0%,var(--blue) 100%); padding:24px; }
+.cpw-card { background:#fff; border-radius:20px; padding:28px; width:100%; max-width:360px; box-shadow:0 20px 60px rgba(0,0,0,0.3); }
+.cpw-title { font-size:18px; font-weight:700; color:var(--navy); margin-bottom:6px; }
+.cpw-sub { font-size:13px; color:var(--muted); margin-bottom:20px; line-height:1.5; }
+
+.app-header { background:linear-gradient(135deg,var(--navy) 0%,var(--blue) 100%); padding:14px 16px 0; position:sticky; top:0; z-index:100; box-shadow:0 2px 12px rgba(15,45,74,0.25); }
+.header-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.brand-small { font-size:10px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:rgba(255,255,255,0.55); }
+.brand-big { font-size:17px; font-weight:700; color:#fff; line-height:1.2; }
+.brand-tiny { font-size:10px; color:rgba(255,255,255,0.45); margin-top:1px; }
+.hdr { display:flex; flex-direction:column; align-items:flex-end; gap:5px; }
+.user-pill { background:rgba(255,255,255,0.15); border-radius:20px; padding:4px 10px; font-size:11px; font-weight:600; color:#fff; }
+.logout-btn { background:none; border:1px solid rgba(255,255,255,0.3); border-radius:6px; color:rgba(255,255,255,0.7); font-size:10px; font-weight:600; padding:3px 8px; cursor:pointer; font-family:'DM Sans',sans-serif; }
+.pb-wrap { background:rgba(255,255,255,0.15); height:3px; border-radius:2px; overflow:hidden; margin:4px 0 0; }
+.pb-fill { height:100%; background:var(--accent); border-radius:2px; transition:width 0.3s; }
+.pb-text { font-size:10px; color:rgba(255,255,255,0.65); margin-bottom:2px; }
+.mode-tabs { display:flex; margin-top:10px; }
+.mode-tab { flex:1; padding:9px 6px 11px; font-family:'DM Sans',sans-serif; font-size:12px; font-weight:600; color:rgba(255,255,255,0.5); background:none; border:none; cursor:pointer; border-bottom:3px solid transparent; transition:all 0.2s; text-align:center; }
+.mode-tab.active { color:#fff; border-bottom-color:var(--accent); }
+
+.content { padding:14px 12px 80px; max-width:640px; margin:0 auto; }
+.card { background:var(--card); border-radius:14px; border:1px solid var(--border); overflow:hidden; margin-bottom:10px; box-shadow:0 1px 4px rgba(0,0,0,0.05); }
+.ch { padding:11px 14px; background:linear-gradient(135deg,#f8fafc,#f0f4f8); border-bottom:1px solid var(--border); display:flex; align-items:center; gap:8px; }
+.ch h3 { font-size:13px; font-weight:700; color:var(--navy); }
+.cb { padding:12px 14px; }
+.fw { display:flex; flex-direction:column; gap:4px; }
+.fl { font-size:11px; font-weight:700; color:var(--muted); letter-spacing:0.8px; text-transform:uppercase; }
+input[type=text],input[type=password],textarea,select { font-family:'DM Sans',sans-serif; font-size:14px; padding:10px 12px; border:1.5px solid var(--border); border-radius:10px; background:#fff; color:var(--text); width:100%; outline:none; transition:border-color 0.2s; }
+input[type=text]:focus,input[type=password]:focus,textarea:focus,select:focus { border-color:var(--blue); }
+textarea { resize:vertical; min-height:60px; }
+.g2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+
+.ind-sel { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:12px 14px; margin-bottom:10px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; box-shadow:0 1px 4px rgba(0,0,0,0.05); }
+.ind-lbl { font-size:11px; font-weight:600; color:var(--muted); letter-spacing:1px; text-transform:uppercase; margin-bottom:3px; }
+.ind-name { font-size:17px; font-weight:700; color:var(--navy); }
+.ind-menu { background:var(--card); border:1px solid var(--border); border-radius:14px; overflow:hidden; margin-bottom:10px; box-shadow:0 4px 20px rgba(0,0,0,0.12); display:none; }
+.ind-menu.open { display:block; }
+.ind-opt { padding:12px 16px; border-bottom:1px solid #f5f5f5; cursor:pointer; font-size:14px; font-weight:500; color:var(--text); display:flex; align-items:center; gap:10px; transition:background 0.15s; }
+.ind-opt:last-child { border-bottom:none; }
+.ind-opt:hover,.ind-opt.sel { background:#f0f7ff; color:var(--blue); font-weight:700; }
+.sec-title { font-size:10px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--blue); padding:8px 14px 5px; background:#f8fafd; border-bottom:1px solid #eef2f7; border-top:1px solid #eef2f7; margin:0 -14px; }
+.qi { padding:9px 0; border-bottom:1px solid #f5f7f9; display:flex; flex-direction:column; gap:6px; }
+.qi:last-child { border-bottom:none; }
+.qt { font-size:13px; color:var(--text); line-height:1.5; font-weight:500; }
+.qa { font-family:'DM Sans',sans-serif; font-size:13px; padding:8px 10px; border:1.5px solid var(--border); border-radius:8px; background:#fafbfc; width:100%; outline:none; color:var(--text); min-height:50px; resize:none; }
+.qa:focus { border-color:var(--blue); background:#fff; }
+.arow { display:flex; gap:8px; margin-top:12px; }
+.abtn { flex:1; padding:12px 10px; border-radius:10px; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:700; transition:opacity 0.15s; }
+.abtn:active { opacity:0.8; }
+.btn-pri { background:var(--navy); color:#fff; }
+.btn-sec { background:var(--border); color:var(--text); }
+
+.analyze-btn { width:100%; padding:14px; border-radius:12px; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:15px; font-weight:700; background:linear-gradient(135deg,var(--navy),var(--blue)); color:#fff; display:flex; align-items:center; justify-content:center; gap:8px; transition:opacity 0.2s; }
+.analyze-btn:disabled { opacity:0.6; cursor:not-allowed; }
+.gap-card { background:#fff; border:1px solid var(--border); border-radius:10px; padding:10px 12px; margin-bottom:7px; }
+.gct { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:4px; }
+.gcn { font-size:14px; font-weight:700; color:var(--navy); flex:1; margin-right:8px; }
+.gcd { font-size:12.5px; color:var(--muted); line-height:1.5; }
+.badge { font-size:10px; font-weight:700; padding:2px 8px; border-radius:5px; white-space:nowrap; }
+.bh { background:var(--danger-bg); color:var(--danger); }
+.bm { background:var(--warn-bg); color:var(--warn); }
+.bl { background:var(--good-bg); color:var(--good); }
+.qpill { display:block; background:#f0f4f8; border:1px solid var(--border); border-radius:8px; padding:7px 10px; font-size:12.5px; color:var(--text); line-height:1.4; margin-bottom:6px; }
+.fcard { background:linear-gradient(135deg,#f0f7ff,#e8f3ff); border:1px solid #c5dcf5; border-radius:10px; padding:10px 12px; margin-bottom:6px; }
+.fct { font-size:12px; font-weight:700; color:var(--blue); margin-bottom:3px; }
+.fcb { font-size:12.5px; color:var(--text); line-height:1.5; }
+.spinner { width:32px; height:32px; border:3px solid var(--border); border-top-color:var(--blue); border-radius:50%; animation:spin 0.7s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.lanim { display:flex; flex-direction:column; align-items:center; padding:28px 20px; gap:10px; }
+.ltxt { font-size:13px; color:var(--muted); font-weight:500; }
+.ebox { background:var(--danger-bg); border:1px solid #f5c0c0; border-radius:10px; padding:12px 14px; font-size:13px; color:var(--danger); margin-top:10px; }
+
+.atabs { display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
+.atab { padding:8px 14px; border-radius:20px; border:1.5px solid var(--border); background:#fff; font-family:'DM Sans',sans-serif; font-size:12px; font-weight:700; color:var(--muted); cursor:pointer; transition:all 0.15s; }
+.atab.active { background:var(--navy); color:#fff; border-color:var(--navy); }
+.sg { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:12px; }
+.sc { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px; text-align:center; }
+.sn { font-size:28px; font-weight:700; color:var(--navy); }
+.sl { font-size:11px; color:var(--muted); font-weight:600; margin-top:2px; }
+.alog-row { display:flex; align-items:flex-start; gap:10px; padding:10px 0; border-bottom:1px solid #f5f5f5; }
+.alog-row:last-child { border-bottom:none; }
+.alog-ico { font-size:16px; margin-top:1px; }
+.alog-info { flex:1; }
+.alog-user { font-size:13px; font-weight:700; color:var(--navy); }
+.alog-act { font-size:12px; color:var(--muted); margin-top:1px; }
+.alog-time { font-size:11px; color:var(--muted); white-space:nowrap; }
+.urow { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid #f5f5f5; }
+.urow:last-child { border-bottom:none; }
+.uav { width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,var(--navy),var(--blue)); display:flex; align-items:center; justify-content:center; color:#fff; font-size:14px; font-weight:700; flex-shrink:0; }
+.uinfo { flex:1; }
+.uname { font-size:14px; font-weight:700; color:var(--navy); }
+.umeta { font-size:11px; color:var(--muted); margin-top:1px; }
+.uacts { display:flex; gap:6px; }
+.mb { padding:5px 10px; border-radius:7px; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:11px; font-weight:700; transition:opacity 0.15s; }
+.mb:active { opacity:0.75; }
+.mb-r { background:var(--danger-bg); color:var(--danger); }
+.mb-w { background:var(--warn-bg); color:var(--warn); }
+.fb { width:100%; padding:13px; border-radius:11px; border:none; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:700; transition:opacity 0.2s; }
+.fb:active { opacity:0.85; }
+.fb-g { background:var(--accent2); color:#fff; }
+.smsg { background:var(--good-bg); border:1px solid #9de5c8; color:var(--good); border-radius:8px; padding:10px 12px; font-size:13px; margin-top:8px; display:none; }
+.hidden { display:none !important; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-small">Young Douglas Insurance</div>
+      <div class="login-logo-name">Producer's Commercial Toolkit</div>
+      <div class="login-logo-badge">YDI · Farmers · Kraft Lake</div>
+    </div>
+    <div class="lf"><label class="ll">Username</label><input class="li" type="text" id="loginUser" placeholder="Enter username" autocomplete="username" autocapitalize="none"></div>
+    <div class="lf"><label class="ll">Password</label><input class="li" type="password" id="loginPass" placeholder="Enter password" autocomplete="current-password"></div>
+    <button class="login-btn" onclick="doLogin()">Sign In →</button>
+    <div class="lerr" id="loginError">Incorrect username or password.</div>
+  </div>
+</div>
+
+<!-- CHANGE PASSWORD -->
+<div id="changePwScreen">
+  <div class="cpw-card">
+    <div class="cpw-title">👋 Welcome!</div>
+    <div class="cpw-sub">This is your first login. Please set a new password before continuing.</div>
+    <div class="lf"><label class="ll">New Password</label><input class="li" type="password" id="newPw1" placeholder="New password"></div>
+    <div class="lf"><label class="ll">Confirm Password</label><input class="li" type="password" id="newPw2" placeholder="Confirm new password"></div>
+    <button class="login-btn" onclick="doChangePw()" style="margin-top:8px">Set Password & Continue →</button>
+    <div class="lerr" id="pwError"></div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="appScreen" class="hidden">
+  <div class="app-header">
+    <div class="header-top">
+      <div>
+        <div class="brand-small">Young Douglas Insurance</div>
+        <div class="brand-big">Producer's Commercial Toolkit</div>
+        <div class="brand-tiny">Farmers · Kraft Lake · Legacy Protectors</div>
+      </div>
+      <div class="hdr">
+        <div class="user-pill" id="userPill">👤 —</div>
+        <button class="logout-btn" onclick="doLogout()">Sign Out</button>
+      </div>
+    </div>
+    <div class="pb-text" id="pbText"></div>
+    <div class="pb-wrap" id="pbWrap" style="display:none"><div class="pb-fill" id="pbFill"></div></div>
+    <div class="mode-tabs">
+      <button class="mode-tab active" onclick="switchMode('q')" id="tabQ">📋 Questionnaire</button>
+      <button class="mode-tab" onclick="switchMode('g')" id="tabG">🔍 Coverage Gaps</button>
+      <button class="mode-tab hidden" onclick="switchMode('a')" id="tabA">⚙️ Admin</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- QUESTIONNAIRE -->
+    <div id="modeQ">
+      <div class="ind-sel" onclick="toggleMenu()">
+        <div><div class="ind-lbl">Coverage Type</div><div class="ind-name" id="indDisplay">🏠 Homeowner</div></div>
+        <div style="font-size:20px;color:var(--muted)">▾</div>
+      </div>
+      <div class="ind-menu" id="indMenu"></div>
+      <div class="g2" style="margin-bottom:10px">
+        <div class="fw"><div class="fl">Client Name</div><input type="text" id="clientName" placeholder="Full name"></div>
+        <div class="fw"><div class="fl">Date</div><input type="text" id="clientDate"></div>
+      </div>
+      <div class="g2" style="margin-bottom:10px">
+        <div class="fw"><div class="fl">Phone</div><input type="text" id="clientPhone" placeholder="(xxx) xxx-xxxx"></div>
+        <div class="fw"><div class="fl">Current Carrier</div><input type="text" id="clientCarrier" placeholder="e.g. State Farm"></div>
+      </div>
+      <div id="qContainer"></div>
+      <div class="arow">
+        <button class="abtn btn-pri" onclick="emailQ()">📧 Email Summary</button>
+        <button class="abtn btn-sec" onclick="clearQ()">🗑 Clear</button>
+      </div>
+    </div>
+
+    <!-- GAP TOOL -->
+    <div id="modeG" style="display:none">
+      <div class="card">
+        <div class="ch"><span>🎯</span><h3>Coverage Gap Identifier</h3></div>
+        <div class="cb">
+          <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:12px">
+            <div class="g2">
+              <div class="fw"><div class="fl">Lead Type</div>
+                <select id="gLead">
+                  <option>Home</option><option>Auto</option><option>Commercial GL</option>
+                  <option>Workers Comp</option><option>Renters</option><option>Life</option>
+                  <option>Umbrella</option><option>Commercial Auto</option><option>BOP</option>
+                  <option>Landlord/Habitational</option><option>Restaurant</option>
+                  <option>Contractor</option><option>Barbershop/Salon</option><option>Food Truck</option>
+                </select>
+              </div>
+              <div class="fw"><div class="fl">Current Carrier</div>
+                <select id="gCarrier">
+                  <option value="">Unknown</option><option>State Farm</option><option>Allstate</option>
+                  <option>GEICO</option><option>Progressive</option><option>Liberty Mutual</option>
+                  <option>Nationwide</option><option>USAA</option><option>Travelers</option>
+                  <option>AAA</option><option>Mercury</option><option>21st Century</option>
+                  <option>Bristol West</option><option>Infinity</option><option>Kemper</option>
+                  <option>Dairyland</option><option>Lemonade</option><option>Other</option>
+                </select>
+              </div>
+            </div>
+            <div class="fw"><div class="fl">Known Coverage Info (optional)</div>
+              <textarea id="gKnown" placeholder="e.g. $300k dwelling, no umbrella, 100k liability, has a pool…" rows="3"></textarea>
+            </div>
+          </div>
+          <button class="analyze-btn" id="analyzeBtn" onclick="runGap()">🔍 Analyze Coverage Gaps</button>
+        </div>
+      </div>
+      <div id="gapResult"></div>
+    </div>
+
+    <!-- ADMIN -->
+    <div id="modeA" style="display:none">
+      <div class="atabs">
+        <button class="atab active" onclick="aTab('ov')" id="at-ov">📊 Overview</button>
+        <button class="atab" onclick="aTab('ac')" id="at-ac">📋 Activity</button>
+        <button class="atab" onclick="aTab('us')" id="at-us">👥 Users</button>
+        <button class="atab" onclick="aTab('au')" id="at-au">➕ Add User</button>
+      </div>
+      <div id="a-ov"></div>
+      <div id="a-ac" style="display:none"></div>
+      <div id="a-us" style="display:none"></div>
+      <div id="a-au" style="display:none">
+        <div class="card">
+          <div class="ch"><span>➕</span><h3>Add New User</h3></div>
+          <div class="cb" style="display:flex;flex-direction:column;gap:10px">
+            <div class="fw"><div class="fl">Full Name</div><input type="text" id="nuName" placeholder="e.g. Sarah Johnson"></div>
+            <div class="fw"><div class="fl">Username</div><input type="text" id="nuHandle" placeholder="e.g. sarah" autocapitalize="none"></div>
+            <div class="fw"><div class="fl">Temporary Password</div><input type="text" id="nuPw" placeholder="They'll change it on first login"></div>
+            <button class="fb fb-g" onclick="addUser()">➕ Add Producer</button>
+            <div class="smsg" id="auSuccess">✅ User added successfully!</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── USER STORE ──
+const DEFAULT_USERS = [
+  {u:'admin',     p:'YDI2026!', name:'LaMonte Douglas', role:'admin',    first:false},
+  {u:'joey',      p:'joey123',  name:'Joey',             role:'producer', first:true},
+  {u:'melissa',   p:'mel123',   name:'Melissa',          role:'producer', first:true},
+  {u:'stephanie', p:'steph123', name:'Stephanie',        role:'producer', first:true},
+  {u:'kim',       p:'kim123',   name:'Kim',              role:'producer', first:true},
+  {u:'tia',       p:'tia123',   name:'Tia',              role:'producer', first:true},
+];
+const getUsers = () => { try { return JSON.parse(localStorage.getItem('ydi_u')) || DEFAULT_USERS; } catch { return DEFAULT_USERS; } };
+const setUsers = u => localStorage.setItem('ydi_u', JSON.stringify(u));
+const getLog = () => { try { return JSON.parse(localStorage.getItem('ydi_l')) || []; } catch { return []; } };
+const setLog = l => localStorage.setItem('ydi_l', JSON.stringify(l.slice(0,500)));
+const log = (u, a, d='') => { const l = getLog(); l.unshift({u, a, d, t: Date.now()}); setLog(l); };
+
+// ── SESSION ──
+let CU = null, pendingPw = null;
+
+function doLogin() {
+  const u = document.getElementById('loginUser').value.trim().toLowerCase();
+  const p = document.getElementById('loginPass').value;
+  const match = getUsers().find(x => x.u === u && x.p === p);
+  document.getElementById('loginError').style.display = match ? 'none' : 'block';
+  if (!match) return;
+  if (match.first && match.role !== 'admin') {
+    pendingPw = match.u;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('changePwScreen').style.display = 'flex';
+    return;
+  }
+  loginOk(match);
+}
+
+function doChangePw() {
+  const p1 = document.getElementById('newPw1').value;
+  const p2 = document.getElementById('newPw2').value;
+  const err = document.getElementById('pwError');
+  if (p1.length < 5) { err.textContent = 'Password must be at least 5 characters.'; err.style.display = 'block'; return; }
+  if (p1 !== p2) { err.textContent = 'Passwords do not match.'; err.style.display = 'block'; return; }
+  const us = getUsers(); const i = us.findIndex(x => x.u === pendingPw);
+  us[i].p = p1; us[i].first = false; setUsers(us);
+  log(us[i].u, 'pw_change', 'First login password set');
+  document.getElementById('changePwScreen').style.display = 'none';
+  loginOk(us[i]);
+}
+
+function loginOk(user) {
+  CU = user; log(user.u, 'login');
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('changePwScreen').style.display = 'none';
+  document.getElementById('appScreen').classList.remove('hidden');
+  document.getElementById('userPill').textContent = '👤 ' + user.name;
+  if (user.role === 'admin') document.getElementById('tabA').classList.remove('hidden');
+  document.getElementById('clientDate').value = new Date().toLocaleDateString();
+  buildMenu(); renderQ(); switchMode('q');
+}
+
+function doLogout() {
+  if (CU) log(CU.u, 'logout');
+  CU = null; pendingPw = null;
+  document.getElementById('appScreen').classList.add('hidden');
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+  document.getElementById('loginError').style.display = 'none';
+  document.getElementById('tabA').classList.add('hidden');
+}
+
+document.getElementById('loginPass').addEventListener('keydown', e => { if (e.key==='Enter') doLogin(); });
+document.getElementById('loginUser').addEventListener('keydown', e => { if (e.key==='Enter') document.getElementById('loginPass').focus(); });
+
+// ── MODE SWITCHING ──
+function switchMode(m) {
+  ['Q','G','A'].forEach(x => document.getElementById('mode'+x).style.display = 'none');
+  document.getElementById('mode'+m.toUpperCase()).style.display = 'block';
+  ['Q','G','A'].forEach(x => document.getElementById('tab'+x).classList.toggle('active', x===m.toUpperCase()));
+  document.getElementById('pbWrap').style.display = m==='q' ? 'block' : 'none';
+  if (m!=='q') document.getElementById('pbText').textContent = '';
+  if (m==='q') updateProgress();
+  if (m==='a') { curATab='ov'; renderAdmin(); }
+  if (m==='g') log(CU.u, 'open_gap_tool');
+}
+
+// ── ADMIN ──
+let curATab = 'ov';
+const AMAP = {ov:'a-ov', ac:'a-ac', us:'a-us', au:'a-au'};
+function aTab(t) {
+  curATab = t;
+  Object.keys(AMAP).forEach(k => {
+    document.getElementById(AMAP[k]).style.display = k===t ? 'block' : 'none';
+    document.getElementById('at-'+k).classList.toggle('active', k===t);
+  });
+  renderAdmin();
+}
+
+function renderAdmin() {
+  const L = getLog(); const today = new Date().toDateString();
+  const todL = L.filter(x => new Date(x.t).toDateString()===today);
+  const producers = getUsers().filter(x=>x.role!=='admin');
+
+  if (curATab==='ov') {
+    document.getElementById('a-ov').innerHTML = `
+      <div class="sg">
+        <div class="sc"><div class="sn">${producers.length}</div><div class="sl">Producers</div></div>
+        <div class="sc"><div class="sn">${todL.length}</div><div class="sl">Actions Today</div></div>
+        <div class="sc"><div class="sn">${todL.filter(x=>x.a==='gap_run').length}</div><div class="sl">Gap Analyses Today</div></div>
+        <div class="sc"><div class="sn">${todL.filter(x=>x.a==='email_q').length}</div><div class="sl">Emails Sent Today</div></div>
+      </div>
+      <div class="card">
+        <div class="ch"><span>🏆</span><h3>Most Active Today</h3></div>
+        <div class="cb">${renderTopUsers(todL)}</div>
+      </div>`;
+  }
+
+  if (curATab==='ac') {
+    const ICONS={login:'🔑',logout:'👋',pw_change:'🔐',open_gap_tool:'🔍',email_q:'📧',gap_run:'🎯',view_q:'📋',reset_pw:'🔒',add_user:'➕',remove_user:'🗑'};
+    const LABS={login:'Signed in',logout:'Signed out',pw_change:'Changed password',open_gap_tool:'Opened Gap Tool',email_q:'Emailed questionnaire',gap_run:'Ran gap analysis',view_q:'Used questionnaire',reset_pw:'Password reset',add_user:'Added user',remove_user:'Removed user'};
+    document.getElementById('a-ac').innerHTML = `<div class="card"><div class="ch"><span>📋</span><h3>Activity Log</h3></div><div class="cb">` +
+      (L.length ? L.slice(0,100).map(x => {
+        const usr = getUsers().find(z=>z.u===x.u);
+        const nm = usr ? usr.name : x.u;
+        const d = new Date(x.t);
+        const ts = d.toDateString()===today ? d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : d.toLocaleDateString([],{month:'short',day:'numeric'})+' '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+        return `<div class="alog-row"><div class="alog-ico">${ICONS[x.a]||'•'}</div><div class="alog-info"><div class="alog-user">${nm}</div><div class="alog-act">${LABS[x.a]||x.a}${x.d?' — '+x.d:''}</div></div><div class="alog-time">${ts}</div></div>`;
+      }).join('') : '<div style="color:var(--muted);font-size:13px;padding:10px 0">No activity yet.</div>') +
+      `</div></div>`;
+  }
+
+  if (curATab==='us') {
+    document.getElementById('a-us').innerHTML = `<div class="card"><div class="ch"><span>👥</span><h3>Manage Users</h3></div><div class="cb">` +
+      producers.map(u => {
+        const last = L.find(x=>x.u===u.u);
+        const lastStr = last ? 'Last active '+new Date(last.t).toLocaleDateString() : 'No activity yet';
+        return `<div class="urow">
+          <div class="uav">${u.name.charAt(0)}</div>
+          <div class="uinfo"><div class="uname">${u.name}</div><div class="umeta">@${u.u} · ${lastStr}${u.first?' · <span style="color:var(--warn)">Needs PW reset</span>':''}</div></div>
+          <div class="uacts">
+            <button class="mb mb-w" onclick="resetPw('${u.u}')">Reset PW</button>
+            <button class="mb mb-r" onclick="removeUser('${u.u}')">Remove</button>
+          </div>
+        </div>`;
+      }).join('') +
+      `</div></div>`;
+  }
+}
+
+function renderTopUsers(todL) {
+  const c = {}; todL.forEach(x => { c[x.u] = (c[x.u]||0)+1; });
+  const s = Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  if (!s.length) return '<div style="color:var(--muted);font-size:13px;padding:10px 0">No activity today yet.</div>';
+  return s.map(([u,n]) => {
+    const usr = getUsers().find(x=>x.u===u);
+    return `<div class="alog-row"><div class="alog-ico">🔥</div><div class="alog-info"><div class="alog-user">${usr?usr.name:u}</div><div class="alog-act">${n} action${n>1?'s':''} today</div></div></div>`;
+  }).join('');
+}
+
+function resetPw(handle) {
+  const pw = prompt(`Set a temporary password for @${handle}:`);
+  if (!pw) return;
+  const us = getUsers(); const i = us.findIndex(x=>x.u===handle);
+  us[i].p = pw; us[i].first = true; setUsers(us);
+  log('admin','reset_pw',`Reset PW for @${handle}`);
+  alert(`✅ Password reset for @${handle}. They'll be prompted to change it on next login.`);
+  renderAdmin();
+}
+
+function removeUser(handle) {
+  if (!confirm(`Remove @${handle} from the toolkit? This cannot be undone.`)) return;
+  setUsers(getUsers().filter(x=>x.u!==handle));
+  log('admin','remove_user',`Removed @${handle}`);
+  renderAdmin();
+}
+
+function addUser() {
+  const name = document.getElementById('nuName').value.trim();
+  const handle = document.getElementById('nuHandle').value.trim().toLowerCase();
+  const pw = document.getElementById('nuPw').value.trim();
+  if (!name||!handle||!pw) { alert('Please fill in all fields.'); return; }
+  const us = getUsers();
+  if (us.find(x=>x.u===handle)) { alert(`@${handle} already exists.`); return; }
+  us.push({u:handle, p:pw, name, role:'producer', first:true}); setUsers(us);
+  log('admin','add_user',`Added @${handle} (${name})`);
+  document.getElementById('nuName').value=''; document.getElementById('nuHandle').value=''; document.getElementById('nuPw').value='';
+  const msg = document.getElementById('auSuccess'); msg.style.display='block';
+  setTimeout(()=>msg.style.display='none',3000);
+}
+
+// ── QUESTIONNAIRE DATA ──
+const IND = [
+  {id:'homeowner',icon:'🏠',name:'Homeowner',sections:[
+    {t:'Property Details',q:['Address and year built?','Own or financed? Lienholder name?','Square footage and number of stories?','Construction type: frame, stucco, brick?','Roof type and approximate age?','Any recent renovations or additions?']},
+    {t:'Coverage & Claims',q:['Current dwelling coverage amount?','Current liability limit?','Any claims in the past 3–5 years?','Any business activity run from home?']},
+    {t:'Special Exposures',q:['Pool, trampoline, or playground equipment?','Any dogs? Breed?','Rental of any portion (Airbnb, ADU)?','Solar panels installed?','Electric vehicle or golf cart on property?','Secondary structure — detached garage, guesthouse?']},
+    {t:'Discounts',q:['Smoke detectors, fire extinguishers installed?','Central alarm or monitored security system?','Multi-policy (auto + home)?']}
+  ]},
+  {id:'auto',icon:'🚗',name:'Personal Auto',sections:[
+    {t:'Vehicles',q:['Year, make, model of each vehicle?','Owned, financed, or leased?','Annual mileage per vehicle?','Vehicles garaged at home address?','Any classic, collectible, or modified vehicles?']},
+    {t:'Drivers',q:['All licensed drivers in household?','Any drivers under 25?','Any accidents, violations, or claims in past 5 years?','Good student or driver training discounts applicable?','Any drivers with SR-22 requirement?']},
+    {t:'Coverage & Discounts',q:['Current liability limits?','Current comp/collision deductibles?','Do you have rental reimbursement and roadside?','Rideshare (Uber/Lyft) use by any driver?','Multi-policy with home or renters?']}
+  ]},
+  {id:'renters',icon:'🛋',name:'Renters',sections:[
+    {t:'Living Situation',q:['Apartment, condo, or house rental?','Monthly rent amount?','Any roommates sharing the unit?','Any home office or business equipment?']},
+    {t:'Coverage Needs',q:['Estimated value of personal belongings?','Any jewelry, electronics, or collectibles of high value?','Current liability limit?','Any pets? Breed?','Landlord require minimum liability amount?']}
+  ]},
+  {id:'restaurant',icon:'🍽',name:'Restaurant',sections:[
+    {t:'Business Overview',q:['Full-service, fast casual, or counter-serve?','Seating capacity and square footage?','Annual gross revenue?','Years in business?','Own or lease the space?']},
+    {t:'Operations',q:['Do you serve alcohol? Beer/wine only or full liquor?','Delivery in-house or third-party (DoorDash, Uber Eats)?','Catering or off-site events?','How many full-time and part-time employees?','Open kitchen, wood-fired oven, or deep fryers?']},
+    {t:'Equipment & Property',q:['Value of kitchen equipment?','Walk-in coolers or refrigeration units?','Any food spoilage coverage currently?','POS system and tech equipment value?','Outdoor seating or patio?']},
+    {t:'Risk & Claims',q:['Any slip/fall or liability claims in past 5 years?','Current GL and liquor liability limits?','Any employees driving for deliveries?','Health department inspection score?']}
+  ]},
+  {id:'contractor',icon:'🔨',name:'Contractor',sections:[
+    {t:'Business Info',q:['Type of work: general, electrical, plumbing, HVAC, roofing, painting?','Residential, commercial, or both?','Annual gross revenue?','Years in business?','CSLB license number and class?']},
+    {t:'Workforce',q:['Number of W-2 employees?','Any 1099 subcontractors? Do they carry their own insurance?','Do employees drive to jobsites? Company vehicles?','Payroll amount for workers\' comp?']},
+    {t:'Equipment & Tools',q:['Tools and equipment value?','Any owned trailers or heavy equipment?','Equipment stored at yard, shop, or on vehicles?','Any rented or borrowed equipment?']},
+    {t:'Project Exposure',q:['Largest single contract value?','Any work over 3 stories or on bridges/tunnels?','Wrap-up or OCIP projects?','Any claims or lawsuits in past 5 years?','Current GL limit and any additional insured requirements?']}
+  ]},
+  {id:'barbershop',icon:'✂️',name:'Barbershop / Salon',sections:[
+    {t:'Business Structure',q:['Owner-operator or employees/booth renters?','How many chairs or stations?','Own or lease the space?','Square footage?','Annual gross revenue?']},
+    {t:'Services Offered',q:['Hair only or also nails, waxing, facials, lashes?','Any chemical services: relaxers, color, keratin treatments?','Tattoo or piercing services?','Any medical-aesthetic services: laser, Botox, microneedling?']},
+    {t:'Liability & Coverage',q:['Current GL limit?','Do booth renters carry their own liability?','Any professional liability (malpractice) coverage?','Any claims in past 3 years?']}
+  ]},
+  {id:'foodtruck',icon:'🚚',name:'Food Truck',sections:[
+    {t:'Operations',q:['Type of cuisine served?','How many trucks or trailers?','Year and value of the truck?','Annual gross revenue?','Regular spots or events/catering?']},
+    {t:'Coverage Needs',q:['Current commercial auto on the truck?','GL coverage for food prep and service?','Product liability?','Any employees or just owner-operated?','Do you park overnight at commissary or home?']},
+    {t:'Equipment',q:['Value of cooking equipment on truck?','Generator owned separately?','Any food spoilage coverage?']}
+  ]},
+  {id:'habitational',icon:'🏢',name:'Habitational / Apartments',sections:[
+    {t:'Property Details',q:['Number of units?','Year built and construction type?','Current replacement cost value?','Own or have a mortgage? Lender name?','Any commercial space on ground floor?']},
+    {t:'Tenants & Operations',q:['Vacancy rate?','Section 8 or subsidized tenants?','Short-term rentals allowed (Airbnb)?','On-site manager?']},
+    {t:'Building Systems',q:['Roof age and type?','Plumbing: copper, galvanized, or PVC?','Electrical: updated panels?','HVAC system age?','Pool, elevator, laundry on site?']},
+    {t:'Claims & Coverage',q:['Any claims in past 5 years?','Current liability limit?','Loss of rents coverage in place?','Any California earthquake policy?']}
+  ]},
+  {id:'commauto',icon:'🚐',name:'Commercial Auto',sections:[
+    {t:'Fleet Info',q:['How many vehicles? Types?','Owned, financed, leased, or hired/non-owned?','Radius of operations: local, regional, or long-haul?','Any DOT number or MC authority required?']},
+    {t:'Drivers',q:['Number of drivers?','Youngest driver and MVR issues?','CDL required for any vehicle?','Hired drivers or employees only?']},
+    {t:'Cargo & Use',q:['What is typically transported?','Any hazmat or temperature-controlled cargo?','Any passenger transport?','Current liability limit?']}
+  ]},
+  {id:'wc',icon:'🦺',name:'Workers\' Comp',sections:[
+    {t:'Business Info',q:['Type of business and industry?','Number of W-2 employees?','Total annual payroll?','Any subcontractors? Do they carry their own WC?']},
+    {t:'Operations & Risk',q:['Type of work performed — office, field, manual labor?','Any employees working at heights or with heavy machinery?','Prior claims history — any open claims?','Experience Modification Rate (XMOD) if known?']},
+    {t:'Coverage Details',q:['Current carrier and policy expiration?','Any states outside California?','Officers electing to include or exclude themselves?']}
+  ]},
+  {id:'bop',icon:'🏪',name:'BOP / Retail / Office',sections:[
+    {t:'Business Details',q:['Type of business?','Own or lease the space? Square footage?','Annual gross revenue?','Years in operation?']},
+    {t:'Property',q:['Business personal property value (inventory, equipment, furniture)?','Any high-value items: computers, A/V equipment, machinery?','Signs, outdoor property covered?','Any off-premises property?']},
+    {t:'Liability',q:['Foot traffic in the location?','Products sold to customers?','Professional services or advice given?','Any claims in past 5 years?','Current GL limit?']}
+  ]},
+  {id:'life',icon:'❤️',name:'Life Insurance',sections:[
+    {t:'Personal Info',q:['Age and health status — any major conditions?','Tobacco use in past 12 months?','Height and weight?','Occupation and income?']},
+    {t:'Coverage Needs',q:['Primary goal: income replacement, mortgage, final expenses, or estate?','Spouse or dependents to protect?','Any existing life policies?','Business owner — key man or buy-sell need?']},
+    {t:'Policy Preferences',q:['Preference: term or permanent?','Desired coverage amount?','Monthly budget for premium?']}
+  ]},
+  {id:'umbrella',icon:'☂️',name:'Umbrella / Excess',sections:[
+    {t:'Assets & Exposure',q:['Total net worth / assets to protect?','Own rental properties?','Any teenage drivers in household?','Pool, trampoline, or boat?','Public-facing role or frequently travel?']},
+    {t:'Underlying Coverage',q:['Current auto liability limits?','Current home liability limits?','Any watercraft or RV policies?','Current umbrella limit and carrier?']}
+  ]},
+  {id:'medicare',icon:'💊',name:'Medicare / Senior',sections:[
+    {t:'Eligibility & Status',q:['Current age and Medicare Part A/B enrollment?','Still working or fully retired?','Any employer group health coverage still active?']},
+    {t:'Health Needs',q:['Primary care doctor — in network?','Any specialist or ongoing treatment needs?','Prescription medications — need drug coverage?','Prefer low premium or low out-of-pocket?']},
+    {t:'Current Coverage',q:['Currently on Medicare Advantage, Supplement, or Original Medicare?','Any dental, vision, or hearing needs?','Budget for monthly premium?']}
+  ]},
+  {id:'autorepair',icon:'🔧',name:'Auto Repair Shop',sections:[
+    {t:'Business Operations',q:['Services offered: general repair, body work, paint, towing, tires, oil, detailing?','Years in business?','Number of employees and roles?','Annual gross revenues?','Subcontract any work out?']},
+    {t:'Premises & Equipment',q:['Own or lease? Square footage?','Number of service bays?','Paint booth or spray area on-site?','Welding, lifts, diagnostic equipment?','Hazardous material storage and disposal method?']},
+    {t:'Garagekeepers Exposure',q:['How many customer vehicles on-site at any time?','Max value of a single customer vehicle?','Vehicles stored inside or outside? Lot fenced and lit?','Do employees test-drive vehicles on public roads?']},
+    {t:'Auto & Liability',q:['Any owned business vehicles or tow trucks?','Loaner vehicles offered?','Current GL and garagekeepers limits?','Any claims in past 5 years?']}
+  ]}
+];
+
+// ── QUESTIONNAIRE ──
+let AI = IND[0], mOpen=false, ANS={};
+
+function buildMenu() {
+  document.getElementById('indMenu').innerHTML = IND.map(i=>
+    `<div class="ind-opt ${i.id===AI.id?'sel':''}" onclick="selInd('${i.id}')"><span style="font-size:18px;width:24px;text-align:center">${i.icon}</span> ${i.name}</div>`
+  ).join('');
+}
+function toggleMenu() { mOpen=!mOpen; document.getElementById('indMenu').classList.toggle('open',mOpen); }
+function selInd(id) {
+  AI = IND.find(x=>x.id===id);
+  document.getElementById('indDisplay').textContent = `${AI.icon} ${AI.name}`;
+  mOpen=false; document.getElementById('indMenu').classList.remove('open');
+  buildMenu(); renderQ();
+  log(CU.u,'view_q',AI.name);
+}
+function renderQ() {
+  let html='';
+  AI.sections.forEach((s,si)=>{
+    html+=`<div class="card" style="margin-bottom:10px"><div class="cb"><div class="sec-title">${s.t}</div><div style="padding-top:6px">`;
+    s.q.forEach((q,qi)=>{
+      const k=`${AI.id}-${si}-${qi}`, v=ANS[k]||'';
+      html+=`<div class="qi"><div class="qt">${q}</div><textarea class="qa" rows="2" placeholder="Notes…" onchange="sa('${k}',this.value)" oninput="sa('${k}',this.value)">${v}</textarea></div>`;
+    });
+    html+=`</div></div></div>`;
+  });
+  document.getElementById('qContainer').innerHTML=html;
+  updateProgress();
+}
+function sa(k,v) { ANS[k]=v; updateProgress(); }
+function updateProgress() {
+  let total=0, filled=0;
+  AI.sections.forEach((s,si)=>s.q.forEach((q,qi)=>{ total++; if((ANS[`${AI.id}-${si}-${qi}`]||'').trim()) filled++; }));
+  const pct=total?Math.round(filled/total*100):0;
+  document.getElementById('pbFill').style.width=pct+'%';
+  document.getElementById('pbWrap').style.display='block';
+  document.getElementById('pbText').textContent=`${filled}/${total} answered`;
+}
+function clearQ() {
+  if(!confirm('Clear all answers for this questionnaire?')) return;
+  AI.sections.forEach((s,si)=>s.q.forEach((q,qi)=>delete ANS[`${AI.id}-${si}-${qi}`]));
+  document.querySelectorAll('.qa').forEach(e=>e.value='');
+  updateProgress();
+}
+function emailQ() {
+  const nm=document.getElementById('clientName').value||'Prospect';
+  const dt=document.getElementById('clientDate').value;
+  const ph=document.getElementById('clientPhone').value;
+  const ca=document.getElementById('clientCarrier').value;
+  let body=`YDI CLIENT QUESTIONNAIRE\n${AI.icon} ${AI.name}\n${'='.repeat(28)}\nClient: ${nm}\nDate: ${dt}\nPhone: ${ph}\nCurrent Carrier: ${ca}\nProducer: ${CU.name}\n\n`;
+  AI.sections.forEach((s,si)=>{
+    body+=`-- ${s.t.toUpperCase()} --\n`;
+    s.q.forEach((q,qi)=>{ body+=`Q: ${q}\nA: ${ANS[`${AI.id}-${si}-${qi}`]||'—'}\n\n`; });
+  });
+  log(CU.u,'email_q',`${AI.name} — ${nm}`);
+  window.location.href=`mailto:lamonte@legacyprotectorsins.com?subject=${encodeURIComponent(`YDI Questionnaire – ${nm} (${AI.name})`)}&body=${encodeURIComponent(body)}`;
+}
+
+// ── GAP TOOL ──
+async function runGap() {
+  const btn=document.getElementById('analyzeBtn');
+  const lt=document.getElementById('gLead').value;
+  const ca=document.getElementById('gCarrier').value||'unknown carrier';
+  const kn=document.getElementById('gKnown').value;
+  const res=document.getElementById('gapResult');
+  btn.disabled=true;
+  res.innerHTML=`<div class="lanim"><div class="spinner"></div><div class="ltxt">Analyzing coverage gaps…</div></div>`;
+  log(CU.u,'gap_run',`${lt} / ${ca}`);
+  const prompt=`You are an expert insurance coverage analyst for Young Douglas Insurance (YDI), a Farmers Insurance agency in the Inland Empire, CA. They also write independent lines through Kraft Lake Insurance.\nA producer needs help spotting coverage gaps:\n- Coverage Type: ${lt}\n- Current Carrier: ${ca}\n- Known Coverage Info: ${kn||'none provided'}\nRespond ONLY with valid JSON (no markdown, no backticks):\n{"gaps":[{"name":"","severity":"high|medium|low","description":""}],"questions":[""],"farmers_advantages":[{"title":"","body":""}],"quick_pitch":""}\nProvide 3–5 gaps, 4–6 questions, 2–3 advantages. 1–2 sentences max per description.`;
+  try {
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
+    const d=await r.json();
+    const txt=d.content.map(b=>b.text||'').join('');
+    const p=JSON.parse(txt.replace(/```json|```/g,'').trim());
+    let h='';
+    if(p.quick_pitch) h+=`<div class="card" style="margin-bottom:10px"><div class="ch"><span>💡</span><h3>Sales Angle</h3></div><div class="cb" style="font-size:14px;line-height:1.6;color:var(--navy);font-weight:600">${p.quick_pitch}</div></div>`;
+    if(p.gaps?.length){
+      h+=`<div class="card" style="margin-bottom:10px"><div class="ch"><span>⚠️</span><h3>Coverage Gaps Found</h3></div><div class="cb">`;
+      p.gaps.forEach(g=>{ h+=`<div class="gap-card"><div class="gct"><div class="gcn">${g.name}</div><span class="badge b${g.severity.charAt(0)}">${g.severity.toUpperCase()}</span></div><div class="gcd">${g.description}</div></div>`; });
+      h+=`</div></div>`;
+    }
+    if(p.questions?.length){
+      h+=`<div class="card" style="margin-bottom:10px"><div class="ch"><span>❓</span><h3>Questions to Ask</h3></div><div class="cb">`;
+      p.questions.forEach(q=>{ h+=`<div class="qpill">• ${q}</div>`; });
+      h+=`</div></div>`;
+    }
+    if(p.farmers_advantages?.length){
+      h+=`<div class="card" style="margin-bottom:10px"><div class="ch"><span>🌾</span><h3>Farmers / YDI Advantage</h3></div><div class="cb">`;
+      p.farmers_advantages.forEach(a=>{ h+=`<div class="fcard"><div class="fct">${a.title}</div><div class="fcb">${a.body}</div></div>`; });
+      h+=`</div></div>`;
+    }
+    res.innerHTML=h;
+  } catch(e) {
+    res.innerHTML=`<div class="ebox">⚠️ Analysis failed. Check connection and try again.<br><small>${e.message}</small></div>`;
+  }
+  btn.disabled=false;
+}
+</script>
+</body>
+</html>
