@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YDI Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+[data-theme="dark"] {
+  --bg:#0a1628;--bg2:#111f38;--bg3:#172847;--bg4:#1e3356;
+  --gold:#f0a500;--gold2:#fbbf24;--gdim:rgba(240,165,0,0.1);
+  --green:#10b981;--red:#ef4444;--blue:#3b82f6;--purple:#8b5cf6;
+  --text:#e2e8f4;--muted:#6b82a0;--border:rgba(255,255,255,0.07);
+}
+[data-theme="light"] {
+  --bg:#f0f4f8;--bg2:#ffffff;--bg3:#f5f7fa;--bg4:#e8edf5;
+  --gold:#c47d00;--gold2:#d4890a;--gdim:rgba(196,125,0,0.08);
+  --green:#059669;--red:#dc2626;--blue:#2563eb;--purple:#7c3aed;
+  --text:#1a2433;--muted:#64748b;--border:rgba(0,0,0,0.1);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;overflow:hidden;transition:background .2s,color .2s;}
+.app{display:flex;height:100vh;}
+
+/* SIDEBAR */
+.sidebar{width:214px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;}
+.logo-area{padding:14px 14px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.logo-img{height:32px;width:auto;object-fit:contain;flex-shrink:0;}
+.logo-img-dark{display:block;}
+.logo-img-light{display:none;}
+[data-theme="light"] .logo-img-dark{display:none;}
+[data-theme="light"] .logo-img-light{display:block;}
+.logo-text .t1{font-size:13px;font-weight:600;color:var(--text);}
+.logo-text .t2{font-size:10px;color:var(--muted);margin-top:1px;}
+.nav-sec{padding:10px 8px 2px;}
+.nav-lbl{font-size:9px;font-weight:600;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;padding:0 6px;margin-bottom:3px;}
+.nb{display:flex;align-items:center;gap:8px;width:100%;padding:7px 8px;border-radius:7px;border:none;background:transparent;color:var(--muted);font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;text-align:left;transition:all .15s;margin-bottom:1px;}
+.nb .ic{width:24px;height:24px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;background:rgba(128,128,128,.1);}
+.nb:hover{background:var(--gdim);color:var(--text);}
+.nb.active{background:var(--gdim);color:var(--gold);font-weight:500;}
+.sidebar-foot{margin-top:auto;padding:10px;border-top:1px solid var(--border);display:flex;flex-direction:column;gap:6px;}
+.theme-row{display:flex;align-items:center;justify-content:space-between;}
+.theme-lbl{font-size:10px;color:var(--muted);}
+.theme-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:4px 9px;border-radius:5px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.theme-btn:hover{border-color:var(--gold);color:var(--gold);}
+.save-btn{width:100%;padding:8px;background:var(--gold);color:#0a1628;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.save-btn:hover{background:var(--gold2);}
+.save-btn:disabled{opacity:.4;cursor:not-allowed;}
+.save-st{font-size:10px;color:var(--muted);text-align:center;min-height:13px;}
+
+/* MAIN */
+.main{flex:1;overflow:hidden;display:flex;flex-direction:column;}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:9px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:12px;}
+.tb-left{display:flex;align-items:center;gap:10px;}
+.page-title{font-size:14px;font-weight:500;color:var(--text);}
+.page-sub{font-size:10px;color:var(--muted);margin-top:1px;}
+.pills{display:flex;gap:6px;}
+.pill{font-size:10px;padding:3px 9px;border-radius:999px;font-weight:500;white-space:nowrap;}
+.p-gold{background:rgba(240,165,0,.15);color:var(--gold);}
+.p-green{background:rgba(16,185,129,.15);color:var(--green);}
+.p-blue{background:rgba(59,130,246,.15);color:var(--blue);}
+.p-muted{background:rgba(107,130,160,.15);color:var(--muted);}
+
+/* USER SELECTOR */
+.user-sel{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:7px;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer;min-width:130px;}
+
+/* CONTENT */
+.content{flex:1;overflow:hidden;position:relative;}
+.panel{position:absolute;inset:0;overflow-y:auto;display:none;padding:16px;}
+.panel.active{display:block;}
+.app-panel{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:var(--bg);}
+.app-panel.active{display:flex;}
+
+/* LAUNCH CARD */
+.launch-card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:32px;max-width:400px;width:100%;text-align:center;}
+.lc-logo{height:40px;margin:0 auto 12px;display:block;}
+.lc-icon{font-size:36px;margin-bottom:10px;}
+.lc-title{font-size:17px;font-weight:600;color:var(--text);margin-bottom:6px;}
+.lc-desc{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:18px;}
+.lc-url{font-size:10px;font-family:'DM Mono',monospace;color:var(--muted);background:var(--bg3);padding:6px 10px;border-radius:5px;margin-bottom:16px;word-break:break-all;}
+.open-btn{display:inline-flex;align-items:center;gap:6px;background:var(--gold);color:#0a1628;border:none;padding:10px 22px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;}
+.open-btn:hover{background:var(--gold2);}
+
+/* SECTIONS */
+.sec{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px;}
+.sec-hd{font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.09em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;}
+.sec-hd span{font-weight:400;text-transform:none;letter-spacing:0;font-size:11px;}
+
+/* STAT CARDS */
+.stats-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:12px;}
+.stat{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:13px;}
+.stat-lbl{font-size:10px;color:var(--muted);margin-bottom:5px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;}
+.stat-val{font-size:24px;font-weight:600;color:var(--text);line-height:1;}
+.stat-sub{font-size:10px;color:var(--muted);margin-top:3px;}
+.stat.gold .stat-val{color:var(--gold);}
+.stat.green .stat-val{color:var(--green);}
+.stat.blue .stat-val{color:var(--blue);}
+.stat.purple .stat-val{color:var(--purple);}
+
+/* FOLIO STATS */
+.folio-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:12px;}
+.folio-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:13px;}
+.folio-lbl{font-size:10px;color:var(--muted);margin-bottom:5px;font-weight:500;letter-spacing:.04em;text-transform:uppercase;}
+.folio-val{font-size:22px;font-weight:600;color:var(--text);line-height:1;}
+.folio-sub{font-size:10px;color:var(--muted);margin-top:3px;}
+.folio-input{font-size:20px;font-weight:600;color:var(--text);background:transparent;border:none;width:100%;font-family:'DM Sans',sans-serif;padding:0;outline:none;}
+.folio-input:focus{color:var(--gold);}
+
+/* PRODUCER KPI TABLE */
+.kpi-table{width:100%;border-collapse:collapse;}
+.kpi-table th{font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;text-align:left;padding:6px 8px;border-bottom:1px solid var(--border);}
+.kpi-table td{padding:8px;border-bottom:1px solid var(--border);font-size:12px;color:var(--text);}
+.kpi-table tr:last-child td{border-bottom:none;}
+.kpi-table tr:hover td{background:var(--bg3);}
+.kpi-input{background:transparent;border:none;color:var(--text);font-size:12px;font-family:'DM Sans',sans-serif;width:80px;padding:3px 6px;border-radius:4px;text-align:right;}
+.kpi-input:focus{background:var(--bg3);outline:none;color:var(--gold);}
+.score-badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:600;}
+.sb-green{background:rgba(16,185,129,.15);color:var(--green);}
+.sb-gold{background:rgba(240,165,0,.15);color:var(--gold);}
+.sb-red{background:rgba(239,68,68,.15);color:var(--red);}
+.sb-muted{background:rgba(107,130,160,.15);color:var(--muted);}
+
+/* APPS GRID */
+.apps-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:12px;}
+.app-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:13px;cursor:pointer;transition:all .15s;}
+.app-card:hover{border-color:var(--gold);background:var(--gdim);}
+.ac-icon{font-size:18px;margin-bottom:7px;}
+.ac-title{font-size:12px;font-weight:500;color:var(--text);margin-bottom:2px;}
+.ac-desc{font-size:10px;color:var(--muted);line-height:1.4;}
+
+/* CONFIG TABLE */
+.cfg-table{width:100%;border-collapse:collapse;}
+.cfg-table th{font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.07em;text-transform:uppercase;text-align:center;padding:6px 8px;border-bottom:1px solid var(--border);}
+.cfg-table th:first-child{text-align:left;}
+.cfg-table td{padding:8px;border-bottom:1px solid var(--border);text-align:center;font-size:12px;}
+.cfg-table td:first-child{text-align:left;color:var(--text);font-weight:500;}
+.cfg-table tr:last-child td{border-bottom:none;}
+
+/* TOGGLE */
+.tgl{position:relative;width:34px;height:19px;flex-shrink:0;}
+.tgl input{opacity:0;width:0;height:0;}
+.tgl-s{position:absolute;inset:0;background:var(--bg4);border-radius:999px;cursor:pointer;transition:.2s;border:1px solid var(--border);}
+.tgl input:checked+.tgl-s{background:var(--green);border-color:var(--green);}
+.tgl-s:before{content:'';position:absolute;width:13px;height:13px;left:2px;bottom:2px;background:white;border-radius:50%;transition:.2s;}
+.tgl input:checked+.tgl-s:before{transform:translateX(15px);}
+.tgl-inline{display:inline-flex;align-items:center;}
+
+/* TOGGLE ROW */
+.tgl-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);}
+.tgl-row:last-child{border-bottom:none;}
+.tgl-info{flex:1;}
+.tgl-label{font-size:13px;font-weight:500;color:var(--text);}
+.tgl-desc{font-size:11px;color:var(--muted);margin-top:1px;}
+
+/* FORMS */
+input,select.full{width:100%;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:7px 9px;border-radius:6px;font-size:12px;font-family:'DM Sans',sans-serif;}
+input:focus,select.full:focus{outline:none;border-color:var(--gold);}
+.fg{display:grid;gap:7px;margin-bottom:7px;}
+.fg2{grid-template-columns:1fr 1fr;}
+.fg3{grid-template-columns:1fr 1fr 1fr;}
+.btn{padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text);font-family:'DM Sans',sans-serif;}
+.btn:hover{background:var(--bg3);}
+.btn-gold{background:var(--gold);color:#0a1628;border-color:transparent;font-weight:500;}
+.btn-gold:hover{background:var(--gold2);}
+.btn-sm{padding:4px 10px;font-size:11px;}
+.btn-danger{color:var(--red);border-color:rgba(239,68,68,.3);}
+.btn-danger:hover{background:rgba(239,68,68,.1);}
+
+/* ADD APP MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:999;align-items:center;justify-content:center;}
+.modal-bg.open{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:22px;width:420px;max-width:90vw;}
+.modal-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:14px;}
+
+/* PRODUCER DASHBOARD */
+.pd-header{display:flex;align-items:center;gap:14px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px;}
+.pd-avatar{width:44px;height:44px;border-radius:50%;background:rgba(59,130,246,.15);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:600;color:var(--blue);flex-shrink:0;}
+.pd-name{font-size:16px;font-weight:600;color:var(--text);}
+.pd-role{font-size:11px;color:var(--muted);margin-top:2px;}
+
+/* LOADING */
+.loading{display:flex;align-items:center;justify-content:center;height:80px;color:var(--muted);font-size:12px;}
+
+/* SLIDER */
+.sldr-row{display:flex;align-items:center;gap:10px;}
+.sldr-row input[type=range]{flex:1;}
+.sldr-val{font-size:13px;font-weight:500;color:var(--gold);min-width:34px;font-family:'DM Mono',monospace;}
+
+/* STATUS ROW */
+.st-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);}
+.st-row:last-child{border-bottom:none;}
+.st-info{flex:1;}
+.st-label{font-size:12px;font-weight:500;color:var(--text);}
+.st-desc{font-size:10px;color:var(--muted);margin-top:1px;}
+
+/* PRODUCER CARDS in LaMonte KPI */
+.prod-kpi-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-bottom:12px;}
+.prod-kpi-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px;}
+.pkc-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.pkc-avatar{width:28px;height:28px;border-radius:50%;background:rgba(59,130,246,.15);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:var(--blue);}
+.pkc-name{font-size:13px;font-weight:500;color:var(--text);}
+.pkc-status{font-size:10px;}
+.pkc-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
+.pkc-stat{background:var(--bg3);border-radius:6px;padding:7px 8px;text-align:center;}
+.pkc-sl{font-size:9px;color:var(--muted);margin-bottom:2px;text-transform:uppercase;letter-spacing:.05em;}
+.pkc-sv{font-size:14px;font-weight:600;color:var(--text);}
+.pkc-sv.gold{color:var(--gold);}
+.pkc-sv.green{color:var(--green);}
+.pkc-sv.blue{color:var(--blue);}
+
+/* FOLIO HEADER BAR */
+.folio-bar{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.folio-bar-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:600;}
+.folio-name-input{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:5px 10px;border-radius:6px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;width:180px;}
+.folio-date-input{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:5px 10px;border-radius:6px;font-size:12px;font-family:'DM Sans',sans-serif;width:140px;}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="logo-area">
+    <img class="logo-img logo-img-dark"
+      src="https://lamonte-dot.github.io/YDI-BATTLE-ROYALE/YDI_NewLogo_2026_WhiteBG.png"
+      onerror="this.style.display='none'"
+      alt="YDI">
+    <img class="logo-img logo-img-light"
+      src="https://lamonte-dot.github.io/YDI-BATTLE-ROYALE/YDI_NewLogo_2026_WhiteBG.png"
+      onerror="this.style.display='none'"
+      alt="YDI">
+    <div class="logo-text">
+      <div class="t1">Command Center</div>
+      <div class="t2">Legacy Protectors Insurance</div>
+    </div>
+  </div>
+  <div id="sidebar-nav"></div>
+  <div class="sidebar-foot">
+    <div class="theme-row">
+      <span class="theme-lbl" id="theme-lbl">Dark mode</span>
+      <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">☀ Light</button>
+    </div>
+    <button class="save-btn" id="save-btn" onclick="saveConfig()" disabled>Save Changes</button>
+    <div class="save-st" id="save-st">Loading...</div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="tb-left">
+      <div>
+        <div class="page-title" id="page-title">Command Center</div>
+        <div class="page-sub" id="page-sub">Young Douglas Insurance — Inland Empire, CA</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div class="pills" id="top-pills"></div>
+      <select class="user-sel" id="user-sel" onchange="switchUser(this.value)">
+        <option value="lamonte">LaMonte (Admin)</option>
+        <option value="melissa">Melissa</option>
+        <option value="joey">Joey</option>
+        <option value="stephanie">Stephanie</option>
+        <option value="kim">Kim</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="content" id="main-content">
+    <div class="panel active" id="panel-overview"></div>
+    <div class="panel" id="panel-coach"></div>
+    <div class="panel" id="panel-folio"></div>
+    <div class="panel" id="panel-config"></div>
+    <div class="panel" id="panel-producer-dash"></div>
+  </div>
+</div>
+</div>
+
+<!-- ADD APP MODAL -->
+<div class="modal-bg" id="add-app-modal">
+  <div class="modal">
+    <div class="modal-title">Add New App</div>
+    <div class="fg fg2" style="margin-bottom:8px">
+      <input type="text" id="app-icon" placeholder="📱 Icon emoji" style="text-align:center;font-size:18px" maxlength="2">
+      <input type="text" id="app-title" placeholder="App name">
+    </div>
+    <input type="text" id="app-desc" placeholder="Short description" style="width:100%;margin-bottom:8px">
+    <input type="url" id="app-url" placeholder="https://..." style="width:100%;margin-bottom:8px">
+    <div class="fg fg2" style="margin-bottom:14px">
+      <select id="app-section" class="full">
+        <option value="tools">Tools</option>
+        <option value="resources">Resources</option>
+        <option value="reports">Reports</option>
+      </select>
+      <input type="text" id="app-sec-custom" placeholder="Or new section name">
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-gold" style="flex:1" onclick="confirmAddApp()">Add App</button>
+      <button class="btn" onclick="closeModal('add-app-modal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// APPS CONFIG — Add new apps here only
+// ══════════════════════════════════════════════════════════
+const APPS = [
+  { id:"script",   icon:"📋", title:"Live Script",      desc:"ISL One-Call Close — use during every call",        url:"https://lamonte-dot.github.io/ydi-quote-form/ydi-call-script.html",        section:"tools" },
+  { id:"battle",   icon:"🏆", title:"Battle Royale",    desc:"Gamified sales leaderboard",                        url:"https://lamonte-dot.github.io/YDI-BATTLE-ROYALE",                          section:"tools" },
+  { id:"coverage", icon:"🛡️", title:"Coverage Tool",    desc:"Coverage gap reference by insurance line",          url:"https://lamonte-dot.github.io/ydi-quote-form/ydi-coverage-tool.html",      section:"tools" },
+  { id:"quote",    icon:"📝", title:"Quote Form",       desc:"Auto, home, life, commercial intake",               url:"https://lamonte-dot.github.io/ydi-quote-form/ydi-universal-quote-final.html", section:"tools" },
+  // ── To add a new app, copy and fill in a block like these above ──
+];
+
+const WORKER = "https://ydi-call-coach.lamonte.workers.dev";
+const KEY    = "ydi-coach-2026";
+const LOGO   = "https://lamonte-dot.github.io/YDI-BATTLE-ROYALE/YDI_NewLogo_2026_WhiteBG.png";
+
+const PRODUCERS = ["melissa","joey","stephanie","kim"];
+const KPI_LABELS = [
+  "3x 'Yes' in first 30s","Eligibility / replacement cost",
+  "Discussed 2-3 similarities","Filled 2-3 coverage gaps",
+  "Gave WHY statement","Auto similarities & differences",
+  "Positive prospect responses","Ran all quoting platforms",
+  "No pause after price","Asked for payment method",
+  "Overcame objection + re-asked","Asked for referral",
+  "No dead air","Upbeat tone","Discussed life insurance"
+];
+
+let config = null;
+let currentUser = "lamonte";
+let dirty = false;
+
+const DEFAULT_CONFIG = {
+  producers:[
+    {name:"melissa",email:"melissa@legacyprotectorsins.com",phone:"9099720630",status:"trial"},
+    {name:"joey",   email:"joey@legacyprotectorsins.com",   phone:"9094432188",status:"active"},
+    {name:"stephanie",email:"stephanie@legacyprotectorsins.com",phone:"9092956944",status:"active"},
+    {name:"kim",    email:"kim@legacyprotectorsins.com",    phone:"9093243909",status:"active"},
+  ],
+  trial:{enabled:true,producer:"melissa"},
+  minDuration:60,
+  kpis:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
+  folio:{
+    name:"April 2026 Folio",
+    startDate:"2026-04-01",
+    endDate:"2026-04-30",
+    totalPolicies:0,
+    totalPremium:0,
+    producers:{
+      melissa:{policies:0,premium:0,calls:0,avgScore:0},
+      joey:   {policies:0,premium:0,calls:0,avgScore:0},
+      stephanie:{policies:0,premium:0,calls:0,avgScore:0},
+      kim:    {policies:0,premium:0,calls:0,avgScore:0},
+    }
+  },
+  userViews:{
+    melissa:  {apps:["script","quote","coverage","battle"],showScore:true,showFolio:true},
+    joey:     {apps:["script","quote","coverage","battle"],showScore:true,showFolio:true},
+    stephanie:{apps:["script","quote","coverage","battle"],showScore:true,showFolio:true},
+    kim:      {apps:["script","quote","coverage","battle"],showScore:true,showFolio:true},
+  }
+};
+
+// ══════════════════════════════════════════════════════════
+// THEME
+// ══════════════════════════════════════════════════════════
+function toggleTheme(){
+  const d=document.documentElement,dark=d.getAttribute('data-theme')==='dark';
+  d.setAttribute('data-theme',dark?'light':'dark');
+  document.getElementById('theme-btn').textContent=dark?'🌙 Dark':'☀ Light';
+  document.getElementById('theme-lbl').textContent=dark?'Light mode':'Dark mode';
+  localStorage.setItem('ydi-theme',dark?'light':'dark');
+}
+function initTheme(){
+  const t=localStorage.getItem('ydi-theme')||'dark';
+  document.documentElement.setAttribute('data-theme',t);
+  document.getElementById('theme-btn').textContent=t==='dark'?'☀ Light':'🌙 Dark';
+  document.getElementById('theme-lbl').textContent=t==='dark'?'Dark mode':'Light mode';
+}
+
+// ══════════════════════════════════════════════════════════
+// USER SWITCHING
+// ══════════════════════════════════════════════════════════
+function switchUser(user){
+  currentUser=user;
+  buildNav();
+  if(user==='lamonte') showPanel('overview');
+  else renderProducerDash(user);
+}
+
+// ══════════════════════════════════════════════════════════
+// SIDEBAR NAV
+// ══════════════════════════════════════════════════════════
+const ADMIN_NAV = [
+  {section:"Overview",  items:[
+    {id:"overview",icon:"⚡",label:"Command Center"},
+    {id:"folio",   icon:"📊",label:"Folio Stats"},
+    {id:"coach",   icon:"🎯",label:"Call Coach"},
+    {id:"config",  icon:"⚙️",label:"Dashboard Config"},
+  ]},
+  {section:"Tools",items:[]}
+];
+
+function buildNav(){
+  const nav=document.getElementById('sidebar-nav');
+  if(currentUser!=='lamonte'){
+    nav.innerHTML=`<div class="nav-sec">
+      <div class="nav-lbl">My Dashboard</div>
+      <button class="nb active" onclick="showPanel('producer-dash')"><div class="ic">👤</div>${cap(currentUser)}</button>
+    </div>`;
+    return;
+  }
+  const sections={};
+  APPS.forEach(a=>{if(!sections[a.section])sections[a.section]=[];sections[a.section].push(a);});
+  let html=`<div class="nav-sec">
+    <div class="nav-lbl">Admin</div>
+    <button class="nb active" id="nb-overview" onclick="showPanel('overview',this)"><div class="ic">⚡</div> Command Center</button>
+    <button class="nb" id="nb-folio" onclick="showPanel('folio',this)"><div class="ic">📊</div> Folio Stats</button>
+    <button class="nb" id="nb-coach" onclick="showPanel('coach',this)"><div class="ic">🎯</div> Call Coach</button>
+    <button class="nb" id="nb-config" onclick="showPanel('config',this)"><div class="ic">⚙️</div> Dashboard Config</button>
+  </div>`;
+  Object.entries(sections).forEach(([sec,apps])=>{
+    html+=`<div class="nav-sec"><div class="nav-lbl">${sec}</div>`;
+    apps.forEach(a=>{
+      html+=`<button class="nb" id="nb-${a.id}" onclick="showAppPanel('${a.id}',this)"><div class="ic">${a.icon}</div> ${a.title}</button>`;
+    });
+    html+=`</div>`;
+  });
+  nav.innerHTML=html;
+}
+
+function buildAppPanels(){
+  const content=document.getElementById('main-content');
+  document.querySelectorAll('.app-panel').forEach(el=>el.remove());
+  APPS.forEach(a=>{
+    const div=document.createElement('div');
+    div.className='app-panel';
+    div.id='panel-app-'+a.id;
+    div.innerHTML=`<div class="launch-card">
+      <img class="lc-logo" src="${LOGO}" onerror="this.style.display='none'" alt="YDI">
+      <div class="lc-icon">${a.icon}</div>
+      <div class="lc-title">${a.title}</div>
+      <div class="lc-desc">${a.desc}</div>
+      <div class="lc-url">${a.url}</div>
+      <a class="open-btn" href="${a.url}" target="_blank" rel="noopener">Open ${a.title} ↗</a>
+    </div>`;
+    content.appendChild(div);
+  });
+}
+
+function showPanel(id,btn){
+  document.querySelectorAll('.panel,.app-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  const p=document.getElementById('panel-'+id);
+  if(p) p.classList.add('active');
+  if(btn) btn.classList.add('active');
+  else {const nb=document.getElementById('nb-'+id);if(nb)nb.classList.add('active');}
+  if(id==='overview') renderOverview();
+  else if(id==='folio') renderFolioPanel();
+  else if(id==='coach') renderCoachPanel();
+  else if(id==='config') renderConfigPanel();
+}
+
+function showAppPanel(id,btn){
+  document.querySelectorAll('.panel,.app-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  const p=document.getElementById('panel-app-'+id);
+  if(p) p.classList.add('active');
+  if(btn) btn.classList.add('active');
+}
+
+// ══════════════════════════════════════════════════════════
+// PRODUCER DASHBOARD
+// ══════════════════════════════════════════════════════════
+function renderProducerDash(user){
+  document.querySelectorAll('.panel,.app-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('panel-producer-dash').classList.add('active');
+  const view=config?.userViews?.[user]||DEFAULT_CONFIG.userViews.melissa;
+  const folio=config?.folio?.producers?.[user]||{policies:0,premium:0,calls:0,avgScore:0};
+  const folioName=config?.folio?.name||'Current Folio';
+  const allowedApps=APPS.filter(a=>view.apps?.includes(a.id));
+
+  const appCards=allowedApps.map(a=>`
+    <div class="app-card" onclick="window.open('${a.url}','_blank')">
+      <img style="height:20px;margin-bottom:6px;display:block" src="${LOGO}" onerror="this.style.display='none'" alt="">
+      <div class="ac-icon">${a.icon}</div>
+      <div class="ac-title">${a.title}</div>
+      <div class="ac-desc">${a.desc}</div>
+    </div>`).join('');
+
+  const scoreColor=folio.avgScore>=12?'green':folio.avgScore>=9?'gold':'red';
+
+  document.getElementById('panel-producer-dash').innerHTML=`
+    <div class="pd-header">
+      <div class="pd-avatar">${user[0].toUpperCase()}</div>
+      <div>
+        <div class="pd-name">${cap(user)}</div>
+        <div class="pd-role">Young Douglas Insurance · Legacy Protectors</div>
+      </div>
+      <img style="height:36px;margin-left:auto" src="${LOGO}" onerror="this.style.display='none'" alt="YDI">
+    </div>
+    ${view.showFolio?`
+    <div class="folio-row">
+      <div class="folio-card">
+        <div class="folio-lbl">Policies — ${folioName}</div>
+        <div class="folio-val" style="color:var(--gold)">${folio.policies}</div>
+        <div class="folio-sub">This Folio</div>
+      </div>
+      <div class="folio-card">
+        <div class="folio-lbl">Premium — ${folioName}</div>
+        <div class="folio-val" style="color:var(--green)">$${Number(folio.premium).toLocaleString()}</div>
+        <div class="folio-sub">This Folio</div>
+      </div>
+      <div class="folio-card">
+        <div class="folio-lbl">Calls Analyzed</div>
+        <div class="folio-val" style="color:var(--blue)">${folio.calls}</div>
+        <div class="folio-sub">This Folio</div>
+      </div>
+    </div>`:''}
+    ${view.showScore?`
+    <div class="sec" style="margin-bottom:12px">
+      <div class="sec-hd">My Avg Coach Score</div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="font-size:42px;font-weight:600;color:var(--${scoreColor})">${folio.avgScore||'—'}</div>
+        <div>
+          <div style="font-size:12px;color:var(--text)">Out of 15 ISL checkpoints</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">Based on analyzed calls this Folio</div>
+        </div>
+      </div>
+    </div>`:''}
+    <div class="sec-hd" style="font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.09em;text-transform:uppercase;margin-bottom:10px">My Apps</div>
+    <div class="apps-grid">${appCards||'<div style="color:var(--muted);font-size:12px">No apps configured — ask LaMonte to add apps to your dashboard.</div>'}</div>`;
+
+  document.getElementById('top-pills').innerHTML=`
+    <span class="pill p-blue">${cap(user)}</span>
+    <span class="pill p-gold">${folioName}</span>`;
+}
+
+// ══════════════════════════════════════════════════════════
+// OVERVIEW (LaMonte)
+// ══════════════════════════════════════════════════════════
+function renderOverview(){
+  if(!config) return;
+  const f=config.folio||DEFAULT_CONFIG.folio;
+  const active=(config.producers||[]).filter(p=>p.status!=='inactive').length;
+  const kpiCount=(config.kpis||[]).length;
+  const trialOn=config.trial?.enabled;
+  const trialWho=cap(config.trial?.producer||'melissa');
+
+  document.getElementById('top-pills').innerHTML=`
+    <span class="pill p-gold">${trialOn?'Trial: '+trialWho:'All Active'}</span>
+    <span class="pill p-green">Coach: Live</span>`;
+
+  const prodKPICards=PRODUCERS.map(name=>{
+    const pd=f.producers?.[name]||{policies:0,premium:0,calls:0,avgScore:0};
+    const sc=pd.avgScore||0;
+    const scClass=sc>=12?'green':sc>=9?'gold':sc>0?'red':'muted';
+    const prod=(config.producers||[]).find(p=>p.name===name)||{status:'active'};
+    return `<div class="prod-kpi-card">
+      <div class="pkc-header">
+        <div class="pkc-avatar">${name[0].toUpperCase()}</div>
+        <div>
+          <div class="pkc-name">${cap(name)}</div>
+          <span class="pill p-${prod.status==='trial'?'gold':prod.status==='inactive'?'muted':'green'}" style="font-size:9px">${prod.status}</span>
+        </div>
+      </div>
+      <div class="pkc-stats">
+        <div class="pkc-stat"><div class="pkc-sl">Policies</div><div class="pkc-sv gold">${pd.policies}</div></div>
+        <div class="pkc-stat"><div class="pkc-sl">Premium</div><div class="pkc-sv green">$${Number(pd.premium||0).toLocaleString()}</div></div>
+        <div class="pkc-stat"><div class="pkc-sl">Avg Score</div><div class="pkc-sv ${scClass}">${sc||'—'}</div></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  const appCards=APPS.map(a=>`
+    <div class="app-card" onclick="showAppPanel('${a.id}',document.getElementById('nb-${a.id}'))">
+      <div class="ac-icon">${a.icon}</div>
+      <div class="ac-title">${a.title}</div>
+      <div class="ac-desc">${a.desc}</div>
+    </div>`).join('');
+
+  document.getElementById('panel-overview').innerHTML=`
+    <div class="stats-row">
+      <div class="stat gold"><div class="stat-lbl">Active Producers</div><div class="stat-val">${active}</div><div class="stat-sub">${(config.producers||[]).filter(p=>p.status!=='inactive').map(p=>cap(p.name)).join(', ')}</div></div>
+      <div class="stat green"><div class="stat-lbl">Folio Policies</div><div class="stat-val">${f.totalPolicies||0}</div><div class="stat-sub">${f.name||'Current Folio'}</div></div>
+      <div class="stat blue"><div class="stat-lbl">Folio Premium</div><div class="stat-val">$${Number(f.totalPremium||0).toLocaleString()}</div><div class="stat-sub">${f.name||'Current Folio'}</div></div>
+      <div class="stat"><div class="stat-lbl">Active KPIs</div><div class="stat-val">${kpiCount}</div><div class="stat-sub">Of 15 ISL checkpoints</div></div>
+    </div>
+
+    <div class="sec-hd" style="font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.09em;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between">
+      Producer KPIs — ${f.name||'Current Folio'}
+      <button class="btn btn-sm" onclick="showPanel('folio')">Edit Folio →</button>
+    </div>
+    <div class="prod-kpi-grid">${prodKPICards}</div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div style="font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.09em;text-transform:uppercase">Apps & Tools</div>
+      <button class="btn btn-sm btn-gold" onclick="openModal('add-app-modal')">+ Add App</button>
+    </div>
+    <div class="apps-grid">${appCards}</div>
+
+    <div class="sec">
+      <div class="sec-hd">System Status</div>
+      ${stRow('CTM Webhook','https://ydi-call-coach.lamonte.workers.dev/ctm-webhook','live')}
+      ${stRow('AssemblyAI','Universal-2 · Speaker labels · Sentiment analysis','live')}
+      ${stRow('Claude Coaching','claude-sonnet-4 · ISL One-Call Close framework','live')}
+      ${stRow('Resend Email','coach@youngdouglasinsurance.com → producers + LaMonte CC','live')}
+      ${stRow('CTM Agent Script','YDI ISL Script assigned to all producer numbers','live')}
+    </div>`;
+}
+
+function stRow(l,d,s){
+  return `<div class="st-row"><div class="st-info"><div class="st-label">${l}</div><div class="st-desc">${d}</div></div>
+  <span class="pill ${s==='live'?'p-green':'p-muted'}">${s==='live'?'Active':'Offline'}</span></div>`;
+}
+
+// ══════════════════════════════════════════════════════════
+// FOLIO PANEL
+// ══════════════════════════════════════════════════════════
+function renderFolioPanel(){
+  if(!config) return;
+  const f=config.folio||DEFAULT_CONFIG.folio;
+  const prows=PRODUCERS.map(name=>{
+    const pd=f.producers?.[name]||{policies:0,premium:0,calls:0,avgScore:0};
+    return `<tr>
+      <td><div style="display:flex;align-items:center;gap:8px">
+        <div style="width:26px;height:26px;border-radius:50%;background:rgba(59,130,246,.15);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--blue)">${name[0].toUpperCase()}</div>
+        ${cap(name)}
+      </div></td>
+      <td><input class="kpi-input" type="number" min="0" value="${pd.policies||0}" onchange="updateFolioProducer('${name}','policies',this.value)"></td>
+      <td><input class="kpi-input" type="number" min="0" value="${pd.premium||0}" onchange="updateFolioProducer('${name}','premium',this.value)" style="width:100px"></td>
+      <td><input class="kpi-input" type="number" min="0" value="${pd.calls||0}" onchange="updateFolioProducer('${name}','calls',this.value)"></td>
+      <td><input class="kpi-input" type="number" min="0" max="15" step="0.1" value="${pd.avgScore||0}" onchange="updateFolioProducer('${name}','avgScore',this.value)"></td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('panel-folio').innerHTML=`
+    <div class="sec">
+      <div class="sec-hd">Current Folio Settings</div>
+      <div class="fg fg2" style="margin-bottom:8px">
+        <div>
+          <div style="font-size:10px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em;font-weight:600">Folio Name</div>
+          <input type="text" id="folio-name" value="${f.name||''}" placeholder="e.g. April 2026 Folio" onchange="updateFolioField('name',this.value)">
+        </div>
+        <div>
+          <div style="font-size:10px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em;font-weight:600">Folio Start Date</div>
+          <input type="date" id="folio-start" value="${f.startDate||''}" onchange="updateFolioField('startDate',this.value)">
+        </div>
+      </div>
+      <div class="fg fg2" style="margin-bottom:0">
+        <div>
+          <div style="font-size:10px;color:var(--muted);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em;font-weight:600">Folio End Date</div>
+          <input type="date" id="folio-end" value="${f.endDate||''}" onchange="updateFolioField('endDate',this.value)">
+        </div>
+        <div style="display:flex;align-items:flex-end;gap:8px">
+          <button class="btn btn-sm" onclick="resetFolio()" style="margin-bottom:0">Reset Folio Data</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-hd">
+        Agency Totals — ${f.name||'Current Folio'}
+        <span>Updates automatically from producer rows below</span>
+      </div>
+      <div class="folio-row">
+        <div class="folio-card">
+          <div class="folio-lbl">Total Policies Sold</div>
+          <div class="folio-val" style="color:var(--gold)" id="folio-total-pol">${f.totalPolicies||0}</div>
+          <div class="folio-sub">All producers combined</div>
+        </div>
+        <div class="folio-card">
+          <div class="folio-lbl">Total Premium Written</div>
+          <div class="folio-val" style="color:var(--green)" id="folio-total-prem">$${Number(f.totalPremium||0).toLocaleString()}</div>
+          <div class="folio-sub">All producers combined</div>
+        </div>
+        <div class="folio-card">
+          <div class="folio-lbl">Total Calls Analyzed</div>
+          <div class="folio-val" style="color:var(--blue)" id="folio-total-calls">${PRODUCERS.reduce((s,n)=>s+(f.producers?.[n]?.calls||0),0)}</div>
+          <div class="folio-sub">By call coach</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-hd">Producer Breakdown — ${f.name||'Current Folio'}</div>
+      <table class="kpi-table">
+        <thead><tr>
+          <th>Producer</th>
+          <th style="text-align:right">Policies</th>
+          <th style="text-align:right">Premium ($)</th>
+          <th style="text-align:right">Calls</th>
+          <th style="text-align:right">Avg Score</th>
+        </tr></thead>
+        <tbody>${prows}</tbody>
+      </table>
+      <div style="font-size:10px;color:var(--muted);margin-top:8px">Click any number to edit. Changes save when you click Save Changes.</div>
+    </div>`;
+}
+
+function updateFolioField(field,val){
+  if(!config.folio) config.folio={...DEFAULT_CONFIG.folio};
+  config.folio[field]=val;
+  markDirty();
+}
+
+function updateFolioProducer(name,field,val){
+  if(!config.folio) config.folio={...DEFAULT_CONFIG.folio};
+  if(!config.folio.producers) config.folio.producers={};
+  if(!config.folio.producers[name]) config.folio.producers[name]={policies:0,premium:0,calls:0,avgScore:0};
+  config.folio.producers[name][field]=parseFloat(val)||0;
+  // Recalc totals
+  config.folio.totalPolicies=PRODUCERS.reduce((s,n)=>s+(config.folio.producers[n]?.policies||0),0);
+  config.folio.totalPremium=PRODUCERS.reduce((s,n)=>s+(config.folio.producers[n]?.premium||0),0);
+  const tp=document.getElementById('folio-total-pol');
+  const tpr=document.getElementById('folio-total-prem');
+  const tc=document.getElementById('folio-total-calls');
+  if(tp) tp.textContent=config.folio.totalPolicies;
+  if(tpr) tpr.textContent='$'+Number(config.folio.totalPremium).toLocaleString();
+  if(tc) tc.textContent=PRODUCERS.reduce((s,n)=>s+(config.folio.producers[n]?.calls||0),0);
+  markDirty();
+}
+
+function resetFolio(){
+  if(!confirm('Reset all folio data to zero for all producers?')) return;
+  config.folio={...DEFAULT_CONFIG.folio,name:config.folio?.name||'Current Folio',startDate:config.folio?.startDate||'',endDate:config.folio?.endDate||''};
+  renderFolioPanel();
+  markDirty();
+}
+
+// ══════════════════════════════════════════════════════════
+// CALL COACH SETTINGS PANEL
+// ══════════════════════════════════════════════════════════
+function renderCoachPanel(){
+  if(!config) return;
+  const trialOn=config.trial?.enabled??true;
+  const dur=config.minDuration||60;
+  const activeKpis=config.kpis||[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
+  const prodOpts=(config.producers||[]).map(p=>`<option value="${p.name}" ${p.name===(config.trial?.producer||'melissa')?'selected':''}>${cap(p.name)}</option>`).join('');
+
+  document.getElementById('panel-coach').innerHTML=`
+    <div class="sec">
+      <div class="sec-hd">Trial Mode</div>
+      <div class="tgl-row">
+        <div class="tgl-info"><div class="tgl-label">Restrict coaching to trial producer only</div><div class="tgl-desc">LaMonte always gets CC'd regardless</div></div>
+        <label class="tgl"><input type="checkbox" id="trial-enabled" ${trialOn?'checked':''} onchange="markDirty()"><span class="tgl-s"></span></label>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:10px">
+        <label style="font-size:12px;color:var(--muted)">Trial producer:</label>
+        <select id="trial-producer" onchange="markDirty()" style="width:auto;background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:5px 9px;border-radius:6px;font-size:12px;font-family:'DM Sans',sans-serif">${prodOpts}</select>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-hd">Minimum Call Duration</div>
+      <div class="sldr-row">
+        <input type="range" min="30" max="300" step="15" id="min-duration" value="${dur}" oninput="document.getElementById('dur-val').textContent=this.value+'s';markDirty()">
+        <span class="sldr-val" id="dur-val">${dur}s</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:6px">Calls shorter than this are skipped — voicemails and hangups</div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-hd">Producer Roster</div>
+      <div id="producer-list">${renderProdRows()}</div>
+      <button class="btn btn-sm btn-gold" style="margin-top:10px" onclick="toggleAddProdForm()">+ Add Producer</button>
+      <div id="add-prod-form" style="display:none;background:var(--bg3);border-radius:7px;padding:10px;margin-top:8px">
+        <div class="fg fg2"><input type="text" id="np-name" placeholder="First name"><input type="email" id="np-email" placeholder="Email"></div>
+        <div class="fg fg2"><input type="tel" id="np-phone" placeholder="Phone digits only"><select id="np-status" class="full"><option value="active">Active</option><option value="trial">Trial</option><option value="inactive">Inactive</option></select></div>
+        <div style="display:flex;gap:7px;margin-top:4px"><button class="btn btn-gold btn-sm" onclick="addProducer()">Add</button><button class="btn btn-sm" onclick="toggleAddProdForm()">Cancel</button></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-hd">ISL Coaching KPIs — <span id="kpi-count">${activeKpis.length}</span>/15 active</div>
+      <div class="kpi-grid" id="kpi-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:0">${renderKPIRows(activeKpis)}</div>
+    </div>`;
+}
+
+function renderProdRows(){
+  if(!config?.producers?.length) return '<div class="loading">No producers</div>';
+  return config.producers.map((p,i)=>`
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);">
+      <div style="width:28px;height:28px;border-radius:50%;background:rgba(59,130,246,.15);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--blue);flex-shrink:0">${p.name[0].toUpperCase()}</div>
+      <div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:500;color:var(--text)">${cap(p.name)}</div><div style="font-size:10px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.email}</div></div>
+      <select style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:3px 6px;border-radius:5px;font-size:11px" onchange="chgStatus(${i},this.value)">
+        <option value="active" ${p.status==='active'?'selected':''}>Active</option>
+        <option value="trial"  ${p.status==='trial'?'selected':''}>Trial</option>
+        <option value="inactive" ${p.status==='inactive'?'selected':''}>Inactive</option>
+      </select>
+      <button class="btn btn-sm btn-danger" onclick="rmProducer(${i})">✕</button>
+    </div>`).join('');
+}
+
+function renderKPIRows(activeKpis){
+  return KPI_LABELS.map((label,i)=>{
+    const n=i+1,on=activeKpis.includes(n);
+    return `<div style="display:flex;align-items:center;gap:6px;padding:6px 0;border-bottom:1px solid var(--border);${i%2===0?'padding-right:14px':''}" onclick="toggleKPI(${n})">
+      <span style="font-size:10px;font-weight:600;color:var(--muted);width:13px;font-family:'DM Mono',monospace">${n}</span>
+      <span style="font-size:11px;color:${on?'var(--text)':'var(--muted)'};flex:1;line-height:1.3;${on?'':'text-decoration:line-through'}">${label}</span>
+      <label class="tgl" onclick="event.stopPropagation()"><input type="checkbox" ${on?'checked':''} onchange="toggleKPI(${n})"><span class="tgl-s"></span></label>
+    </div>`;
+  }).join('');
+}
+
+function toggleKPI(n){
+  const kpis=config.kpis||[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
+  const idx=kpis.indexOf(n);
+  if(idx>=0)kpis.splice(idx,1);else kpis.push(n);
+  kpis.sort((a,b)=>a-b);
+  config.kpis=kpis;
+  const g=document.getElementById('kpi-grid');
+  if(g)g.innerHTML=renderKPIRows(kpis);
+  const kc=document.getElementById('kpi-count');
+  if(kc)kc.textContent=kpis.length;
+  markDirty();
+}
+
+function chgStatus(i,v){config.producers[i].status=v;markDirty();}
+function rmProducer(i){
+  if(confirm('Remove '+cap(config.producers[i].name)+'?')){
+    config.producers.splice(i,1);
+    const pl=document.getElementById('producer-list');
+    if(pl)pl.innerHTML=renderProdRows();
+    markDirty();
+  }
+}
+function toggleAddProdForm(){
+  const f=document.getElementById('add-prod-form');
+  f.style.display=f.style.display==='block'?'none':'block';
+}
+function addProducer(){
+  const name=document.getElementById('np-name').value.trim().toLowerCase();
+  const email=document.getElementById('np-email').value.trim();
+  const phone=document.getElementById('np-phone').value.replace(/\D/g,'');
+  const status=document.getElementById('np-status').value;
+  if(!name||!email){alert('Name and email required');return;}
+  config.producers.push({name,email,phone,status});
+  const pl=document.getElementById('producer-list');
+  if(pl)pl.innerHTML=renderProdRows();
+  document.getElementById('np-name').value='';
+  document.getElementById('np-email').value='';
+  document.getElementById('np-phone').value='';
+  toggleAddProdForm();
+  markDirty();
+}
+
+// ══════════════════════════════════════════════════════════
+// DASHBOARD CONFIG PANEL
+// ══════════════════════════════════════════════════════════
+function renderConfigPanel(){
+  if(!config) return;
+  const views=config.userViews||DEFAULT_CONFIG.userViews;
+
+  const appRows=APPS.map(a=>`
+    <tr>
+      <td>${a.icon} ${a.title}</td>
+      ${PRODUCERS.map(name=>{
+        const checked=(views[name]?.apps||[]).includes(a.id);
+        return `<td><label class="tgl tgl-inline"><input type="checkbox" ${checked?'checked':''} onchange="toggleAppForUser('${name}','${a.id}',this.checked)"><span class="tgl-s"></span></label></td>`;
+      }).join('')}
+    </tr>`).join('');
+
+  const metaRows=[
+    {key:'showScore', label:'Show Call Score'},
+    {key:'showFolio', label:'Show Folio Stats'},
+  ].map(m=>`
+    <tr>
+      <td>${m.label}</td>
+      ${PRODUCERS.map(name=>{
+        const checked=views[name]?.[m.key]!==false;
+        return `<td><label class="tgl tgl-inline"><input type="checkbox" ${checked?'checked':''} onchange="toggleMeta('${name}','${m.key}',this.checked)"><span class="tgl-s"></span></label></td>`;
+      }).join('')}
+    </tr>`).join('');
+
+  document.getElementById('panel-config').innerHTML=`
+    <div class="sec">
+      <div class="sec-hd">Producer Dashboard Configuration <span>Toggle what each producer sees on their dashboard</span></div>
+      <table class="cfg-table">
+        <thead><tr>
+          <th style="text-align:left">Feature / App</th>
+          ${PRODUCERS.map(n=>`<th>${cap(n)}</th>`).join('')}
+        </tr></thead>
+        <tbody>
+          ${metaRows}
+          <tr><td colspan="${PRODUCERS.length+1}" style="padding:4px 8px;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:600;background:var(--bg3)">Apps visible on their dashboard</td></tr>
+          ${appRows}
+        </tbody>
+      </table>
+      <div style="font-size:10px;color:var(--muted);margin-top:8px">Changes apply when you hit Save Changes. Producers see their dashboard by selecting their name in the top right.</div>
+    </div>`;
+}
+
+function toggleAppForUser(name,appId,checked){
+  if(!config.userViews) config.userViews={...DEFAULT_CONFIG.userViews};
+  if(!config.userViews[name]) config.userViews[name]={apps:[],showScore:true,showFolio:true};
+  const apps=config.userViews[name].apps||[];
+  if(checked){if(!apps.includes(appId))apps.push(appId);}
+  else{const idx=apps.indexOf(appId);if(idx>=0)apps.splice(idx,1);}
+  config.userViews[name].apps=apps;
+  markDirty();
+}
+function toggleMeta(name,key,val){
+  if(!config.userViews) config.userViews={...DEFAULT_CONFIG.userViews};
+  if(!config.userViews[name]) config.userViews[name]={apps:[],showScore:true,showFolio:true};
+  config.userViews[name][key]=val;
+  markDirty();
+}
+
+// ══════════════════════════════════════════════════════════
+// ADD APP MODAL
+// ══════════════════════════════════════════════════════════
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function confirmAddApp(){
+  const icon=document.getElementById('app-icon').value.trim()||'🔧';
+  const title=document.getElementById('app-title').value.trim();
+  const desc=document.getElementById('app-desc').value.trim();
+  const url=document.getElementById('app-url').value.trim();
+  const custom=document.getElementById('app-sec-custom').value.trim();
+  const section=custom||document.getElementById('app-section').value;
+  if(!title||!url){alert('Name and URL are required');return;}
+  const id='app_'+title.toLowerCase().replace(/[^a-z0-9]/g,'_').slice(0,20);
+  APPS.push({id,icon,title,desc:desc||title,url,section});
+  buildNav();buildAppPanels();renderOverview();
+  closeModal('add-app-modal');
+}
+document.getElementById('add-app-modal').addEventListener('click',function(e){if(e.target===this)closeModal('add-app-modal');});
+
+// ══════════════════════════════════════════════════════════
+// CONFIG LOAD / SAVE
+// ══════════════════════════════════════════════════════════
+async function loadConfig(){
+  try{
+    const res=await fetch(WORKER+'/config',{headers:{'X-Dashboard-Key':KEY}});
+    config=res.ok?await res.json():{...DEFAULT_CONFIG};
+    // Merge defaults for new fields
+    if(!config.folio) config.folio={...DEFAULT_CONFIG.folio};
+    if(!config.userViews) config.userViews={...DEFAULT_CONFIG.userViews};
+    document.getElementById('save-st').textContent='All changes saved';
+    document.getElementById('save-st').style.color='var(--muted)';
+    document.getElementById('save-btn').disabled=true;
+  }catch(e){
+    config={...DEFAULT_CONFIG};
+    document.getElementById('save-st').textContent='Using local defaults';
+    document.getElementById('save-st').style.color='var(--muted)';
+  }
+  renderOverview();
+}
+
+async function saveConfig(){
+  // Collect form values if coach panel is open
+  const te=document.getElementById('trial-enabled');
+  const tp=document.getElementById('trial-producer');
+  const md=document.getElementById('min-duration');
+  if(te) config.trial={enabled:te.checked,producer:tp?.value||'melissa'};
+  if(md) config.minDuration=parseInt(md.value)||60;
+
+  const btn=document.getElementById('save-btn');
+  btn.disabled=true;btn.textContent='Saving...';
+  try{
+    const res=await fetch(WORKER+'/config',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-Dashboard-Key':KEY},
+      body:JSON.stringify(config)
+    });
+    if(!res.ok) throw new Error();
+    dirty=false;
+    btn.textContent='Save Changes';
+    document.getElementById('save-st').textContent='Saved ✓';
+    document.getElementById('save-st').style.color='var(--green)';
+    setTimeout(()=>{
+      document.getElementById('save-st').textContent='All changes saved';
+      document.getElementById('save-st').style.color='var(--muted)';
+    },2000);
+  }catch(e){
+    btn.disabled=false;btn.textContent='Save Changes';
+    document.getElementById('save-st').textContent='Save failed';
+    document.getElementById('save-st').style.color='var(--red)';
+  }
+}
+
+function markDirty(){
+  dirty=true;
+  document.getElementById('save-btn').disabled=false;
+  document.getElementById('save-st').textContent='Unsaved changes';
+  document.getElementById('save-st').style.color='var(--gold)';
+}
+
+function cap(s){return s?s[0].toUpperCase()+s.slice(1):'';}
+
+// ══════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════
+initTheme();
+buildNav();
+buildAppPanels();
+loadConfig();
+</script>
+</body>
+</html>
