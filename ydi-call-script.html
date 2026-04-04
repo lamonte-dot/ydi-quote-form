@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YDI Call Script — Live Reference</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy: #0f1e35;
+  --navy2: #162840;
+  --navy3: #1e3452;
+  --gold: #f0a500;
+  --gold2: #fbbf24;
+  --green: #10b981;
+  --red: #ef4444;
+  --blue: #3b82f6;
+  --text: #e8edf5;
+  --muted: #7a90a8;
+  --border: rgba(255,255,255,0.08);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; background: var(--navy); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; }
+
+/* TOP BAR */
+.topbar { background: var(--navy2); border-bottom: 1px solid var(--border); padding: 10px 16px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 100; }
+.logo { font-size: 13px; font-weight: 600; color: var(--gold); letter-spacing: 0.05em; white-space: nowrap; }
+.call-type-select { flex: 1; background: var(--navy3); border: 1px solid var(--border); color: var(--text); padding: 7px 12px; border-radius: 8px; font-size: 13px; font-family: 'DM Sans', sans-serif; cursor: pointer; }
+.timer-box { background: var(--navy3); border: 1px solid var(--border); border-radius: 8px; padding: 6px 14px; font-family: 'DM Mono', monospace; font-size: 15px; color: var(--gold); white-space: nowrap; cursor: pointer; min-width: 70px; text-align: center; }
+.timer-box.running { color: var(--green); border-color: rgba(16,185,129,0.3); }
+.reset-btn { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 6px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; }
+.reset-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+/* STEP PROGRESS */
+.steps-bar { display: flex; gap: 4px; padding: 12px 16px; background: var(--navy2); border-bottom: 1px solid var(--border); overflow-x: auto; }
+.step-pill { flex: 1; min-width: 80px; text-align: center; padding: 6px 8px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; transition: all 0.15s; font-size: 11px; color: var(--muted); }
+.step-pill .num { font-size: 16px; font-weight: 600; display: block; color: var(--muted); }
+.step-pill.active { background: var(--gold); border-color: var(--gold); color: var(--navy); }
+.step-pill.active .num { color: var(--navy); }
+.step-pill.done { border-color: var(--green); color: var(--green); }
+.step-pill.done .num { color: var(--green); }
+.step-pill:hover:not(.active) { border-color: var(--gold); color: var(--gold); }
+.step-pill:hover:not(.active) .num { color: var(--gold); }
+
+/* MAIN LAYOUT */
+.main { display: flex; height: calc(100vh - 120px); }
+.script-panel { flex: 1; overflow-y: auto; padding: 16px; }
+.obj-panel { width: 300px; background: var(--navy2); border-left: 1px solid var(--border); overflow-y: auto; padding: 16px; }
+
+/* SCRIPT CONTENT */
+.step-header { margin-bottom: 16px; }
+.step-title { font-size: 20px; font-weight: 600; color: var(--gold); margin-bottom: 4px; }
+.step-sub { font-size: 13px; color: var(--muted); }
+
+.script-block { background: var(--navy2); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+.block-label { font-size: 10px; font-weight: 600; letter-spacing: 0.1em; color: var(--gold); text-transform: uppercase; margin-bottom: 8px; }
+.block-text { font-size: 14px; line-height: 1.7; color: var(--text); }
+.block-text .fill { color: var(--gold2); font-style: italic; }
+.block-text strong { color: var(--gold2); font-weight: 500; }
+
+.checklist { list-style: none; }
+.checklist li { display: flex; gap: 10px; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--text); cursor: pointer; }
+.checklist li:last-child { border-bottom: none; }
+.checklist li .check { width: 18px; height: 18px; border: 1.5px solid var(--muted); border-radius: 4px; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+.checklist li.checked .check { background: var(--green); border-color: var(--green); }
+.checklist li.checked .check::after { content: '✓'; font-size: 11px; color: white; }
+.checklist li.checked span { text-decoration: line-through; color: var(--muted); }
+
+.choose-one { border-left: 3px solid var(--gold); padding-left: 12px; margin: 8px 0; }
+.choose-label { font-size: 10px; font-weight: 600; color: var(--gold); letter-spacing: 0.08em; margin-bottom: 6px; }
+.option-btn { display: block; width: 100%; text-align: left; background: var(--navy3); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-bottom: 6px; font-size: 13px; color: var(--text); cursor: pointer; transition: all 0.15s; line-height: 1.5; }
+.option-btn:hover { border-color: var(--gold); background: rgba(240,165,0,0.08); }
+.option-btn .opt-label { font-size: 10px; color: var(--gold); font-weight: 600; letter-spacing: 0.06em; display: block; margin-bottom: 3px; }
+
+.nav-row { display: flex; gap: 10px; margin-top: 16px; }
+.nav-btn { flex: 1; padding: 12px; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; font-family: 'DM Sans', sans-serif; }
+.nav-prev { background: var(--navy3); color: var(--muted); border: 1px solid var(--border); }
+.nav-prev:hover { color: var(--text); border-color: var(--muted); }
+.nav-next { background: var(--gold); color: var(--navy); }
+.nav-next:hover { background: var(--gold2); }
+
+/* OBJECTIONS PANEL */
+.obj-title { font-size: 11px; font-weight: 600; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 12px; }
+.obj-item { margin-bottom: 8px; }
+.obj-trigger { width: 100%; text-align: left; background: var(--navy3); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 12px; color: var(--text); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+.obj-trigger:hover { border-color: var(--red); color: var(--gold); }
+.obj-trigger.open { border-color: var(--gold); border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.obj-response { display: none; background: rgba(240,165,0,0.06); border: 1px solid var(--gold); border-top: none; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; padding: 10px 12px; font-size: 12px; color: var(--text); line-height: 1.6; }
+.obj-response.open { display: block; }
+.obj-response .fill { color: var(--gold2); font-style: italic; }
+
+/* MOBILE */
+@media (max-width: 640px) {
+  .obj-panel { display: none; }
+  .main { height: calc(100vh - 120px); }
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo">YDI SCRIPT</div>
+  <select class="call-type-select" onchange="setCallType(this.value)" id="call-type">
+    <option value="auto">Auto Internet Lead</option>
+    <option value="home">Homeowner Lead</option>
+    <option value="old">Old Lead / X-Date / Requote</option>
+    <option value="xsell">Cross-Sell Existing Client</option>
+  </select>
+  <div class="timer-box" id="timer" onclick="toggleTimer()">0:00</div>
+  <button class="reset-btn" onclick="resetTimer()">Reset</button>
+</div>
+
+<!-- STEP PROGRESS -->
+<div class="steps-bar" id="steps-bar">
+  <div class="step-pill active" onclick="goStep(0)"><span class="num">1</span>Hook</div>
+  <div class="step-pill" onclick="goStep(1)"><span class="num">2</span>Value</div>
+  <div class="step-pill" onclick="goStep(2)"><span class="num">3</span>Multi-line</div>
+  <div class="step-pill" onclick="goStep(3)"><span class="num">4</span>Price</div>
+  <div class="step-pill" onclick="goStep(4)"><span class="num">5</span>Close</div>
+  <div class="step-pill" onclick="goStep(5)"><span class="num">6</span>Wrap-up</div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="script-panel" id="script-panel"></div>
+  <div class="obj-panel" id="obj-panel">
+    <div class="obj-title">Objections — tap to reveal response</div>
+    <div id="obj-list"></div>
+  </div>
+</div>
+
+<script>
+let currentStep = 0;
+let callType = 'auto';
+let timerInterval = null;
+let timerSeconds = 0;
+let timerRunning = false;
+let checkedItems = {};
+
+// ─── TIMER ───────────────────────────────────────────────────────────────────
+function toggleTimer() {
+  if (timerRunning) {
+    clearInterval(timerInterval);
+    timerRunning = false;
+    document.getElementById('timer').classList.remove('running');
+  } else {
+    timerInterval = setInterval(() => {
+      timerSeconds++;
+      const m = Math.floor(timerSeconds / 60);
+      const s = (timerSeconds % 60).toString().padStart(2,'0');
+      document.getElementById('timer').textContent = m + ':' + s;
+    }, 1000);
+    timerRunning = true;
+    document.getElementById('timer').classList.add('running');
+  }
+}
+function resetTimer() {
+  clearInterval(timerInterval);
+  timerRunning = false;
+  timerSeconds = 0;
+  document.getElementById('timer').textContent = '0:00';
+  document.getElementById('timer').classList.remove('running');
+}
+
+// ─── CALL TYPE ────────────────────────────────────────────────────────────────
+function setCallType(type) {
+  callType = type;
+  renderStep();
+}
+
+// ─── NAVIGATION ───────────────────────────────────────────────────────────────
+function goStep(n) {
+  currentStep = n;
+  renderStep();
+  renderStepBar();
+  document.getElementById('script-panel').scrollTop = 0;
+}
+function renderStepBar() {
+  const pills = document.querySelectorAll('.step-pill');
+  pills.forEach((p, i) => {
+    p.classList.remove('active','done');
+    if (i === currentStep) p.classList.add('active');
+    else if (i < currentStep) p.classList.add('done');
+  });
+}
+
+// ─── CHECKLIST ────────────────────────────────────────────────────────────────
+function toggleCheck(id) {
+  checkedItems[id] = !checkedItems[id];
+  renderStep();
+}
+function checkItem(id, label) {
+  return `<li class="${checkedItems[id]?'checked':''}" onclick="toggleCheck('${id}')">
+    <div class="check"></div><span>${label}</span>
+  </li>`;
+}
+
+// ─── OBJECTIONS ───────────────────────────────────────────────────────────────
+const OBJECTIONS = {
+  hook: [
+    { q: "I'm really busy / no time", a: "Oh I'm sorry to catch you at a bad time — when is better? Later this afternoon or tomorrow morning? Perfect, I have you set for <span class='fill'>[time]</span>. Really quick before I let you go..." },
+    { q: "Can you just email me the quote?", a: "I'd be happy to do that! Is your email <span class='fill'>[email]</span>? To make sure I send you the most accurate quote, I just wanted to confirm..." },
+    { q: "Who is this / why are you calling?", a: "This is <span class='fill'>[Your Name]</span> calling from Young Douglas Insurance. I see that you requested a <span class='fill'>[auto/home]</span> quote — is that the only vehicle you need a quote for, or do you have others as well?" },
+    { q: "I didn't request a quote", a: "Oh I'm sorry — it's possible someone requested a quote under your name. Have you gotten other calls from insurance companies? I can take you off our list, but I will warn you that you'll probably get calls from others. Since I have a quote started, can I share how much it would cost to insure your <span class='fill'>[car/home]</span> with us?" },
+    { q: "I already have insurance", a: "That's right you do! It looks like you're insured with <span class='fill'>[Carrier]</span> — is that right? Well since I have you on the phone and a quote started, I can share how much it would cost if you insured with us. If you like our price and coverage, we can help you switch. It's very easy. It looks like..." },
+    { q: "I just renewed / just paid", a: "Ah, got it. Did you pay in full or do you pay monthly? Well since I have your quote already started, I can share our price. If you like it, we can help you switch, and <span class='fill'>[Current Carrier]</span> will send you a refund for the unearned premium. Very easy. It looks like..." },
+    { q: "I've had a bad experience with Farmers", a: "Oh I am so sorry to hear that! What happened? I'm so sorry — I know I wouldn't be happy if that happened to me. I want you to know I'm calling from a completely different office, and we do things very differently here. I can assure you your experience with us will never be anything short of amazing. That I can promise you." },
+    { q: "No one can beat my rate", a: "That's great — you must have shopped around! How much is <span class='fill'>[Current Insurer]</span> charging you every month? <span class='fill'>[Repeat price]</span> — wow, that's interesting. Did that recently go up? I'm working on your quote right now — before I share our price I wanted to confirm a few details to make sure you get the best rate possible..." },
+  ],
+  closing: [
+    { q: "I want to think about it", a: "I completely understand. <span class='fill'>[Name]</span>, can I ask — do you like the price and coverage we went over today? Typically when people say they want to think about it, they're concerned about one of two things: (1) getting less coverage than they have now — that is NOT the case here, you'll have BETTER coverage. (2) The hassle of switching — I'll handle the cancellation with <span class='fill'>[Current Carrier]</span> and make sure there is no lapse. Does that make sense? [Ask for sale again]" },
+    { q: "Your price is too high", a: "I'm glad you bring up the price... [lower voice] getting the cheapest price on insurance can end up costing you a lot more when you file a claim. Let me give you a quick example... [share underinsurance story]. We decided it would be much easier to explain the price one time when you're switching, instead of apologizing when you file a claim and need us most. Does that make sense? [Ask for sale again]" },
+    { q: "I need to talk to my spouse", a: "I totally understand — it's great that you do that. Is this typically a decision you make on your own, or does your spouse handle insurance? [If spouse involved:] I respect that. When you do talk to them, what questions do you think they'll ask — will they be more concerned about price or coverage? When do you think you'd be able to talk tonight or tomorrow? So when I call you <span class='fill'>[day after]</span>, you'll have already talked and can let me know — is that right?" },
+    { q: "Email me the quote first", a: "Sure thing! Let me send it right now to <span class='fill'>[email]</span>... Sending it over... Can you pull it up on your computer or phone so we can review it right now? I want to point a few things out for you... [Ask for sale again]" },
+    { q: "I'm loyal to my current agent", a: "That's good — I respect your loyalty. Can I ask, what prompted you to search for insurance today? Now, if we gave you better coverage AND a better price than what you currently have with <span class='fill'>[Current Insurer]</span>, would you consider switching? Well that is exactly what we've done for you today! I'd love to earn your business. Are you open to that?" },
+    { q: "I want to shop this around", a: "Ok, got it. When you shop around, what will be the deciding factor in picking the company you go with? Since we work with a lot of people every day and I see what other companies charge — when it comes to best coverage for the best price, we are usually going to give you the best bang for your buck. Most people end up going with us. It's your call — what would you like to do?" },
+    { q: "Your price is higher than my current rate", a: "I can see where you're coming from. When we add up the total savings on your car AND home bundle, it looks like you'd save around <span class='fill'>[$X]</span> over the course of the year. More importantly, you'll have significantly BETTER coverage. In a lot of cases, people switch to us even when the price is more expensive because they know they get better coverage. You're going to pay someone — you might as well be with the agency that gives you better coverage and a better rate. Do you agree?" },
+  ]
+};
+
+function renderObjPanel(type) {
+  const objs = type === 'hook' ? OBJECTIONS.hook : OBJECTIONS.closing;
+  const list = document.getElementById('obj-list');
+  list.innerHTML = objs.map((o, i) => `
+    <div class="obj-item">
+      <button class="obj-trigger" onclick="toggleObj(this, 'obj-r-${type}-${i}')">"${o.q}"</button>
+      <div class="obj-response" id="obj-r-${type}-${i}">${o.a}</div>
+    </div>
+  `).join('');
+}
+
+function toggleObj(btn, id) {
+  const r = document.getElementById(id);
+  const isOpen = r.classList.contains('open');
+  document.querySelectorAll('.obj-response').forEach(el => el.classList.remove('open'));
+  document.querySelectorAll('.obj-trigger').forEach(el => el.classList.remove('open'));
+  if (!isOpen) { r.classList.add('open'); btn.classList.add('open'); }
+}
+
+// ─── STEP CONTENT ─────────────────────────────────────────────────────────────
+function renderStep() {
+  const panel = document.getElementById('script-panel');
+  const steps = [step1, step2, step3, step4, step5, step6];
+  panel.innerHTML = steps[currentStep]();
+
+  // Render objection panel based on step
+  if (currentStep === 0) renderObjPanel('hook');
+  else if (currentStep === 4) renderObjPanel('closing');
+  else {
+    document.getElementById('obj-list').innerHTML = `<p style="font-size:12px;color:var(--muted);line-height:1.6">Objection panel is most active during Step 1 (Hook) and Step 5 (Closing).<br><br>Common mid-call objections are handled within each script step.</p>`;
+  }
+}
+
+function navRow() {
+  const prev = currentStep > 0 ? `<button class="nav-btn nav-prev" onclick="goStep(${currentStep-1})">← Step ${currentStep}</button>` : '';
+  const next = currentStep < 5 ? `<button class="nav-btn nav-next" onclick="goStep(${currentStep+1})">Step ${currentStep+2} →</button>` : '';
+  return `<div class="nav-row">${prev}${next}</div>`;
+}
+
+// ─── STEP 1: THE HOOK ─────────────────────────────────────────────────────────
+function step1() {
+  const scripts = {
+    auto: `<div class="script-block">
+      <div class="block-label">Introduction</div>
+      <div class="block-text">Good afternoon, is this <span class="fill">[Prospect's Name]</span>? Hey <span class="fill">[Name]</span>, this is <span class="fill">[Your Name]</span> calling you from Young Douglas Insurance. How are you?<br><br>I received your request for a car insurance quote, and I'm working on that right now. Before I share the final price, I wanted to confirm a few details to get you the best price possible.</div>
+    </div>
+    <div class="script-block">
+      <div class="block-label">Identify Shopping Motivation</div>
+      <div class="block-text">I do want to ask — <strong>besides getting a better price, what made you shop for insurance today?</strong></div>
+    </div>
+    <div class="script-block">
+      <div class="block-label">Confirm Contact Info</div>
+      <div class="block-text">
+        • I have your address listed as <span class="fill">[Address]</span> — is that right?<br>
+        • You <span class="fill">[own/rent]</span> that home, is that correct?<br>
+        • I see your date of birth is <span class="fill">[DOB]</span> — is that right?
+      </div>
+    </div>
+    <div class="script-block">
+      <div class="block-label">Current Carrier</div>
+      <div class="choose-one">
+        <div class="choose-label">Select one</div>
+        <button class="option-btn"><span class="opt-label">IF YOU SEE CARRIER</span>It looks like you're currently insured with <span class="fill">[Current Insurer]</span> — is that right?</button>
+        <button class="option-btn"><span class="opt-label">IF NO CARRIER SHOWN</span>Who are you currently insured with?</button>
+      </div>
+    </div>
+    <div class="script-block">
+      <div class="block-label">Vehicles & Drivers</div>
+      <div class="block-text">
+        I see you requested a quote for your <span class="fill">[Make/Model]</span> — do you have any other vehicles to include?<br><br>
+        <div class="choose-one">
+          <div class="choose-label">Drivers</div>
+          <button class="option-btn"><span class="opt-label">IF DRIVERS LISTED</span>I see you have <span class="fill">[Other Drivers]</span> listed — is that right?</button>
+          <button class="option-btn"><span class="opt-label">IF NO DRIVERS LISTED</span>Besides you, who needs to be listed as a driver on this policy?</button>
+        </div>
+      </div>
+    </div>
+    <div class="script-block">
+      <div class="block-label">Discounts</div>
+      <div class="block-text">
+        • We have discounts for certain occupations — what do you <span class="fill">[and other drivers]</span> do for work?<br>
+        • Have you <span class="fill">[and other drivers]</span> served in the military?
+      </div>
+    </div>`,
+    home: `<div class="script-block">
+      <div class="block-label">Introduction</div>
+      <div class="block-text">Good afternoon, is this <span class="fill">[Prospect's Name]</span>? Hey <span class="fill">[Name]</span>, this is <span class="fill">[Your Name]</span> calling from Young Douglas Insurance. How are you?<br><br>I see that you requested an insurance quote for your home on <span class="fill">[Street Address]</span>. Are you currently living in that home, or are you in the process of buying it?</div>
+    </div>
+    <div class="script-block">
+      <div class="block-label">Setup</div>
+      <div class="block-text">I have a quote started for you and I'll share the final price in just a moment — but first I want to see if I can apply any discounts the system may have missed.</div>
+    </div>
+    <div class="script-block">
+      <div class="block-label">Confirm Info</div>
+      <div class="block-text">
+        • To confirm, I have your <span class="fill">[City, State, Zip]</span> — is that correct?<br>
+        • Date of birth is <span class="fill">[DOB]</span> — is that correct?<br>
+        • What company carries your homeowner's insurance right now?<br>
+        • Do you pay for that monthly as part of your mortgage payment?<br><br>
+        <strong>Besides getting a better price, what made you shop for insurance today?</strong>
+      </div>
+    </div>`,
+    old: `<div class="script-block">
+      <div class="block-label">Introduction</div>
+      <div class="block-text">Good afternoon, is this <span class="fill">[Prospect's Name]</span>? Hey <span class="fill">[Name]</span>, this is <span class="fill">[Your Name]</span> calling from Young Douglas Insurance. How are you?<br><br>I'm calling because we gave you a <span class="fill">[car/home]</span> insurance quote a while back, but we couldn't help you at that time. Since our rates have recently changed, I wanted to share our updated quote with you.</div>
+    </div>
+    <div class="script-block">
+      <div class="block-label">Confirm Info</div>
+      <div class="block-text">
+        • Are you still at <span class="fill">[Home Address]</span>?<br>
+        • You <span class="fill">[own/rent]</span> that home, is that correct?<br>
+        • Date of birth is <span class="fill">[DOB]</span> — is that right?<br><br>
+        I have a quote started for you and I'll share the final price in just a moment — but first I want to see if I can apply any discounts the system may have missed.
+      </div>
+    </div>
+    <div class="script-block">
+      <div class="block-label">Current Carrier</div>
+      <div class="choose-one">
+        <div class="choose-label">Select one</div>
+        <button class="option-btn"><span class="opt-label">IF YOU SEE CARRIER</span>It looks like you're currently insured with <span class="fill">[Current Insurer]</span> — is that right?</button>
+        <button class="option-btn"><span class="opt-label">IF NO CARRIER SHOWN</span>Who are you currently insured with?</button>
+      </div>
+    </div>
+    <div class="script-block">
+      <div class="block-label">Discounts</div>
+      <div class="block-text">
+        • We have discounts for certain occupations — what do you <span class="fill">[and other named insureds]</span> do for work?<br>
+        • Have you <span class="fill">[and other named insured]</span> served in the military?
+      </div>
+    </div>`,
+    xsell: `<div class="script-block">
+      <div class="block-label">Introduction</div>
+      <div class="block-text">Good afternoon, is this <span class="fill">[Prospect's Name]</span>? Hey <span class="fill">[Name]</span>, this is <span class="fill">[Your Name]</span> calling from Young Douglas Insurance. How are you?<br><br>I wanted to reach out because I was reviewing the policies you have with us, and I noticed we carry your <span class="fill">[car/homeowners]</span> insurance, but you don't have your <span class="fill">[other policy]</span> insured with us. I wanted to call and ask — who carries your <span class="fill">[other policy]</span> insurance right now?</div>
+    </div>
+    <div class="script-block">
+      <div class="block-label">Bundle Pitch</div>
+      <div class="block-text">Just so you know — if we bundled your <span class="fill">[homeowner's/car]</span> policy with your <span class="fill">[car/homeowner's]</span> insurance, you could get a huge discount on both policies.<br><br>Before calling you, I started a <span class="fill">[Other Policy]</span> quote to see how much we would save you if we bundled both policies together.</div>
+    </div>
+    <div class="script-block">
+      <div class="block-label">Confirm Details</div>
+      <div class="choose-one">
+        <div class="choose-label">Select one</div>
+        <button class="option-btn"><span class="opt-label">AUTO</span>I see you have a few cars associated with your address. What cars do you drive?</button>
+        <button class="option-btn"><span class="opt-label">HOMEOWNERS</span>I have your address listed as <span class="fill">[Home Address]</span> — is that right?</button>
+      </div>
+    </div>`
+  };
+
+  return `<div class="step-header">
+    <div class="step-title">Step 1 — The Hook</div>
+    <div class="step-sub">Goal: Establish control · Confirm info · Identify motivation · Get 3x "Yes" in 30 seconds</div>
+  </div>
+  ${scripts[callType] || scripts.auto}
+  <ul class="checklist" style="margin-top:12px">
+    ${checkItem('h1','Got 3x "Yes" in first 30 seconds')}
+    ${checkItem('h2','Identified shopping motivation (beyond price)')}
+    ${checkItem('h3','Confirmed address, DOB, own/rent')}
+    ${checkItem('h4','Identified current carrier')}
+    ${checkItem('h5','Asked about other vehicles/drivers')}
+    ${checkItem('h6','Checked occupation & military discounts')}
+  </ul>
+  ${navRow()}`;
+}
+
+// ─── STEP 2: BUILD VALUE ───────────────────────────────────────────────────────
+function step2() {
+  return `<div class="step-header">
+    <div class="step-title">Step 2 — Build Value vs. Price</div>
+    <div class="step-sub">Check for understanding · 2-3 Similarities · 2-3 Gaps · WHY statement</div>
+  </div>
+  <div class="script-block">
+    <div class="block-label">Check for Understanding</div>
+    <div class="block-text"><span class="fill">[Name]</span>, do you know what coverage you currently have with <span class="fill">[Current Insurer]</span>? Do you remember how you picked that coverage?<br><br>Besides price, what is most important to you when it comes to your <span class="fill">[car/home]</span> insurance?<br><br><em style="color:var(--muted)">I like keeping this very simple — I'll explain your coverage and highlight a few things that make us different from other companies.</em></div>
+  </div>
+  <div class="script-block">
+    <div class="block-label">Similarities (2-3) — What stays the same</div>
+    <div class="block-text">I'm reviewing what you have with <span class="fill">[Current Carrier]</span>, and I see you currently have <span class="fill">[coverage details]</span>... that'll remain the same when you're insured here with us.</div>
+  </div>
+  <div class="script-block">
+    <div class="block-label">Coverage Gaps — Auto Examples</div>
+    <div class="block-text">
+      <strong>Gap 1 — Bodily Injury Limits:</strong> In an accident, if there were two people in the car you hit and they were injured, <span class="fill">[Current Insurer]</span> would pay up to <span class="fill">[$50k]</span> per person. The average hospital bill after a car accident is more than that. With us, we'd cover you up to <span class="fill">[$100k]</span> per person and <span class="fill">[$300k]</span> total.<br><br>
+      <strong>Gap 2 — Property Damage:</strong> If the car you hit was totaled — say a $70k Mercedes — your current policy only pays the first <span class="fill">[$50k]</span> and you pay the rest. With us, we'd cover up to <span class="fill">[$100k]</span>.<br><br>
+      <strong>Gap 3 — Rental Reimbursement:</strong> If your car was in the shop after an accident, you'd have to pay for a rental out of pocket. With us, we cover that for you.<br><br>
+      <strong>Gap 4 — Roadside Assistance:</strong> If your car broke down or you got a flat, you're not covered with <span class="fill">[Current Insurer]</span>. With us, just call and we send help — emergency tow, flat tire change, lockout.<br><br>
+      <strong>Gap 5 — Glass Deductible Buyback:</strong> Most companies charge your full deductible to replace a windshield. With us, you only pay $100 and we cover the rest.
+    </div>
+  </div>
+  <div class="script-block">
+    <div class="block-label">Coverage Gaps — Homeowners Examples</div>
+    <div class="block-text">
+      <strong>Gap 1 — Water Loss:</strong> Most policies cap water damage at $10,000. With us, we cover water damage up to your full dwelling amount of <span class="fill">[$Coverage A]</span>.<br><br>
+      <strong>Gap 2 — Service Line:</strong> Underground pipes (water, gas, electric) are NOT covered by standard policies. If your sewer line bursts, the city won't pay — but we would.<br><br>
+      <strong>Gap 3 — Equipment Breakdown:</strong> Standard policies don't cover your AC or heating when they break down. With us, appliances under 15 years old that break due to mechanical failure are covered.<br><br>
+      <strong>Gap 4 — Backup of Sewer & Drain:</strong> If your toilets/bathtubs overflow due to a sewer backup — not covered standard. We cover that.<br><br>
+      <strong>Gap 5 — Replacement Cost vs ACV:</strong> Most companies pay the depreciated value of your roof after a storm. With us, we pay the full replacement cost minus your deductible.
+    </div>
+  </div>
+  <div class="script-block">
+    <div class="block-label">WHY Statement — Weave this in</div>
+    <div class="block-text" style="border-left:3px solid var(--gold);padding-left:12px;font-style:italic">"We do that so that you're not <strong>financially burdened</strong> after an accident — and you don't have to pay thousands of dollars out of pocket because you had a gap in your coverage. That's one of the things that makes our agency different, and it's why people choose to work with us."</div>
+  </div>
+  <ul class="checklist" style="margin-top:12px">
+    ${checkItem('v1','Asked about current coverage knowledge')}
+    ${checkItem('v2','Discussed 2-3 similarities')}
+    ${checkItem('v3','Filled 2-3 coverage gaps with stories')}
+    ${checkItem('v4','Got positive response ("wow, that\'s great!")')}
+    ${checkItem('v5','Delivered WHY statement')}
+  </ul>
+  ${navRow()}`;
+}
+
+// ─── STEP 3: MULTI-LINE ───────────────────────────────────────────────────────
+function step3() {
+  return `<div class="step-header">
+    <div class="step-title">Step 3 — Multi-Line Policies</div>
+    <div class="step-sub">Renters · Homeowners bundle · Umbrella · Life/Mortgage Protection</div>
+  </div>
+  <div class="script-block">
+    <div class="block-label">Renters Insurance (if renter)</div>
+    <div class="choose-one">
+      <div class="choose-label">Select one</div>
+      <button class="option-btn"><span class="opt-label">HAS RENTERS</span>You mentioned you have renters insurance through <span class="fill">[Current Insurer]</span> — is that right?</button>
+      <button class="option-btn"><span class="opt-label">NO RENTERS</span>You mentioned you don't have renters insurance — is that right? Most people don't know that if someone breaks into your car and steals your laptop or purse, that's covered under renters — not car insurance. Also if your apartment catches fire, your landlord's insurance only covers the building, not your belongings. That's what renters is for.</button>
+    </div>
+    <div class="block-text" style="margin-top:10px">The great thing about bundling renters with car insurance is you'll get a significant discount — you end up paying the same price or less than just car insurance by itself!</div>
+  </div>
+  <div class="script-block">
+    <div class="block-label">Umbrella Policy</div>
+    <div class="block-text">Do you know what an umbrella policy is?<br><br>Here's something very important. If something catastrophic happens — say you or your <span class="fill">[son/daughter]</span> gets into a car accident where someone passes away — you could get sued for a lot of money. Typically those lawsuits reach around <strong>$1 million</strong>.<br><br>Your current liability only covers <span class="fill">[$X]</span>. That means you'd be personally responsible for the rest — your retirement account, home equity, savings could all be seized. Or 25% of your paycheck could be garnished monthly.<br><br>With us, an umbrella policy gives you an additional $1 million in coverage for around <span class="fill">[$X/month]</span> — one of the least expensive policies for the amount of protection. It also covers boat accidents and contractor injuries at your home. Does that make sense?</div>
+  </div>
+  <div class="script-block">
+    <div class="block-label">Life / Mortgage Protection</div>
+    <div class="block-text">Another thing we do really well here is help customers set up mortgage protection insurance. This gives your family money to continue paying the mortgage and other bills if something were to happen to you.<br><br>Standard home policies insure your home if it were lost in a fire — but it's actually <strong>much more common</strong> for families to lose their home because of a death than a fire.<br><br>We provide this through Term Life Insurance — <strong>low cost, no medical exam required</strong>. This is one of the most common things that gets missed when people set up homeowners insurance.<br><br>Outside of work, what life insurance do you have in place now?</div>
+  </div>
+  <ul class="checklist" style="margin-top:12px">
+    ${checkItem('m1','Addressed renters insurance')}
+    ${checkItem('m2','Pitched umbrella policy')}
+    ${checkItem('m3','Discussed life/mortgage protection')}
+  </ul>
+  ${navRow()}`;
+}
+
+// ─── STEP 4: COST PRESENTATION ────────────────────────────────────────────────
+function step4() {
+  return `<div class="step-header">
+    <div class="step-title">Step 4 — Cost Presentation</div>
+    <div class="step-sub">Name discounts · Present confidently · Do NOT pause after price</div>
+  </div>
+  <div class="script-block">
+    <div class="block-label">Present the Price</div>
+    <div class="block-text"><span class="fill">[Name]</span>, after finalizing your discounts — like <span class="fill">[list discounts: multi-car, homeowner, military, good driver, etc.]</span> — your rate came back to be only <strong><span class="fill">$[X]</span> per month</strong> for the <span class="fill">[auto and renters / home / auto and home]</span> insurance we just discussed. That's a great rate!</div>
+  </div>
+  <div class="script-block">
+    <div class="block-label">Policy Fee (if applicable)</div>
+    <div class="block-text">Your first month's payment will have a one-time <span class="fill">[$X]</span> policy fee, so your first payment is <span class="fill">[$X]</span> more — after that it'll be <span class="fill">[$X]</span> a month as we discussed.</div>
+  </div>
+  <div class="script-block">
+    <div class="block-label">If Saving Money</div>
+    <div class="block-text">Looks like that'll save you <span class="fill">[$X]</span> a year — so instead of paying that to <span class="fill">[Current Carrier]</span>, you can spend that on <span class="fill">[what's important to them]</span>.</div>
+  </div>
+  <div class="script-block" style="border-color:var(--red);background:rgba(239,68,68,0.05)">
+    <div class="block-label" style="color:var(--red)">⚠ Critical — Don't Do This</div>
+    <div class="block-text" style="color:#fca5a5">Do NOT pause or say "So... what do you think?" after presenting the price. Go DIRECTLY into asking for the sale. Silence after the price kills deals.</div>
+  </div>
+  <ul class="checklist" style="margin-top:12px">
+    ${checkItem('p1','Named all discounts applied')}
+    ${checkItem('p2','Presented price confidently and clearly')}
+    ${checkItem('p3','Explained policy fee if applicable')}
+    ${checkItem('p4','Mentioned savings vs current carrier')}
+    ${checkItem('p5','Went DIRECTLY into asking for the sale (no pause)')}
+  </ul>
+  ${navRow()}`;
+}
+
+// ─── STEP 5: CLOSE ────────────────────────────────────────────────────────────
+function step5() {
+  return `<div class="step-header">
+    <div class="step-title">Step 5 — Asking for the Sale</div>
+    <div class="step-sub">Ask directly · Overcome objections · Ask again · Objections panel is active →</div>
+  </div>
+  <div class="script-block">
+    <div class="block-label">Ask for Payment — Auto</div>
+    <div class="block-text">For your auto insurance, it's very easy to get that started here. We'll help you with the cancellation process with <span class="fill">[Current Carrier]</span> to make sure there is no lapse in coverage. I will process your first month's payment today and your coverage will begin on <span class="fill">[Effective Date]</span>.<br><br>I have everything pulled up on my end...<br><br><strong>"What card would you like to use for your first month's payment — Visa or Mastercard?"</strong></div>
+  </div>
+  <div class="script-block">
+    <div class="block-label">Ask for Payment — Homeowners (Escrowed)</div>
+    <div class="block-text">We'll help move your homeowners policy from <span class="fill">[Current Carrier]</span> to Young Douglas Insurance, so your insurance payment continues to come out every month as part of your monthly mortgage payment — just like it is now.<br><br>I just need to know:<br>• What is the name of the bank where you have your mortgage?<br>• What's your loan number?</div>
+  </div>
+  <div class="script-block">
+    <div class="block-label">Early Shopper / Signing Discount (if applicable)</div>
+    <div class="choose-one">
+      <div class="choose-label">Select one if applicable</div>
+      <button class="option-btn"><span class="opt-label">EARLY SHOPPER</span>Young Douglas gives you a big discount if you start the policy one week after initially getting the quote — it's called the Early Shopper Discount. We'll start the policy on <span class="fill">[Effective Date]</span> to make sure you get the best price. Does that make sense?</button>
+      <button class="option-btn"><span class="opt-label">EARLY SIGNING</span>Young Douglas gives you a big discount if you start your policy one week after making your first payment — it's called the Early Signing Discount. We'll start the policy on <span class="fill">[Effective Date]</span>. Does that make sense?</button>
+    </div>
+  </div>
+  <ul class="checklist" style="margin-top:12px">
+    ${checkItem('c1','Asked "Visa or Mastercard?" directly')}
+    ${checkItem('c2','Handled closing objection using ISL method')}
+    ${checkItem('c3','Asked for the sale AGAIN after objection')}
+    ${checkItem('c4','Addressed any escrow/mortgage details')}
+  </ul>
+  ${navRow()}`;
+}
+
+// ─── STEP 6: WRAP-UP ─────────────────────────────────────────────────────────
+function step6() {
+  return `<div class="step-header">
+    <div class="step-title">Step 6 — Sale Wrap-Up & Onboarding</div>
+    <div class="step-sub">Cancellation · Onboarding appointment · Referrals · Google review</div>
+  </div>
+  <div class="script-block">
+    <div class="block-label">After Payment Collected</div>
+    <div class="block-text">Congratulations! Welcome to Young Douglas Insurance!<br><br>I'll help you with the cancellation process with <span class="fill">[Current Carrier]</span> to make sure there's no lapse in coverage and they send you your refund for the unearned premium.</div>
+  </div>
+  <div class="script-block">
+    <div class="block-label">Onboarding Appointment</div>
+    <div class="block-text">I'd like to schedule a quick onboarding call with you to go over your coverage in detail, make sure you have our contact information, and answer any questions.<br><br>What day this week works for you — would <span class="fill">[Day]</span> or <span class="fill">[Day]</span> be better?</div>
+  </div>
+  <div class="script-block">
+    <div class="block-label">Ask for Referrals</div>
+    <div class="block-text">One last thing — we really appreciate your business. A lot of how we grow is through referrals from happy clients like yourself.<br><br><strong>Do you have any friends, family, or coworkers who might benefit from getting a free insurance review?</strong><br><br>If you send them our way and they become a client, we'll make sure to take great care of them — and take great care of you too.</div>
+  </div>
+  <div class="script-block">
+    <div class="block-label">Google Review</div>
+    <div class="block-text">Also, if you have a moment later today, we'd really appreciate if you left us a Google review. I'll send you the link in a text/email — it only takes about 30 seconds and it really helps our agency. Would you be open to that?</div>
+  </div>
+  <ul class="checklist" style="margin-top:12px">
+    ${checkItem('w1','Celebrated the sale!')}
+    ${checkItem('w2','Handled cancellation / no lapse in coverage')}
+    ${checkItem('w3','Scheduled onboarding appointment')}
+    ${checkItem('w4','Asked for referrals')}
+    ${checkItem('w5','Requested Google review')}
+    ${checkItem('w6','Sent review link via text/email')}
+  </ul>
+  <div class="script-block" style="border-color:var(--green);background:rgba(16,185,129,0.05);text-align:center;margin-top:8px">
+    <div class="block-text" style="color:var(--green);font-size:16px;font-weight:600">🏆 Call Complete — Great Work!</div>
+  </div>
+  ${navRow()}`;
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+renderStep();
+</script>
+</body>
+</html>
