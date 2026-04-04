@@ -135,6 +135,17 @@ textarea { resize:vertical; min-height:60px; }
 .fb-g { background:var(--accent2); color:#fff; }
 .smsg { background:var(--good-bg); border:1px solid #9de5c8; color:var(--good); border-radius:8px; padding:10px 12px; font-size:13px; margin-top:8px; display:none; }
 .hidden { display:none !important; }
+
+/* HELP ACCORDION */
+.help-sec { background:var(--card); border:1px solid var(--border); border-radius:14px; margin-bottom:8px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,0.05); }
+.help-hdr { display:flex; align-items:center; gap:10px; padding:13px 14px; cursor:pointer; user-select:none; }
+.help-hdr:active { background:#f5f7fa; }
+.help-ico { font-size:18px; flex-shrink:0; }
+.help-title { flex:1; font-size:14px; font-weight:700; color:var(--navy); }
+.help-arrow { font-size:16px; color:var(--muted); flex-shrink:0; }
+.help-body { padding:4px 14px 14px; font-size:13px; color:var(--text); line-height:1.65; border-top:1px solid var(--border); }
+.help-body strong { color:var(--navy); }
+
 </style>
 </head>
 <body>
@@ -186,6 +197,7 @@ textarea { resize:vertical; min-height:60px; }
       <button class="mode-tab active" onclick="switchMode('q')" id="tabQ">📋 Questionnaire</button>
       <button class="mode-tab" onclick="switchMode('g')" id="tabG">🔍 Coverage Gaps</button>
       <button class="mode-tab hidden" onclick="switchMode('a')" id="tabA">⚙️ Admin</button>
+      <button class="mode-tab" onclick="switchMode('h')" id="tabH">📖 Help</button>
     </div>
   </div>
 
@@ -275,6 +287,15 @@ textarea { resize:vertical; min-height:60px; }
       </div>
     </div>
 
+
+    <!-- HELP / USER GUIDE -->
+    <div id="modeH" style="display:none">
+      <div class="card">
+        <div class="ch"><span>📖</span><h3>User Guide — Producer's Commercial Toolkit</h3></div>
+        <div class="cb" style="font-size:13px;color:var(--muted);line-height:1.6">Tap any section below to expand it.</div>
+      </div>
+      <div id="helpAccordion"></div>
+    </div>
   </div>
 </div>
 
@@ -352,14 +373,18 @@ document.getElementById('loginUser').addEventListener('keydown', e => { if (e.ke
 
 // ── MODE SWITCHING ──
 function switchMode(m) {
-  ['Q','G','A'].forEach(x => document.getElementById('mode'+x).style.display = 'none');
+  ['Q','G','A','H'].forEach(x => document.getElementById('mode'+x).style.display = 'none');
   document.getElementById('mode'+m.toUpperCase()).style.display = 'block';
-  ['Q','G','A'].forEach(x => document.getElementById('tab'+x).classList.toggle('active', x===m.toUpperCase()));
+  ['Q','G','A','H'].forEach(x => {
+    const t = document.getElementById('tab'+x);
+    if (t) t.classList.toggle('active', x===m.toUpperCase());
+  });
   document.getElementById('pbWrap').style.display = m==='q' ? 'block' : 'none';
   if (m!=='q') document.getElementById('pbText').textContent = '';
   if (m==='q') updateProgress();
   if (m==='a') { curATab='ov'; renderAdmin(); }
   if (m==='g') log(CU.u, 'open_gap_tool');
+  if (m==='h') buildHelp();
 }
 
 // ── ADMIN ──
@@ -645,6 +670,142 @@ async function runGap() {
   }
   btn.disabled=false;
 }
+
+// ── HELP / USER GUIDE ──
+const HELP_SECTIONS = [
+  {
+    icon: '🚀', title: 'What Is This App?',
+    content: `The Producer's Commercial Toolkit is a mobile-friendly web app built exclusively for the Young Douglas Insurance team. It gives every producer two tools in one place — a client questionnaire and an AI-powered coverage gap identifier — accessible from any phone, tablet, or computer.<br><br>The app is password-protected. Each producer has their own login. LaMonte has an admin account with full visibility into team activity and user management.`
+  },
+  {
+    icon: '📱', title: 'Opening the App & Adding to Your Home Screen',
+    content: `The toolkit runs in any browser — Safari, Chrome, or Edge. No download needed.<br><br>
+<strong>iPhone (Safari):</strong><br>
+Open the link → tap the <strong>Share button</strong> (box with arrow) → tap <strong>"Add to Home Screen"</strong> → tap Add. It will appear as an icon on your home screen labeled YDI Toolkit.<br><br>
+<strong>Android (Chrome):</strong><br>
+Open the link → tap the <strong>three-dot menu</strong> → tap <strong>"Add to Home Screen"</strong> → tap Add.<br><br>
+<strong>Computer:</strong><br>
+Bookmark the link in your browser for one-click access.`
+  },
+  {
+    icon: '🔑', title: 'Logging In & First-Login Password Reset',
+    content: `<strong>To log in:</strong> Enter your username (all lowercase, no spaces) and your password, then tap Sign In.<br><br>
+<strong>First login:</strong> The first time you log in, the app will require you to set a new password before continuing. Enter a new password (at least 5 characters), confirm it, and tap "Set Password & Continue." You won't be asked again unless LaMonte resets it.<br><br>
+<strong>Default credentials:</strong><br>
+<div style="background:#f8fafd;border-radius:8px;padding:10px;margin-top:8px;font-size:12px;line-height:2">
+👤 <strong>admin</strong> → YDI2026! (LaMonte)<br>
+👤 <strong>joey</strong> → joey123<br>
+👤 <strong>melissa</strong> → mel123<br>
+👤 <strong>stephanie</strong> → steph123<br>
+👤 <strong>kim</strong> → kim123<br>
+👤 <strong>tia</strong> → tia123
+</div>
+<br>All producers except admin must change their password on first login.`
+  },
+  {
+    icon: '📋', title: 'Tool 1: The Questionnaire',
+    content: `The questionnaire is your intake form for client meetings. It covers <strong>15 coverage types</strong> with industry-specific questions organized by section.<br><br>
+<strong>Step 1 — Select a Coverage Type:</strong> Tap the selector at the top. A menu drops down with all 15 options. Tap the one that matches your prospect.<br><br>
+<strong>Coverage types available:</strong> Homeowner, Personal Auto, Renters, Restaurant, Contractor, Barbershop/Salon, Food Truck, Habitational/Apartments, Commercial Auto, Workers' Comp, BOP/Retail/Office, Life Insurance, Umbrella/Excess, Medicare/Senior, Auto Repair Shop.<br><br>
+<strong>Step 2 — Fill in Client Info:</strong> Enter client name, date, phone, and current carrier at the top.<br><br>
+<strong>Step 3 — Answer the Questions:</strong> Tap any answer field and type your notes. The progress bar in the header shows how many questions you've answered. You don't have to answer every question — just fill in what you learn.<br><br>
+<strong>Step 4 — Email the Summary:</strong> Tap "Email Summary" to open a pre-filled email to LaMonte with all your answers formatted and ready to send. It includes your name, client info, and every question/answer.<br><br>
+⚠️ <strong>Important:</strong> Answers are saved for your current session only. Always email before closing the app or switching devices.`
+  },
+  {
+    icon: '🔍', title: 'Tool 2: Coverage Gap Identifier',
+    content: `The Coverage Gap Identifier uses AI to analyze a prospect's likely coverage weaknesses before or during a call.<br><br>
+<strong>How to use it:</strong><br>
+1. Tap the "Coverage Gaps" tab<br>
+2. Select the Lead Type (Home, Auto, Commercial GL, etc.)<br>
+3. Select the prospect's Current Carrier if you know it<br>
+4. Type any known coverage info in the text box (optional but helpful)<br>
+5. Tap "Analyze Coverage Gaps"<br><br>
+<strong>What you get back:</strong><br>
+• <strong>Sales Angle</strong> — a one-sentence pitch tailored to this prospect<br>
+• <strong>Coverage Gaps Found</strong> — rated High, Medium, or Low severity<br>
+• <strong>Questions to Ask</strong> — to uncover each gap during your call<br>
+• <strong>Farmers / YDI Advantage</strong> — how we address each gap better than their current carrier<br><br>
+💡 <strong>Tip:</strong> The more info you enter in the Known Coverage field, the better the results. Examples: "$250k dwelling, no umbrella" or "restaurant with liquor, no liquor liability."<br><br>
+⚠️ The gap analysis requires an active internet connection.`
+  },
+  {
+    icon: '⚙️', title: 'Admin Dashboard (LaMonte Only)',
+    content: `When logged in as admin, a third tab labeled "Admin" appears. This section is only visible to the admin account.<br><br>
+<strong>Overview Tab:</strong> Live snapshot — total producers, actions today, gap analyses today, emails sent today, most active producer.<br><br>
+<strong>Activity Tab:</strong> Full timestamped log of everything every producer does — sign-ins, questionnaires opened, gap analyses run, emails sent, password changes. Keeps the 500 most recent events.<br><br>
+<strong>Users Tab:</strong><br>
+• <strong>Reset PW</strong> — set a temp password; producer changes it on next login<br>
+• <strong>Remove</strong> — permanently removes the user (activity history preserved)<br><br>
+<strong>Add User Tab:</strong> Enter full name, username (lowercase, no spaces), and a temp password. The new user can log in immediately and will be prompted to set their own password.`
+  },
+  {
+    icon: '💡', title: 'Tips & Best Practices',
+    content: `<strong>During client meetings:</strong><br>
+• Open the app before the meeting starts<br>
+• Select the coverage type first, then fill in client info<br>
+• Type short notes — you don't need full sentences<br>
+• Hit "Email Summary" before ending the call<br><br>
+<strong>On cold calls:</strong><br>
+• Run the Coverage Gap Identifier before calling using info from the lead form<br>
+• Use the Questions to Ask to guide the conversation naturally<br>
+• Reference the Sales Angle in your opener<br>
+• Use Farmers / YDI Advantage to close<br><br>
+<strong>General:</strong><br>
+• Add the app to your home screen for one-tap access<br>
+• The app works offline except for the Gap Analysis (that needs internet)<br>
+• Always email your questionnaire before closing the browser`
+  },
+  {
+    icon: '🛠', title: 'Troubleshooting',
+    content: `<div style="display:flex;flex-direction:column;gap:8px">
+      ${[
+        ["Can't log in", "Check your username is all lowercase. Check caps lock. Contact LaMonte to reset your password if still stuck."],
+        ["Forced to change password again", "LaMonte reset your password. Use the temp password he gave you, then set a new one."],
+        ["Gap Analysis won't load", "You need an active internet connection. Check your Wi-Fi or data and try again."],
+        ["Questionnaire answers disappeared", "Answers reset when you close the browser. Always email the summary before closing."],
+        ["Email doesn't open", "Your device may not have a default email app set. Try opening on a computer instead."],
+        ["App looks broken / won't load", "Pull down to refresh on mobile, or Ctrl+Shift+R on desktop. Clear browser cache if it persists."],
+        ["Admin tab not showing", "The Admin tab only appears for the admin account."],
+      ].map(([p,s]) => `<div style="background:#f8fafd;border-radius:8px;padding:10px 12px">
+        <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:3px">${p}</div>
+        <div style="font-size:12.5px;color:var(--muted);line-height:1.5">${s}</div>
+      </div>`).join('')}
+    </div>`
+  },
+  {
+    icon: '📞', title: 'Questions & Support',
+    content: `For any issues with the app, login problems, or requests to add or remove users:<br><br>
+<strong>LaMonte Douglas</strong><br>
+Young Douglas Insurance · Farmers Insurance<br>
+📧 lamonte@legacyprotectorsins.com<br>
+📞 (909) 303-3722`
+  }
+];
+
+function buildHelp() {
+  const el = document.getElementById('helpAccordion');
+  if (el.innerHTML) return; // already built
+  el.innerHTML = HELP_SECTIONS.map((s, i) => `
+    <div class="help-sec" id="hs${i}">
+      <div class="help-hdr" onclick="toggleHelp(${i})">
+        <span class="help-ico">${s.icon}</span>
+        <span class="help-title">${s.title}</span>
+        <span class="help-arrow" id="ha${i}">▾</span>
+      </div>
+      <div class="help-body" id="hb${i}" style="display:none">${s.content}</div>
+    </div>
+  `).join('');
+}
+
+function toggleHelp(i) {
+  const body = document.getElementById('hb'+i);
+  const arrow = document.getElementById('ha'+i);
+  const open = body.style.display !== 'none';
+  body.style.display = open ? 'none' : 'block';
+  arrow.textContent = open ? '▾' : '▴';
+}
+
 </script>
 </body>
 </html>
