@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YDI Lead Intake — Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/recharts/2.5.0/Recharts.js"></script>
+<style>
+  :root {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8f7f4;
+    --bg-tertiary: #f1f0ec;
+    --bg-info: #eff6ff;
+    --bg-success: #f0fdf4;
+    --bg-warning: #fff7ed;
+    --bg-danger: #fef2f2;
+    --text-primary: #111110;
+    --text-secondary: #6b6b67;
+    --text-tertiary: #9b9b97;
+    --text-info: #1d4ed8;
+    --text-success: #166534;
+    --text-warning: #c2410c;
+    --text-danger: #991b1b;
+    --border: rgba(0,0,0,0.1);
+    --border-med: rgba(0,0,0,0.18);
+    --accent: #EA580C;
+    --accent-dark: #C2410C;
+    --font: -apple-system, 'Helvetica Neue', Arial, sans-serif;
+    --mono: 'SF Mono', 'Fira Code', monospace;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg-primary: #1c1c1a;
+      --bg-secondary: #242422;
+      --bg-tertiary: #2c2c2a;
+      --bg-info: #0c2040;
+      --bg-success: #0b2514;
+      --bg-warning: #2a1500;
+      --bg-danger: #2a0a0a;
+      --text-primary: #f0ede8;
+      --text-secondary: #9b9b97;
+      --text-tertiary: #6b6b67;
+      --text-info: #93c5fd;
+      --text-success: #86efac;
+      --text-warning: #fdba74;
+      --text-danger: #fca5a5;
+      --border: rgba(255,255,255,0.1);
+      --border-med: rgba(255,255,255,0.18);
+    }
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 14px; }
+  body {
+    font-family: var(--font);
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  #root { min-height: 100vh; }
+
+  /* NAV */
+  .nav {
+    background: var(--bg-primary);
+    border-bottom: 0.5px solid var(--border);
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .nav::-webkit-scrollbar { display: none; }
+  .nav-logo {
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--accent);
+    margin-right: 16px;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .nav-logo-icon {
+    width: 28px; height: 28px;
+    background: var(--accent);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-weight: 700; font-size: 13px;
+  }
+  .nav-tab {
+    padding: 14px 13px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    font-size: 13px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    transition: color .15s;
+    user-select: none;
+  }
+  .nav-tab:hover { color: var(--text-primary); }
+  .nav-tab.active { border-bottom-color: var(--accent); color: var(--accent); font-weight: 500; }
+  .nav-right { margin-left: auto; display: flex; align-items: center; gap: 12px; white-space: nowrap; padding-left: 12px; }
+
+  /* PAGE */
+  .page { padding: 24px 20px; max-width: 1100px; margin: 0 auto; }
+
+  /* CARDS */
+  .card {
+    background: var(--bg-primary);
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px 20px;
+  }
+  .card + .card { margin-top: 14px; }
+
+  /* METRICS */
+  .metric {
+    background: var(--bg-secondary);
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+  }
+  .metric-label { font-size: 11px; color: var(--text-secondary); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .04em; }
+  .metric-val { font-size: 28px; font-weight: 500; line-height: 1; }
+  .metric-sub { font-size: 11px; color: var(--text-tertiary); margin-top: 6px; }
+
+  /* GRIDS */
+  .g4 { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 12px; }
+  .g3 { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; }
+  .g2 { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 16px; }
+  @media(max-width:700px) { .g4,.g3,.g2 { grid-template-columns: 1fr 1fr; } }
+  @media(max-width:480px) { .g4,.g3 { grid-template-columns: 1fr; } }
+
+  /* TYPOGRAPHY */
+  .sec-title { font-size: 16px; font-weight: 500; margin-bottom: 16px; }
+  .sec-sub { font-size: 12px; color: var(--text-secondary); margin-bottom: 16px; margin-top: -10px; }
+
+  /* DIVIDERS */
+  .sep { border: none; border-top: 0.5px solid var(--border); margin: 16px 0; }
+
+  /* TABLE */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; font-size: 11px; font-weight: 500; color: var(--text-secondary); padding: 8px 10px; border-bottom: 0.5px solid var(--border); text-transform: uppercase; letter-spacing: .04em; }
+  td { padding: 11px 10px; border-bottom: 0.5px solid var(--border); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--bg-secondary); }
+
+  /* BUTTONS */
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 14px; border: 0.5px solid var(--border-med);
+    border-radius: var(--radius-md); cursor: pointer; font-size: 13px;
+    background: transparent; color: var(--text-primary);
+    transition: background .15s; font-family: var(--font);
+  }
+  .btn:hover { background: var(--bg-secondary); }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+  .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .btn-primary:hover { background: var(--accent-dark); }
+  .btn-danger { color: var(--text-danger); border-color: rgba(153,27,27,.3); }
+  .btn-danger:hover { background: var(--bg-danger); }
+  .btn-ghost { border-color: transparent; }
+
+  /* BADGES */
+  .badge { display: inline-block; font-size: 11px; padding: 2px 9px; border-radius: 20px; font-weight: 500; white-space: nowrap; }
+  .badge-green { background: var(--bg-success); color: var(--text-success); }
+  .badge-orange { background: var(--bg-warning); color: var(--text-warning); }
+  .badge-gray { background: var(--bg-secondary); color: var(--text-secondary); }
+  .badge-blue { background: var(--bg-info); color: var(--text-info); }
+  .badge-red { background: var(--bg-danger); color: var(--text-danger); }
+
+  /* TOGGLE */
+  .toggle { position: relative; width: 40px; height: 22px; border-radius: 11px; cursor: pointer; transition: background .2s; flex-shrink: 0; border: none; }
+  .toggle.on { background: var(--accent); }
+  .toggle.off { background: var(--border-med); }
+  .toggle-dot { position: absolute; top: 3px; width: 16px; height: 16px; border-radius: 50%; background: #fff; transition: left .2s; }
+  .toggle.on .toggle-dot { left: 21px; }
+  .toggle.off .toggle-dot { left: 3px; }
+
+  /* FORM */
+  input[type=text], input[type=password], input[type=number], input[type=email], select, textarea {
+    width: 100%;
+    background: var(--bg-secondary);
+    border: 0.5px solid var(--border-med);
+    border-radius: var(--radius-md);
+    padding: 8px 12px;
+    font-size: 13px;
+    color: var(--text-primary);
+    font-family: var(--font);
+    transition: border-color .15s;
+  }
+  input:focus, select:focus { outline: none; border-color: var(--accent); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .form-label { font-size: 11px; color: var(--text-secondary); margin-bottom: 4px; text-transform: uppercase; letter-spacing: .04em; }
+
+  /* CONTROL ROW */
+  .ctrl-row { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 0.5px solid var(--border); gap: 16px; }
+  .ctrl-row:last-child { border-bottom: none; }
+  .ctrl-label { font-size: 13px; font-weight: 500; }
+  .ctrl-desc { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+  /* KILL SWITCH */
+  .kill-btn {
+    width: 100%; padding: 20px;
+    font-size: 16px; font-weight: 500;
+    border-radius: var(--radius-lg);
+    cursor: pointer; border: 1px solid;
+    transition: all .2s; font-family: var(--font);
+  }
+  .kill-on { background: var(--bg-danger); color: var(--text-danger); border-color: rgba(153,27,27,.25); }
+  .kill-on:hover { background: #fee2e2; }
+  .kill-off { background: var(--bg-success); color: var(--text-success); border-color: rgba(22,101,52,.25); }
+  .kill-off:hover { background: #dcfce7; }
+
+  /* PROGRESS */
+  .progress { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; margin-top: 4px; }
+  .progress-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: width .3s; }
+
+  /* TAB PILLS */
+  .tab-row { display: flex; gap: 6px; margin-bottom: 16px; }
+  .tab-pill { padding: 6px 14px; border-radius: 20px; font-size: 12px; cursor: pointer; border: 0.5px solid var(--border); background: transparent; color: var(--text-secondary); font-family: var(--font); transition: all .15s; }
+  .tab-pill:hover { border-color: var(--border-med); color: var(--text-primary); }
+  .tab-pill.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  /* AVATAR */
+  .avatar { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; flex-shrink: 0; }
+  .avatar-orange { background: var(--bg-warning); color: var(--text-warning); }
+  .avatar-blue { background: var(--bg-info); color: var(--text-info); }
+
+  /* TOAST */
+  .toast {
+    position: fixed; top: 20px; right: 20px;
+    padding: 10px 18px; border-radius: var(--radius-md);
+    font-size: 13px; font-weight: 500; z-index: 9999;
+    box-shadow: 0 4px 16px rgba(0,0,0,.12);
+    animation: slideIn .2s ease;
+  }
+  .toast-success { background: var(--bg-success); color: var(--text-success); border: 0.5px solid rgba(22,101,52,.25); }
+  .toast-error { background: var(--bg-danger); color: var(--text-danger); border: 0.5px solid rgba(153,27,27,.25); }
+  @keyframes slideIn { from { opacity:0; transform: translateX(20px); } to { opacity:1; transform: translateX(0); } }
+
+  /* LOGIN */
+  .login-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; background: var(--bg-tertiary); }
+  .login-card { background: var(--bg-primary); border: 0.5px solid var(--border); border-radius: 16px; padding: 36px; width: 360px; max-width: 100%; }
+
+  /* STATUS DOT */
+  .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .dot-green { background: #22c55e; }
+  .dot-red { background: #ef4444; }
+  .dot-orange { background: #f97316; }
+  .dot-gray { background: #9ca3af; }
+
+  /* MISC */
+  .flex { display: flex; }
+  .items-center { align-items: center; }
+  .justify-between { justify-content: space-between; }
+  .gap-8 { gap: 8px; }
+  .gap-12 { gap: 12px; }
+  .mb-4 { margin-bottom: 16px; }
+  .mb-3 { margin-bottom: 12px; }
+  .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .text-sm { font-size: 12px; }
+  .text-muted { color: var(--text-secondary); }
+  .fw500 { font-weight: 500; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const { useState } = React;
+const { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } = Recharts;
+
+const ACCENT = '#EA580C';
+
+// ── Default Data ─────────────────────────────────────────────────
+const DEFAULT_USERS = [
+  { id:1, username:'lamonte',   name:'LaMonte Douglas', role:'admin',       password:'YDI2026' },
+  { id:2, username:'melissa',   name:'Melissa (YDI)',   role:'admin',       password:'Legacy#Ins24' },
+  { id:3, username:'tia',       name:'Tia Jones',       role:'coordinator', password:'YDI@Coord25' },
+  { id:4, username:'joey',      name:'Joey Quintero',   role:'producer',    password:'Producer!J1' },
+  { id:5, username:'stephanie', name:'Stephanie Jones', role:'producer',    password:'Producer!S1' },
+];
+
+const DEFAULT_PRODUCERS = [
+  { id:'joey', firstName:'Joey', fullName:'Joey Quintero', role:'Primary', lines:'Personal + Commercial', email:'joseph@legacyprotectorsins.com', phone:'909-443-2188', active:true },
+  { id:'melissa', firstName:'Melissa', fullName:'Melissa (YDI)', role:'Secondary', lines:'Personal Lines', email:'melissa.ydouglas@farmersagency.com', phone:'', active:true },
+  { id:'stephanie', firstName:'Stephanie', fullName:'Stephanie Jones', role:'Learning', lines:'Personal + Commercial (CC)', email:'stephanie1.ydouglas@farmersagency.com', phone:'909-295-6944', active:true },
+];
+
+const DEFAULT_SETTINGS = {
+  systemEnabled: true,
+  trialMode: true,
+  andreaEnabled: true,
+  bizFileLookup: true,
+  andreaMaxExchanges: 5,
+  andreaCutoffHour: 17,
+  andreaCutoffMinute: 15,
+  joeyCapacityLimit: 15,
+  workerUrl: 'https://ydi-ctm-proxy.lamonte.workers.dev',
+  ctmPhone: '(888) 968-6429',
+  yolandaPhone: '909-303-3722',
+  trialEmail: 'lamonte@legacyprotectorsins.com',
+};
+
+const MOCK_KPI = {
+  today: { total:23, commercial:9, personal:14, qualified:17, optouts:1, andrea:3, takeovers:2 },
+  week:  { total:118, commercial:47, personal:71, qualified:85, optouts:4, andrea:8, takeovers:11 },
+  month: { total:412, commercial:164, personal:248, qualified:298, optouts:14, andrea:22, takeovers:36 },
+};
+
+const DAILY_DATA = [
+  {day:'Mon',total:18,comm:7},{day:'Tue',total:24,comm:10},{day:'Wed',total:31,comm:13},
+  {day:'Thu',total:23,comm:9},{day:'Fri',total:15,comm:6},{day:'Sat',total:4,comm:2},
+  {day:'Today',total:23,comm:9},
+];
+
+const MOCK_CONVERSATIONS = [
+  { phone:'6023630321',display:'(602) 363-0321',name:'Carol Cole',type:'Commercial',exchanges:3,maxEx:5,lastMsg:'We do electrical work for commercial properties.',status:'active',time:'2:34 PM'},
+  { phone:'9095550142',display:'(909) 555-0142',name:'Marcus Webb',type:'Personal Auto',exchanges:1,maxEx:5,lastMsg:'Looking for auto on a 2022 Toyota Camry.',status:'active',time:'2:41 PM'},
+  { phone:'9515550187',display:'(951) 555-0187',name:'GRP Construction',type:'Commercial',exchanges:5,maxEx:5,lastMsg:'12 employees, about $800K annual revenue.',status:'qualified',time:'1:15 PM'},
+  { phone:'7605550193',display:'(760) 555-0193',name:'Ana Rivera',type:'Personal Home',exchanges:2,maxEx:5,lastMsg:'1234 Oak St, Riverside CA.',status:'active',time:'12:52 PM'},
+];
+
+const MOCK_OPTOUTS = [
+  { phone:'(760) 555-0123', name:'Joan Mazon', date:'3/19/2026', reason:'STOP' },
+  { phone:'(951) 555-0145', name:'Lloyd Thompson', date:'3/14/2026', reason:'STOP' },
+  { phone:'(909) 555-0198', name:'Imdad Khan', date:'3/13/2026', reason:'Not interested' },
+];
+
+// ── Persist to localStorage ───────────────────────────────────────
+function load(key, def) {
+  try { const v = localStorage.getItem('ydi_'+key); return v ? JSON.parse(v) : def; }
+  catch(e) { return def; }
+}
+function save(key, val) {
+  try { localStorage.setItem('ydi_'+key, JSON.stringify(val)); } catch(e) {}
+}
+
+// ── Toggle ────────────────────────────────────────────────────────
+function Toggle({on, onToggle}) {
+  return React.createElement('button', {
+    className: 'toggle '+(on?'on':'off'),
+    onClick: onToggle,
+    children: React.createElement('div', {className:'toggle-dot'})
+  });
+}
+
+// ── Main App ──────────────────────────────────────────────────────
+function App() {
+  const [session, setSession] = useState(null);
+  const [loginForm, setLoginForm] = useState({username:'',password:'',error:''});
+  const [section, setSection] = useState('overview');
+  const [toast, setToast] = useState(null);
+  const [period, setPeriod] = useState('today');
+
+  const [settings, setSettingsState] = useState(() => load('settings', DEFAULT_SETTINGS));
+  const [producers, setProducersState] = useState(() => load('producers', DEFAULT_PRODUCERS));
+  const [users, setUsersState] = useState(() => load('users', DEFAULT_USERS));
+  const [conversations, setConversations] = useState(MOCK_CONVERSATIONS);
+  const [optouts, setOptouts] = useState(() => load('optouts', MOCK_OPTOUTS));
+  const [takenOver, setTakenOver] = useState({});
+
+  const [showAddP, setShowAddP] = useState(false);
+  const [showAddU, setShowAddU] = useState(false);
+  const [newP, setNewP] = useState({firstName:'',fullName:'',role:'Secondary',lines:'',email:'',phone:''});
+  const [newU, setNewU] = useState({username:'',name:'',role:'producer',password:''});
+
+  const showToast = (msg, type='success') => {
+    setToast({msg,type});
+    setTimeout(()=>setToast(null), 2800);
+  };
+
+  const setSettings = (fn) => {
+    setSettingsState(s => {
+      const next = typeof fn === 'function' ? fn(s) : fn;
+      save('settings', next);
+      return next;
+    });
+  };
+  const setProducers = (fn) => {
+    setProducersState(s => {
+      const next = typeof fn === 'function' ? fn(s) : fn;
+      save('producers', next);
+      return next;
+    });
+  };
+  const setUsers = (fn) => {
+    setUsersState(s => {
+      const next = typeof fn === 'function' ? fn(s) : fn;
+      save('users', next);
+      return next;
+    });
+  };
+  const setOpts = (fn) => {
+    setOptouts(s => {
+      const next = typeof fn === 'function' ? fn(s) : fn;
+      save('optouts', next);
+      return next;
+    });
+  };
+
+  const upSetting = (k,v) => { setSettings(s=>({...s,[k]:v})); showToast('Saved'); };
+
+  // ── Login ────────────────────────────────────────────────────────
+  const handleLogin = () => {
+    const found = users.find(u=>u.username===loginForm.username && u.password===loginForm.password);
+    if (found) { setSession(found); setLoginForm({username:'',password:'',error:''}); }
+    else setLoginForm(f=>({...f,error:'Invalid username or password'}));
+  };
+
+  if (!session) {
+    return React.createElement('div', {className:'login-wrap'},
+      React.createElement('div', {className:'login-card'},
+        React.createElement('div', {style:{display:'flex',alignItems:'center',gap:10,marginBottom:24}},
+          React.createElement('div', {style:{width:36,height:36,background:ACCENT,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontWeight:700,fontSize:15}}, 'Y'),
+          React.createElement('div', null,
+            React.createElement('div', {style:{fontWeight:600,fontSize:15}}, 'YDI Lead Intake'),
+            React.createElement('div', {style:{fontSize:12,color:'var(--text-secondary)'}}, 'Dashboard — sign in to continue')
+          )
+        ),
+        ['username','password'].map(field =>
+          React.createElement('div', {key:field, style:{marginBottom:12}},
+            React.createElement('div', {className:'form-label'}, field),
+            React.createElement('input', {
+              type: field==='password'?'password':'text',
+              value: loginForm[field],
+              placeholder: field==='password'?'••••••••':'your username',
+              onChange: e => setLoginForm(f=>({...f,[field]:e.target.value})),
+              onKeyDown: e => e.key==='Enter' && handleLogin()
+            })
+          )
+        ),
+        loginForm.error && React.createElement('div', {style:{fontSize:12,color:'var(--text-danger)',marginBottom:10}}, loginForm.error),
+        React.createElement('button', {className:'btn btn-primary',style:{width:'100%',justifyContent:'center',marginTop:4},onClick:handleLogin}, 'Sign in'),
+        React.createElement('div', {style:{fontSize:11,color:'var(--text-tertiary)',marginTop:16,textAlign:'center'}}, 'YDI — Confidential & Internal Use Only')
+      )
+    );
+  }
+
+  const isAdmin = session.role==='admin';
+  const isCoord = session.role==='coordinator' || isAdmin;
+  const kpi = MOCK_KPI[period] || MOCK_KPI.today;
+  const qualifyPct = Math.round((kpi.qualified/kpi.total)*100);
+  const commPct = Math.round((kpi.commercial/kpi.total)*100);
+  const pieData = [
+    {name:'Commercial',value:kpi.commercial,color:ACCENT},
+    {name:'Personal',value:kpi.personal,color:'#2563EB'},
+  ];
+
+  const navItems = [
+    {id:'overview',label:'Overview'},
+    {id:'system',label:'System Control'},
+    {id:'settings',label:'Settings'},
+    {id:'producers',label:'Producers'},
+    {id:'conversations',label:'Conversations'},
+    {id:'optouts',label:'Opt-outs'},
+    ...(isAdmin ? [{id:'users',label:'Users & Access'}] : []),
+  ];
+
+  const e = React.createElement;
+
+  // ── Shared Components ────────────────────────────────────────────
+  const SectionHeader = ({title, right}) => e('div', {className:'flex items-center justify-between mb-4'},
+    e('div', {className:'sec-title',style:{margin:0}}, title),
+    right
+  );
+
+  // ── OVERVIEW ────────────────────────────────────────────────────
+  const Overview = () => e('div', {className:'page'},
+    e(SectionHeader, {
+      title: 'Performance Overview',
+      right: e('div', {className:'tab-row',style:{margin:0}},
+        ['today','week','month'].map(p =>
+          e('button', {key:p, className:'tab-pill '+(period===p?'active':''), onClick:()=>setPeriod(p)},
+            p==='today'?'Today':p==='week'?'This Week':'This Month'
+          )
+        )
+      )
+    }),
+    e('div', {className:'g4 mb-4'},
+      [
+        {label:'Total Leads', val:kpi.total, sub:commPct+'% commercial'},
+        {label:'Qualified by Andrea', val:kpi.qualified, sub:qualifyPct+'% qualify rate', progress:qualifyPct},
+        {label:'Andrea Active', val:kpi.andrea, sub:'conversations open'},
+        {label:'Opt-outs', val:kpi.optouts, sub:'STOP replies', danger:kpi.optouts>5},
+      ].map((m,i) => e('div', {key:i, className:'metric'},
+        e('div', {className:'metric-label'}, m.label),
+        e('div', {className:'metric-val', style:{color:m.danger?'var(--text-danger)':undefined}}, m.val),
+        m.progress!=null && e('div', {className:'progress',style:{marginTop:8}}, e('div',{className:'progress-fill',style:{width:m.progress+'%'}})),
+        e('div', {className:'metric-sub'}, m.sub)
+      ))
+    ),
+    e('div', {className:'g2 mb-4'},
+      e('div', {className:'card'},
+        e('div', {style:{fontSize:13,fontWeight:500,color:'var(--text-secondary)',marginBottom:12}}, 'Daily leads — last 7 days'),
+        e('div', {style:{height:200}},
+          e(ResponsiveContainer, {width:'100%',height:'100%'},
+            e(BarChart, {data:DAILY_DATA, margin:{top:4,right:4,left:-20,bottom:0}},
+              e(XAxis, {dataKey:'day', tick:{fontSize:11}, axisLine:false, tickLine:false}),
+              e(YAxis, {tick:{fontSize:11}, axisLine:false, tickLine:false}),
+              e(Tooltip, {contentStyle:{fontSize:12,borderRadius:8,border:'0.5px solid #e5e7eb'}}),
+              e(Bar, {dataKey:'total', fill:ACCENT, radius:[4,4,0,0], name:'Total'}),
+              e(Bar, {dataKey:'comm', fill:'#FED7AA', radius:[4,4,0,0], name:'Commercial'})
+            )
+          )
+        )
+      ),
+      e('div', {className:'card'},
+        e('div', {style:{fontSize:13,fontWeight:500,color:'var(--text-secondary)',marginBottom:12}}, 'Lead type breakdown'),
+        e('div', {style:{height:160}},
+          e(ResponsiveContainer, {width:'100%',height:'100%'},
+            e(PieChart, null,
+              e(Pie, {data:pieData, cx:'50%', cy:'50%', innerRadius:50, outerRadius:75, dataKey:'value'},
+                pieData.map((d,i) => e(Cell, {key:i, fill:d.color}))
+              ),
+              e(Tooltip, {contentStyle:{fontSize:12,borderRadius:8}})
+            )
+          )
+        ),
+        e('div', {style:{display:'flex',justifyContent:'center',gap:20,marginTop:8}},
+          pieData.map(d => e('div', {key:d.name, className:'flex items-center gap-8', style:{fontSize:12}},
+            e('div', {style:{width:10,height:10,borderRadius:2,background:d.color}}),
+            e('span', {style:{color:'var(--text-secondary)'}}, d.name+' '+d.value)
+          ))
+        ),
+        e('hr', {className:'sep'}),
+        e('div', {className:'g3'},
+          [{label:'Commercial',val:kpi.commercial},{label:'Personal',val:kpi.personal},{label:'Qualified',val:kpi.qualified,accent:true}]
+            .map(x => e('div', {key:x.label},
+              e('div', {style:{fontSize:11,color:'var(--text-secondary)'}}, x.label),
+              e('div', {style:{fontWeight:500,color:x.accent?ACCENT:undefined}}, x.val)
+            ))
+        )
+      )
+    ),
+    e('div', {className:'card'},
+      e('div', {className:'flex items-center gap-12', style:{flexWrap:'wrap'}},
+        e('span', {style:{fontSize:13,color:'var(--text-secondary)'}},'System status:'),
+        e('div', {className:'flex items-center gap-8'},
+          e('div', {className:'dot '+(settings.systemEnabled?'dot-green':'dot-red')}),
+          e('span', {className:'badge '+(settings.systemEnabled?'badge-green':'badge-red')}, settings.systemEnabled?'Active':'Offline')
+        ),
+        e('span', {className:'badge '+(settings.trialMode?'badge-orange':'badge-green')}, settings.trialMode?'Trial Mode':'Live'),
+        e('span', {className:'badge '+(settings.andreaEnabled?'badge-blue':'badge-gray')}, settings.andreaEnabled?'Andrea ON':'Andrea OFF'),
+        e('span', {className:'badge badge-gray', style:{fontFamily:'var(--mono)',fontSize:11}}, settings.workerUrl.replace('https://',''))
+      )
+    )
+  );
+
+  // ── SYSTEM CONTROL ───────────────────────────────────────────────
+  const SystemControl = () => e('div', {className:'page'},
+    e('div', {className:'sec-title'}, 'System Control'),
+    e('div', {className:'sec-sub'}, 'Use the kill switch to pause all outbound activity immediately.'),
+    e('div', {className:'card mb-4'},
+      e('button', {
+        className: 'kill-btn '+(settings.systemEnabled?'kill-on':'kill-off'),
+        onClick: () => { upSetting('systemEnabled', !settings.systemEnabled); }
+      }, settings.systemEnabled ? 'System is ACTIVE — click to kill all outbound' : 'System is OFFLINE — click to reactivate'),
+      e('div', {style:{fontSize:12,color:'var(--text-secondary)',marginTop:10,textAlign:'center'}},
+        settings.systemEnabled
+          ? 'All inbound leads are being processed. Texts and emails are firing.'
+          : 'No texts or emails are being sent. Webhooks are still received and logged.'
+      )
+    ),
+    e('div', {className:'card'},
+      e('div', {style:{fontWeight:500,marginBottom:4}}, 'Feature Toggles'),
+      e('div', {style:{fontSize:12,color:'var(--text-secondary)',marginBottom:12}}, 'Changes apply to the next lead that comes in.'),
+      [
+        {key:'trialMode', label:'Trial Mode', desc:'Route all output to LaMonte only. No texts or producer emails sent.'},
+        {key:'andreaEnabled', label:'Andrea AI', desc:'Enable conversational qualification via text before producer contact.'},
+        {key:'bizFileLookup', label:'BizFile / CSLB Lookup', desc:'Auto-search CA SOS BizFile and CSLB for commercial leads.'},
+      ].map(item => e('div', {key:item.key, className:'ctrl-row'},
+        e('div', null,
+          e('div', {className:'ctrl-label'}, item.label),
+          e('div', {className:'ctrl-desc'}, item.desc)
+        ),
+        e(Toggle, {on:settings[item.key], onToggle:()=>upSetting(item.key,!settings[item.key])})
+      ))
+    )
+  );
+
+  // ── SETTINGS ────────────────────────────────────────────────────
+  const Settings = () => e('div', {className:'page'},
+    e('div', {className:'sec-title'}, 'System Settings'),
+    e('div', {className:'g2'},
+      e('div', null,
+        e('div', {className:'card'},
+          e('div', {style:{fontWeight:500,marginBottom:12}}, 'Andrea Configuration'),
+          e('div', {className:'ctrl-row'},
+            e('div', null,
+              e('div', {className:'ctrl-label'}, 'Max Exchanges'),
+              e('div', {className:'ctrl-desc'}, 'Messages Andrea handles before handing off')
+            ),
+            e('input', {type:'number', value:settings.andreaMaxExchanges, min:1, max:10,
+              style:{width:64,textAlign:'center'},
+              onChange:e2=>upSetting('andreaMaxExchanges',parseInt(e2.target.value)||5)})
+          ),
+          e('div', {className:'ctrl-row'},
+            e('div', null,
+              e('div', {className:'ctrl-label'}, 'Cutoff Time (PT)'),
+              e('div', {className:'ctrl-desc'}, 'Andrea stops responding after this time')
+            ),
+            e('div', {className:'flex items-center gap-8'},
+              e('input', {type:'number', value:settings.andreaCutoffHour, min:0, max:23,
+                style:{width:55,textAlign:'center'},
+                onChange:e2=>upSetting('andreaCutoffHour',parseInt(e2.target.value))}),
+              e('span', {style:{color:'var(--text-secondary)'}}, ':'),
+              e('input', {type:'number', value:settings.andreaCutoffMinute, min:0, max:59,
+                style:{width:55,textAlign:'center'},
+                onChange:e2=>upSetting('andreaCutoffMinute',parseInt(e2.target.value))})
+            )
+          ),
+          e('div', {className:'ctrl-row'},
+            e('div', null,
+              e('div', {className:'ctrl-label'}, 'Joey Capacity Limit'),
+              e('div', {className:'ctrl-desc'}, 'Flag assignment after this many leads per day')
+            ),
+            e('input', {type:'number', value:settings.joeyCapacityLimit, min:1, max:50,
+              style:{width:64,textAlign:'center'},
+              onChange:e2=>upSetting('joeyCapacityLimit',parseInt(e2.target.value)||15)})
+          )
+        ),
+        e('div', {className:'card', style:{marginTop:14}},
+          e('div', {style:{fontWeight:500,marginBottom:12}}, 'Phone Numbers'),
+          e('div', {className:'ctrl-row'},
+            e('div', null,
+              e('div', {className:'ctrl-label'}, 'CTM Texting Number'),
+              e('div', {className:'ctrl-desc'}, 'Outbound texts sent from this number')
+            ),
+            e('input', {type:'text', value:settings.ctmPhone, style:{width:160},
+              onChange:e2=>upSetting('ctmPhone',e2.target.value)})
+          ),
+          e('div', {className:'ctrl-row'},
+            e('div', null,
+              e('div', {className:'ctrl-label'}, 'Yolanda After-Hours'),
+              e('div', {className:'ctrl-desc'}, 'Number given in after-hours handoff message')
+            ),
+            e('input', {type:'text', value:settings.yolandaPhone, style:{width:160},
+              onChange:e2=>upSetting('yolandaPhone',e2.target.value)})
+          )
+        )
+      ),
+      e('div', null,
+        e('div', {className:'card'},
+          e('div', {style:{fontWeight:500,marginBottom:12}}, 'Worker & Email'),
+          e('div', {style:{marginBottom:12}},
+            e('div', {className:'form-label'}, 'Cloudflare Worker URL'),
+            e('input', {type:'text', value:settings.workerUrl,
+              onChange:e2=>upSetting('workerUrl',e2.target.value)})
+          ),
+          e('div', {style:{marginBottom:12}},
+            e('div', {className:'form-label'}, 'Trial Email Recipient'),
+            e('input', {type:'text', value:settings.trialEmail,
+              onChange:e2=>upSetting('trialEmail',e2.target.value)})
+          ),
+          e('button', {className:'btn btn-primary', onClick:()=>showToast('Worker settings saved')}, 'Save')
+        ),
+        e('div', {className:'card', style:{marginTop:14}},
+          e('div', {style:{fontWeight:500,marginBottom:12}}, 'Takeover Link'),
+          e('div', {style:{fontSize:12,color:'var(--text-secondary)',marginBottom:10}}, 'Producers click this to stop Andrea and take over a lead conversation.'),
+          e('div', {style:{background:'var(--bg-secondary)',borderRadius:8,padding:'8px 12px',fontFamily:'var(--mono)',fontSize:11,wordBreak:'break-all',color:'var(--text-secondary)'}},
+            settings.workerUrl+'/go/{phone}'
+          ),
+          e('div', {style:{marginTop:8}},
+            e('div', {className:'form-label'}, 'Example'),
+            e('div', {style:{background:'var(--bg-secondary)',borderRadius:8,padding:'8px 12px',fontFamily:'var(--mono)',fontSize:11,color:ACCENT}},
+              settings.workerUrl+'/go/9095550101'
+            )
+          )
+        )
+      )
+    )
+  );
+
+  // ── PRODUCERS ───────────────────────────────────────────────────
+  const Producers = () => e('div', {className:'page'},
+    e(SectionHeader, {
+      title: 'Producer Team',
+      right: isAdmin && e('button', {className:'btn btn-primary', onClick:()=>setShowAddP(p=>!p)},
+        showAddP ? 'Cancel' : '+ Add Producer'
+      )
+    }),
+    showAddP && e('div', {className:'card mb-4'},
+      e('div', {style:{fontWeight:500,marginBottom:12}}, 'New Producer'),
+      e('div', {className:'form-row'},
+        e('div', null, e('div',{className:'form-label'},'First Name'), e('input',{type:'text',value:newP.firstName,onChange:ex=>setNewP(p=>({...p,firstName:ex.target.value}))})),
+        e('div', null, e('div',{className:'form-label'},'Full Name'), e('input',{type:'text',value:newP.fullName,onChange:ex=>setNewP(p=>({...p,fullName:ex.target.value}))}))
+      ),
+      e('div', {className:'form-row'},
+        e('div', null, e('div',{className:'form-label'},'Email'), e('input',{type:'email',value:newP.email,onChange:ex=>setNewP(p=>({...p,email:ex.target.value}))})),
+        e('div', null, e('div',{className:'form-label'},'Phone'), e('input',{type:'text',value:newP.phone,onChange:ex=>setNewP(p=>({...p,phone:ex.target.value}))}))
+      ),
+      e('div', {className:'form-row'},
+        e('div', null,
+          e('div',{className:'form-label'},'Role'),
+          e('select',{value:newP.role,onChange:ex=>setNewP(p=>({...p,role:ex.target.value}))},
+            ['Primary','Secondary','Learning','Coordinator'].map(r=>e('option',{key:r,value:r},r))
+          )
+        ),
+        e('div', null, e('div',{className:'form-label'},'Lines'), e('input',{type:'text',value:newP.lines,placeholder:'Personal, Commercial...',onChange:ex=>setNewP(p=>({...p,lines:ex.target.value}))}))
+      ),
+      e('button', {className:'btn btn-primary', onClick:()=>{
+        if(!newP.firstName||!newP.email) return showToast('First name and email required','error');
+        setProducers(ps=>[...ps,{...newP,id:newP.firstName.toLowerCase()+Date.now(),active:true}]);
+        setNewP({firstName:'',fullName:'',role:'Secondary',lines:'',email:'',phone:''});
+        setShowAddP(false); showToast(newP.firstName+' added');
+      }}, 'Add Producer')
+    ),
+    e('div', {className:'card'},
+      e('table', null,
+        e('thead', null, e('tr', null,
+          ['Name','Role','Lines','Email','Phone','Status',...(isAdmin?['']:[''])].map(h=>e('th',{key:h},h))
+        )),
+        e('tbody', null,
+          producers.map(p => e('tr', {key:p.id},
+            e('td', null, e('div',{className:'flex items-center gap-8'},
+              e('div',{className:'avatar avatar-orange'},p.firstName[0]),
+              e('span',{className:'fw500'},p.fullName)
+            )),
+            e('td', null, e('span',{className:'badge badge-gray'},p.role)),
+            e('td', {style:{fontSize:12,color:'var(--text-secondary)'}}, p.lines||'—'),
+            e('td', {style:{fontSize:12}}, p.email),
+            e('td', {style:{fontSize:12}}, p.phone||'—'),
+            e('td', null, e('span',{className:'badge '+(p.active?'badge-green':'badge-red')},p.active?'Active':'Inactive')),
+            isAdmin && e('td', null,
+              e('div',{className:'flex gap-8'},
+                e('button',{className:'btn btn-sm',onClick:()=>{
+                  setProducers(ps=>ps.map(x=>x.id===p.id?{...x,active:!x.active}:x));
+                  showToast(p.active?p.firstName+' deactivated':p.firstName+' activated');
+                }}, p.active?'Deactivate':'Activate'),
+                p.id!=='joey' && e('button',{className:'btn btn-sm btn-danger',onClick:()=>{
+                  setProducers(ps=>ps.filter(x=>x.id!==p.id));
+                  showToast('Producer removed');
+                }}, 'Remove')
+              )
+            )
+          ))
+        )
+      )
+    )
+  );
+
+  // ── CONVERSATIONS ───────────────────────────────────────────────
+  const Conversations = () => e('div', {className:'page'},
+    e(SectionHeader, {
+      title: 'Active Conversations',
+      right: e('span',{className:'badge badge-orange'},conversations.filter(c=>c.status==='active').length+' active')
+    }),
+    e('div', {className:'card'},
+      e('table', null,
+        e('thead', null, e('tr', null,
+          ['Lead','Type','Progress','Last Message','Time',''].map(h=>e('th',{key:h},h))
+        )),
+        e('tbody', null,
+          conversations.map((c,i) => e('tr', {key:i},
+            e('td', null,
+              e('div',{className:'fw500'},c.name),
+              e('div',{style:{fontSize:11,color:'var(--text-secondary)'}},c.display)
+            ),
+            e('td', null, e('span',{className:'badge '+(c.type.toLowerCase().includes('comm')?'badge-orange':'badge-blue')},c.type)),
+            e('td', null,
+              e('div',{className:'text-sm text-muted'},c.exchanges+' / '+c.maxEx+' exchanges'),
+              e('div',{className:'progress',style:{width:80,marginTop:6}},
+                e('div',{className:'progress-fill',style:{width:Math.round((c.exchanges/c.maxEx)*100)+'%'}})
+              )
+            ),
+            e('td', {style:{maxWidth:200}}, e('div',{className:'truncate text-sm text-muted',style:{maxWidth:200}},'"'+c.lastMsg+'"')),
+            e('td', {className:'text-sm text-muted'}, c.time),
+            e('td', null,
+              e('div',{className:'flex gap-8 items-center'},
+                e('span',{className:'badge '+(c.status==='qualified'?'badge-green':c.status==='taken over'?'badge-gray':'badge-orange')},c.status),
+                !takenOver[c.phone] && e('button',{
+                  className:'btn btn-primary btn-sm',
+                  onClick:()=>{
+                    setTakenOver(t=>({...t,[c.phone]:true}));
+                    setConversations(cs=>cs.map(x=>x.phone===c.phone?{...x,status:'taken over'}:x));
+                    showToast('Takeover confirmed for '+c.display);
+                  }
+                },'Take over'),
+                takenOver[c.phone] && e('span',{className:'badge badge-green'},'Taken over')
+              )
+            )
+          ))
+        )
+      )
+    )
+  );
+
+  // ── OPT-OUTS ────────────────────────────────────────────────────
+  const Optouts = () => e('div', {className:'page'},
+    e(SectionHeader, {
+      title: 'Opt-out List',
+      right: e('span',{className:'badge badge-red'},optouts.length+' numbers')
+    }),
+    e('div', {className:'card'},
+      optouts.length===0
+        ? e('div',{style:{padding:'24px',textAlign:'center',color:'var(--text-secondary)',fontSize:13}},'No opt-outs on file.')
+        : e('table', null,
+          e('thead',null,e('tr',null,['Phone','Name','Date','Reason',''].map(h=>e('th',{key:h},h)))),
+          e('tbody',null,
+            optouts.map((o,i)=>e('tr',{key:i},
+              e('td',{style:{fontFamily:'var(--mono)',fontSize:12}},o.phone),
+              e('td',{className:'fw500'},o.name),
+              e('td',{className:'text-sm text-muted'},o.date),
+              e('td',null,e('span',{className:'badge badge-red'},o.reason)),
+              e('td',null,
+                isCoord && e('button',{className:'btn btn-sm btn-danger',onClick:()=>{
+                  setOpts(oo=>oo.filter((_,j)=>j!==i));
+                  showToast('Removed from opt-out list');
+                }},'Remove')
+              )
+            ))
+          )
+        )
+    )
+  );
+
+  // ── USERS ────────────────────────────────────────────────────────
+  const Users = () => e('div', {className:'page'},
+    e(SectionHeader, {
+      title: 'Users & Access',
+      right: e('button',{className:'btn btn-primary',onClick:()=>setShowAddU(p=>!p)},showAddU?'Cancel':'+ Add User')
+    }),
+    e('div',{style:{fontSize:12,color:'var(--text-secondary)',marginBottom:16}},
+      'Admin: full access. Coordinator: view + manage opt-outs. Producer: view only.'
+    ),
+    showAddU && e('div',{className:'card mb-4'},
+      e('div',{style:{fontWeight:500,marginBottom:12}},'New User'),
+      e('div',{className:'form-row'},
+        e('div',null,e('div',{className:'form-label'},'Username'),e('input',{type:'text',value:newU.username,onChange:ex=>setNewU(u=>({...u,username:ex.target.value}))})),
+        e('div',null,e('div',{className:'form-label'},'Full Name'),e('input',{type:'text',value:newU.name,onChange:ex=>setNewU(u=>({...u,name:ex.target.value}))}))
+      ),
+      e('div',{className:'form-row'},
+        e('div',null,
+          e('div',{className:'form-label'},'Role'),
+          e('select',{value:newU.role,onChange:ex=>setNewU(u=>({...u,role:ex.target.value}))},
+            e('option',{value:'admin'},'Admin — full access'),
+            e('option',{value:'coordinator'},'Coordinator — view + opt-outs'),
+            e('option',{value:'producer'},'Producer — view only')
+          )
+        ),
+        e('div',null,e('div',{className:'form-label'},'Password'),e('input',{type:'text',value:newU.password,onChange:ex=>setNewU(u=>({...u,password:ex.target.value}))}))
+      ),
+      e('button',{className:'btn btn-primary',onClick:()=>{
+        if(!newU.username||!newU.password) return showToast('Username and password required','error');
+        if(users.find(u=>u.username===newU.username)) return showToast('Username already exists','error');
+        setUsers(us=>[...us,{...newU,id:Date.now()}]);
+        setNewU({username:'',name:'',role:'producer',password:''});
+        setShowAddU(false); showToast('User added');
+      }},'Add User')
+    ),
+    e('div',{className:'card'},
+      e('table',null,
+        e('thead',null,e('tr',null,['Name','Username','Role',''].map(h=>e('th',{key:h},h)))),
+        e('tbody',null,
+          users.map((u,i)=>e('tr',{key:i},
+            e('td',null,e('div',{className:'flex items-center gap-8'},
+              e('div',{className:'avatar avatar-blue'},u.name?u.name[0]:'?'),
+              u.name
+            )),
+            e('td',{style:{fontFamily:'var(--mono)',fontSize:12}},u.username),
+            e('td',null,e('span',{className:'badge '+(u.role==='admin'?'badge-orange':u.role==='coordinator'?'badge-blue':'badge-gray')},u.role)),
+            e('td',null,
+              u.username!=='lamonte' && e('button',{className:'btn btn-sm btn-danger',onClick:()=>{
+                setUsers(us=>us.filter((_,j)=>j!==i));
+                showToast('User removed');
+              }},'Remove')
+            )
+          ))
+        )
+      )
+    )
+  );
+
+  const sections = {overview:Overview, system:SystemControl, settings:Settings, producers:Producers, conversations:Conversations, optouts:Optouts, users:Users};
+  const CurrentSection = sections[section] || Overview;
+
+  return e('div', null,
+    toast && e('div',{className:'toast toast-'+toast.type},toast.msg),
+    e('div',{className:'nav'},
+      e('div',{className:'nav-logo'},
+        e('div',{className:'nav-logo-icon'},'Y'),
+        'Lead Intake'
+      ),
+      navItems.map(n=>e('div',{key:n.id,className:'nav-tab '+(section===n.id?'active':''),onClick:()=>setSection(n.id)},n.label)),
+      e('div',{className:'nav-right'},
+        e('span',{style:{fontSize:12,color:'var(--text-secondary)'}},session.name),
+        e('button',{className:'btn btn-ghost',style:{fontSize:12,padding:'5px 10px'},onClick:()=>setSession(null)},'Sign out')
+      )
+    ),
+    e(CurrentSection)
+  );
+}
+
+ReactDOM.render(React.createElement(App), document.getElementById('root'));
+</script>
+</body>
+</html>
