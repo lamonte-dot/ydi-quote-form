@@ -238,6 +238,7 @@ const APPS = [
   { id:"battle",   icon:"🏆", title:"Battle Royale",  desc:"Gamified sales leaderboard",                       url:"https://lamonte-dot.github.io/YDI-BATTLE-ROYALE",                             section:"tools" },
   { id:"coverage", icon:"🛡️", title:"Coverage Tool",  desc:"Coverage gap reference by insurance line",         url:"https://lamonte-dot.github.io/ydi-quote-form/ydi-coverage-tool.html",         section:"tools" },
   { id:"quote",    icon:"📝", title:"Quote Form",     desc:"Auto, home, life, commercial intake",              url:"https://lamonte-dot.github.io/ydi-quote-form/ydi-universal-quote-final.html", section:"tools" },
+  { id:"blog",     icon:"✍️", title:"Blog Center",    desc:"AI blog generator · GSC-powered · 20 types",       url:"https://lamonte-dot.github.io/ydi-quote-form/ydi-blog-center.html",           section:"tools" },
   // To add a new app, copy one line above and fill in your values
 ];
 
@@ -794,7 +795,7 @@ function toggleAppUser(name,appId,checked){
 // GUIDES PANEL
 // ══════════════════════════════════════════════════════
 const GUIDE_DATA = [
-  {id:"command-center",icon:"⚡",title:"Command Center",audience:"All Users",ac:"p-green",url:"https://lamonte-dot.github.io/ydi-quote-form/ydi-dashboard.html",
+  {id:"command-center",icon:"⚡",title:"Command Center",audience:"All Users",ac:"p-green",url:"https://lamonte-dot.github.io/ydi-quote-form/command-center.html",
    secs:[
     {h:"What is it?",b:"The main hub for all YDI tools. Access every app, manage folio stats, configure producer dashboards, and monitor the call coaching system from one place."},
     {h:"User Selector (top right)",b:"Switch between LaMonte (Admin) and any producer to preview their exact dashboard view."},
@@ -836,6 +837,14 @@ const GUIDE_DATA = [
     {h:"What is it?",b:"A quick reference for common coverage gaps by insurance line. Use it to prepare your Step 2 (Build Value) before or during a call."},
     {h:"How to use it",b:"Select the insurance line and review the gaps for that line. Knowing these gaps cold before a call is what separates high scores from low scores."},
    ]},
+  {id:"blog",icon:"✍️",title:"Blog Center",audience:"LaMonte / Admin",ac:"p-green",url:"https://lamonte-dot.github.io/ydi-quote-form/ydi-blog-center.html",
+    steps:[
+      {h:"Open Blog Center",b:"Click the ✍️ Blog Center card on the dashboard. Select your blog type and target audience."},
+      {h:"Pick a topic",b:"Choose a GSC-powered suggestion or type your own. All suggestions are based on real search data from youngdouglasinsurance.com."},
+      {h:"Generate",b:"Hit Generate. The AI writes a complete 1,300–1,400 word blog following the full YDI protocol — images, quotes, schema, CTA."},
+      {h:"QA before publishing",b:"Fact-check all news sources at Google Fact Check Explorer before publishing. This step is mandatory."},
+      {h:"Save & track links",b:"Save the blog to the Library tab, then mark internal links done in the Link Tracker tab."},
+    ]},
   {id:"quote",icon:"📝",title:"Universal Quote Form",audience:"All Producers",ac:"p-blue",url:"https://lamonte-dot.github.io/ydi-quote-form/ydi-universal-quote-final.html",
    secs:[
     {h:"What is it?",b:"The YDI universal quote intake form for auto, home, life, and commercial leads. Submits directly into CTM for tracking and follow-up."},
