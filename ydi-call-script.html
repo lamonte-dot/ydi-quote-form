@@ -100,6 +100,7 @@ html, body { height: 100%; background: var(--navy); color: var(--text); font-fam
 
 <!-- TOP BAR -->
 <div class="topbar">
+  <img src="https://lamonte-dot.github.io/YDI-BATTLE-ROYALE/YDI_NewLogo_2026_WhiteBG.png" style="height:28px;object-fit:contain" onerror="this.style.display='none'" alt="YDI">
   <div class="logo">YDI SCRIPT</div>
   <select class="call-type-select" onchange="setCallType(this.value)" id="call-type">
     <option value="auto">Auto Internet Lead</option>
@@ -109,6 +110,7 @@ html, body { height: 100%; background: var(--navy); color: var(--text); font-fam
   </select>
   <div class="timer-box" id="timer" onclick="toggleTimer()">0:00</div>
   <button class="reset-btn" onclick="resetTimer()">Reset</button>
+  <button class="reset-btn" onclick="document.getElementById('script-guide-modal').style.display='flex'" style="border-color:var(--gold);color:var(--gold)">? Help</button>
 </div>
 
 <!-- STEP PROGRESS -->
@@ -498,15 +500,27 @@ function step4() {
 function step5() {
   return `<div class="step-header">
     <div class="step-title">Step 5 — Asking for the Sale</div>
-    <div class="step-sub">Ask directly · Overcome objections · Ask again · Objections panel is active →</div>
+    <div class="step-sub">Ask directly · All payment methods · Overcome objections · Ask again</div>
   </div>
   <div class="script-block">
-    <div class="block-label">Ask for Payment — Auto</div>
-    <div class="block-text">For your auto insurance, it's very easy to get that started here. We'll help you with the cancellation process with <span class="fill">[Current Carrier]</span> to make sure there is no lapse in coverage. I will process your first month's payment today and your coverage will begin on <span class="fill">[Effective Date]</span>.<br><br>I have everything pulled up on my end...<br><br><strong>"What card would you like to use for your first month's payment — Visa or Mastercard?"</strong></div>
+    <div class="block-label">Setup — Auto</div>
+    <div class="block-text">For your auto insurance, it's very easy to get that started here. We'll help you with the cancellation process with <span class="fill">[Current Carrier]</span> to make sure there is no lapse in coverage. I will process your first month's payment today and your coverage will begin on <span class="fill">[Effective Date]</span>.<br><br>I have everything pulled up on my end...</div>
+  </div>
+  <div class="script-block" style="border-color:var(--gold)">
+    <div class="block-label" style="color:var(--gold)">Payment Method — Choose One</div>
+    <div class="choose-one" style="margin-top:0">
+      <div class="choose-label">Credit / Debit Card</div>
+      <button class="option-btn"><span class="opt-label">VISA / MASTERCARD</span>"What card would you like to use for your first month's payment — <strong>Visa or Mastercard</strong>?"</button>
+    </div>
+    <div class="choose-one" style="margin-top:8px">
+      <div class="choose-label">Bank Account (ACH / EFT)</div>
+      <button class="option-btn"><span class="opt-label">ROUTING & ACCOUNT NUMBER</span>"To draft your first month's payment, I'll need your bank information. Who do you bank with? Do you have your <strong>routing number and account number</strong> for that account?"</button>
+      <button class="option-btn"><span class="opt-label">ELECTRONIC FUNDS TRANSFER (EFT)</span>"We can also set this up as an Electronic Funds Transfer directly from your bank — that's the most common way our clients pay. All I need is your bank's <strong>routing number</strong> — that's the 9-digit number at the bottom left of your check — and your <strong>account number</strong>. Do you have a check handy or can you pull up your banking app?"</button>
+    </div>
   </div>
   <div class="script-block">
     <div class="block-label">Ask for Payment — Homeowners (Escrowed)</div>
-    <div class="block-text">We'll help move your homeowners policy from <span class="fill">[Current Carrier]</span> to Young Douglas Insurance, so your insurance payment continues to come out every month as part of your monthly mortgage payment — just like it is now.<br><br>I just need to know:<br>• What is the name of the bank where you have your mortgage?<br>• What's your loan number?</div>
+    <div class="block-text">We'll help move your homeowners policy from <span class="fill">[Current Carrier]</span> to Young Douglas Insurance, so your payment continues to come out every month as part of your monthly mortgage payment — just like it is now.<br><br>I just need to know:<br>• What is the name of the bank where you have your mortgage?<br>• What's your loan number?</div>
   </div>
   <div class="script-block">
     <div class="block-label">Early Shopper / Signing Discount (if applicable)</div>
@@ -516,11 +530,17 @@ function step5() {
       <button class="option-btn"><span class="opt-label">EARLY SIGNING</span>Young Douglas gives you a big discount if you start your policy one week after making your first payment — it's called the Early Signing Discount. We'll start the policy on <span class="fill">[Effective Date]</span>. Does that make sense?</button>
     </div>
   </div>
+  <div class="script-block">
+    <div class="block-label">Ask for a Review — Right Now</div>
+    <div class="block-text">While I have you on the phone — I would really appreciate it if you could leave us a quick Google review. It only takes about 30 seconds and it means the world to our agency.<br><br><strong>"Would you be open to leaving us a quick review right now while we're wrapping up? I can text you the link immediately."</strong><br><br><em style="color:var(--muted)">Text them the Google review link right away — don't wait until after the call.</em></div>
+  </div>
   <ul class="checklist" style="margin-top:12px">
-    ${checkItem('c1','Asked "Visa or Mastercard?" directly')}
+    ${checkItem('c1','Asked for payment method directly (card, EFT, or routing)')}
     ${checkItem('c2','Handled closing objection using ISL method')}
     ${checkItem('c3','Asked for the sale AGAIN after objection')}
-    ${checkItem('c4','Addressed any escrow/mortgage details')}
+    ${checkItem('c4','Addressed escrow/mortgage details if homeowners')}
+    ${checkItem('c5','Asked for Google review during the call')}
+    ${checkItem('c6','Texted the review link immediately')}
   </ul>
   ${navRow()}`;
 }
@@ -564,5 +584,56 @@ function step6() {
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 renderStep();
 </script>
-</body>
-</html>
+
+<!-- SCRIPT TOOL GUIDE MODAL -->
+<div id="script-guide-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999;align-items:center;justify-content:center" onclick="if(event.target===this)this.style.display='none'">
+  <div style="background:#162840;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:24px;width:560px;max-width:94vw;max-height:86vh;display:flex;flex-direction:column">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div>
+        <div style="font-size:15px;font-weight:600;color:#e8edf5">YDI Live Script Tool — User Guide</div>
+        <div style="font-size:11px;color:#7a90a8;margin-top:2px">For all producers at Young Douglas Insurance</div>
+      </div>
+      <button onclick="document.getElementById('script-guide-modal').style.display='none'" style="background:transparent;border:none;color:#7a90a8;font-size:18px;cursor:pointer">✕</button>
+    </div>
+    <div style="overflow-y:auto;flex:1;font-size:13px;line-height:1.7;color:#e8edf5">
+      <img src="https://lamonte-dot.github.io/YDI-BATTLE-ROYALE/YDI_NewLogo_2026_WhiteBG.png" style="height:32px;margin-bottom:14px;display:block" onerror="this.style.display='none'" alt="YDI">
+
+      <h4 style="color:#f0a500;margin-bottom:6px">What is this tool?</h4>
+      <p>Your on-screen guide for every call. Contains the complete ISL One-Call Close framework — all 6 steps, every script, and all objection responses.</p>
+
+      <h4 style="color:#f0a500;margin:14px 0 6px">Getting Started</h4>
+      <ol style="padding-left:18px">
+        <li><b>Open before dialing.</b> Keep on a second screen or second tab.</li>
+        <li><b>Select your call type</b> at the top — Auto, Homeowner, Old Lead, or Cross-Sell. Script changes instantly.</li>
+        <li><b>Start the timer</b> by tapping the clock (top right).</li>
+        <li><b>Follow the steps</b> — tap any numbered tab to jump to it.</li>
+        <li><b>Check off items</b> as you complete them.</li>
+      </ol>
+
+      <h4 style="color:#f0a500;margin:14px 0 6px">The 6 Steps</h4>
+      <ol style="padding-left:18px">
+        <li><b>Hook</b> — Warm intro, confirm info, identify motivation, 3x "Yes"</li>
+        <li><b>Build Value</b> — Similarities, coverage gaps, WHY statement</li>
+        <li><b>Multi-Line</b> — Renters, umbrella, life/mortgage protection</li>
+        <li><b>Cost Presentation</b> — Name discounts, present price confidently, no pausing</li>
+        <li><b>Ask for the Sale</b> — Visa/MC, routing & account, or EFT. Handle objections. Ask for Google review.</li>
+        <li><b>Wrap-Up</b> — Cancel old policy, onboarding appointment, referrals</li>
+      </ol>
+
+      <h4 style="color:#f0a500;margin:14px 0 6px">Objection Panel</h4>
+      <p>Right side of screen. Tap any objection to see the exact response. Most active on Steps 1 and 5.</p>
+
+      <h4 style="color:#f0a500;margin:14px 0 6px">Payment Methods (Step 5)</h4>
+      <ul style="padding-left:18px">
+        <li><b>Visa or Mastercard</b> — fastest</li>
+        <li><b>Routing & Account Number</b> — bank ACH</li>
+        <li><b>EFT</b> — Electronic Funds Transfer, use the full EFT script</li>
+      </ul>
+
+      <h4 style="color:#f0a500;margin:14px 0 6px">Call Coaching</h4>
+      <p>Every call over 60 seconds is scored against this ISL framework. You'll receive a coaching email within 5 minutes of the call ending. Use this script consistently and your score will improve.</p>
+
+      <p style="margin-top:14px">Questions? Contact LaMonte: <a href="mailto:lamonte@legacyprotectorsins.com" style="color:#f0a500">lamonte@legacyprotectorsins.com</a></p>
+    </div>
+  </div>
+</div>
