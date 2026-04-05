@@ -256,6 +256,7 @@ input:focus,select.full:focus{outline:none;border-color:var(--gold);}
     </div>
     <div style="display:flex;align-items:center;gap:8px;">
       <div class="pills" id="top-pills"></div>
+      <button onclick="openGuide()" title="User Guide" style="background:var(--bg3);border:1px solid var(--border);color:var(--muted);padding:6px 11px;border-radius:7px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--gold)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">? Help</button>
       <select class="user-sel" id="user-sel" onchange="switchUser(this.value)">
         <option value="lamonte">LaMonte (Admin)</option>
         <option value="melissa">Melissa</option>
@@ -276,7 +277,19 @@ input:focus,select.full:focus{outline:none;border-color:var(--gold);}
 </div>
 </div>
 
-<!-- ADD APP MODAL -->
+<!-- HELP / USER GUIDE MODAL -->
+<div class="modal-bg" id="guide-modal">
+  <div class="modal" style="width:620px;max-width:95vw;max-height:88vh;display:flex;flex-direction:column">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div>
+        <div class="modal-title" style="margin-bottom:2px" id="guide-title">User Guide</div>
+        <div style="font-size:11px;color:var(--muted)" id="guide-role-label"></div>
+      </div>
+      <button onclick="closeModal('guide-modal')" style="background:transparent;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:4px">✕</button>
+    </div>
+    <div id="guide-content" style="overflow-y:auto;flex:1;padding-right:4px;font-size:13px;line-height:1.7;color:var(--text)"></div>
+  </div>
+</div>
 <div class="modal-bg" id="add-app-modal">
   <div class="modal">
     <div class="modal-title">Add New App</div>
@@ -1012,7 +1025,131 @@ function refreshApp(id, url) {
   }
 }
 
-function cap(s){return s?s[0].toUpperCase()+s.slice(1):'';}
+// ══════════════════════════════════════════════════════════
+// USER GUIDE
+// ══════════════════════════════════════════════════════════
+const GUIDES = {
+  lamonte: {
+    role: "Administrator — Full Access",
+    content: `
+<h3 style="color:var(--gold);margin-bottom:8px">YDI Command Center — Admin Guide</h3>
+<p style="color:var(--muted);margin-bottom:16px">Full system access for LaMonte Douglas, Agency Owner.</p>
+
+<h4 style="color:var(--text);margin:14px 0 6px">🖥️ Command Center Overview</h4>
+<p>Your home screen shows live agency stats: active producers, total folio policies sold, total folio premium, and active KPIs. Below that you'll see each producer's individual KPI card with their policies, premium, and average call coach score. Click any app card to open it, or use the sidebar to navigate.</p>
+<ul style="padding-left:18px;margin-top:6px">
+  <li><b>+ Add App</b> — adds any new tool to the dashboard instantly. Fill in icon, name, description, URL, and which sidebar section it belongs to.</li>
+  <li><b>? Help</b> — opens this guide. Guides are role-appropriate based on the selected user in the top-right dropdown.</li>
+  <li><b>User Selector</b> — switch between your view and any producer's view to see exactly what they see on their dashboard.</li>
+  <li><b>Day/Night toggle</b> — bottom left of sidebar. Your preference is saved automatically.</li>
+</ul>
+
+<h4 style="color:var(--text);margin:14px 0 6px">📊 Folio Stats</h4>
+<p>A "Folio" is your agency's current production period. In the Folio Stats panel you can:</p>
+<ul style="padding-left:18px;margin-top:6px">
+  <li>Name the folio (e.g. "April 2026 Folio") and set start/end dates</li>
+  <li>Enter policies sold and premium written per producer — totals calculate automatically</li>
+  <li>Enter each producer's call count and average coaching score</li>
+  <li>Click <b>Reset Folio Data</b> to start a new folio period (zeros out all numbers)</li>
+  <li>Always hit <b>Save Changes</b> after updating — data is stored in the cloud and survives browser refreshes</li>
+</ul>
+
+<h4 style="color:var(--text);margin:14px 0 6px">🎯 Call Coach Settings</h4>
+<ul style="padding-left:18px;margin-top:6px">
+  <li><b>Trial Mode</b> — when on, only the selected producer's calls are analyzed. Turn off when you're ready to expand to all producers.</li>
+  <li><b>Minimum Call Duration</b> — calls shorter than this are skipped (voicemails, hangups). Currently set to 60 seconds.</li>
+  <li><b>Producer Roster</b> — add or remove producers, change their status (Active / Trial / Inactive)</li>
+  <li><b>ISL KPIs</b> — toggle individual ISL checkpoints on/off. The score denominator adjusts automatically.</li>
+</ul>
+
+<h4 style="color:var(--text);margin:14px 0 6px">⚙️ Dashboard Config</h4>
+<p>Control exactly what each producer sees on their personal dashboard. Use the toggle grid to turn apps and widgets on or off per producer. Changes take effect immediately after you hit Save Changes.</p>
+
+<h4 style="color:var(--text);margin:14px 0 6px">📋 Live Script Tool</h4>
+<p>The ISL One-Call Close script reference that producers use during calls. Accessible from the sidebar. Open it in a new tab before a call begins.</p>
+
+<h4 style="color:var(--text);margin:14px 0 6px">↺ Refresh Buttons</h4>
+<p>Each app card has a small refresh button (↺). Clicking it opens the app in a new browser tab with a cache-busting URL — this forces the browser to load the latest version of the app immediately.</p>
+
+<h4 style="color:var(--text);margin:14px 0 6px">💾 Saving Changes</h4>
+<p>All settings (folio data, producer roster, KPIs, trial mode, dashboard config) are saved to the cloud via the Save Changes button in the bottom-left sidebar. A green "Saved ✓" message confirms success. If you see "Save failed," check that the call coach worker is running at the health check URL.</p>
+    `
+  },
+  melissa: {
+    role: "Producer — Trial (Call Coaching Active)",
+    content: `
+<h3 style="color:var(--gold);margin-bottom:8px">YDI Dashboard — Melissa's Guide</h3>
+<p style="color:var(--muted);margin-bottom:16px">Welcome, Melissa! Here's everything you need to know about your tools.</p>
+
+<h4 style="color:var(--text);margin:14px 0 6px">👤 Your Dashboard</h4>
+<p>Your personal dashboard shows your current folio stats — policies sold, premium written, calls analyzed, and your average call coaching score. This updates when LaMonte enters your numbers in the Folio Stats panel.</p>
+
+<h4 style="color:var(--text);margin:14px 0 6px">📋 Live Script Tool (Most Important)</h4>
+<p>Open this at the start of every call. It shows you the full ISL One-Call Close script with:</p>
+<ul style="padding-left:18px;margin-top:6px">
+  <li><b>Call type selector</b> — switch between Auto Lead, Homeowner Lead, Old Lead, or Cross-Sell at the top. The script changes instantly.</li>
+  <li><b>6 step tabs</b> — click any step to jump to it during the call</li>
+  <li><b>Objection panel</b> — right side of the screen. Tap any objection to reveal the exact ISL response. Active on Step 1 (Hook) and Step 5 (Close).</li>
+  <li><b>Call timer</b> — tap the timer at the top right to start/stop. Use it to track your call duration.</li>
+  <li><b>Checkboxes</b> — check off each step as you complete it so nothing gets missed</li>
+</ul>
+
+<h4 style="color:var(--text);margin:14px 0 6px">🎯 Call Coaching Reports</h4>
+<p>After every call over 60 seconds, you'll automatically receive an email at melissa@legacyprotectorsins.com with a coaching report. The report scores your call out of 15 based on the ISL framework and gives you specific feedback on what to improve. LaMonte is always CC'd.</p>
+
+<h4 style="color:var(--text);margin:14px 0 6px">📱 Your Apps</h4>
+<p>The apps on your dashboard have been configured by LaMonte. Click any app card to open it. Use the ↺ button to refresh and load the latest version of any tool.</p>
+    `
+  },
+  producer: {
+    role: "Producer",
+    content: `
+<h3 style="color:var(--gold);margin-bottom:8px">YDI Dashboard — Producer Guide</h3>
+<p style="color:var(--muted);margin-bottom:16px">Your tools for every call and every sale.</p>
+
+<h4 style="color:var(--text);margin:14px 0 6px">👤 Your Dashboard</h4>
+<p>Your personal dashboard shows your current folio stats — policies sold, premium written, and calls analyzed for the current production period. These numbers are entered by LaMonte.</p>
+
+<h4 style="color:var(--text);margin:14px 0 6px">📋 Live Script Tool</h4>
+<p>Your most important tool. Open it before every call. It contains the full ISL One-Call Close framework:</p>
+<ul style="padding-left:18px;margin-top:6px">
+  <li>Select your call type at the top (Auto, Home, Old Lead, Cross-Sell)</li>
+  <li>Follow the 6 steps — tap any step tab to jump directly to it</li>
+  <li>Tap any objection on the right panel to get the exact response</li>
+  <li>Check off each item as you complete it</li>
+  <li>Use the timer to track your call length</li>
+</ul>
+
+<h4 style="color:var(--text);margin:14px 0 6px">🏆 Battle Royale</h4>
+<p>The agency leaderboard. Check where you stand against the rest of the team. Updated regularly by LaMonte.</p>
+
+<h4 style="color:var(--text);margin:14px 0 6px">🛡️ Coverage Tool</h4>
+<p>A quick reference for coverage gaps by insurance line. Use it to identify what a prospect's current policy is missing before you present gaps in Step 2.</p>
+
+<h4 style="color:var(--text);margin:14px 0 6px">📝 Quote Form</h4>
+<p>The universal quote intake form for auto, home, life, and commercial leads.</p>
+
+<h4 style="color:var(--text);margin:14px 0 6px">↺ Refresh</h4>
+<p>If any app looks outdated, click the ↺ button on its card to load the latest version.</p>
+
+<h4 style="color:var(--text);margin:14px 0 6px">Questions?</h4>
+<p>Contact LaMonte at <a href="mailto:lamonte@legacyprotectorsins.com" style="color:var(--gold)">lamonte@legacyprotectorsins.com</a> or call (909) 303-3722.</p>
+    `
+  }
+};
+
+function openGuide() {
+  const user = currentUser;
+  const guide = user === 'lamonte' ? GUIDES.lamonte
+              : user === 'melissa' ? GUIDES.melissa
+              : GUIDES.producer;
+  document.getElementById('guide-title').textContent = 'YDI User Guide';
+  document.getElementById('guide-role-label').textContent = guide.role;
+  document.getElementById('guide-content').innerHTML = guide.content;
+  openModal('guide-modal');
+}
+document.getElementById('guide-modal').addEventListener('click', function(e){ if(e.target===this) closeModal('guide-modal'); });
+
 
 // ══════════════════════════════════════════════════════════
 // INIT
