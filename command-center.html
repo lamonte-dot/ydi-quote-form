@@ -350,7 +350,7 @@ function buildNav(){
   Object.entries(secs).forEach(function([sec,apps]){
     html += '<div class="nav-sec"><div class="nav-lbl">'+sec+'</div>';
     apps.forEach(function(a){
-      html += '<button class="nb" id="nb-'+a.id+'" onclick="showAppPanel(\''+a.id+'\',this)"><div class="ic">'+a.icon+'</div> '+a.title+'</button>';
+      html += '<button class="nb" id="nb-'+a.id+'" onclick="window.open(\''+a.url+'\',\'_blank\')"><div class="ic">'+a.icon+'</div> '+a.title+'</button>';
     });
     html += '</div>';
   });
@@ -490,7 +490,7 @@ function renderOverview(){
   }).join('');
 
   const appCards = APPS.map(function(a){
-    return '<div class="app-card" onclick="showAppPanel(\''+a.id+'\',document.getElementById(\'nb-'+a.id+'\'))">'
+    return '<div class="app-card" onclick="window.open(\''+a.url+'\',\'_blank\')">'
       +'<div style="display:flex;align-items:flex-start;justify-content:space-between">'
       +'<div class="ac-icon">'+a.icon+'</div>'
       +'<button onclick="event.stopPropagation();refreshApp(\''+a.id+'\',\''+a.url+'\')" class="ref-btn" title="Refresh">↺</button>'
