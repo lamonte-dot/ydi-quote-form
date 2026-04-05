@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>YDI Blog Command Center</title>
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;transition:background 0.3s,color 0.3s}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#1C428A44;border-radius:3px}
+input,select,button{font-family:inherit}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+// ── BRAND ──────────────────────────────────────────────────
+const B = {
+  blue:"#1C428A",red:"#E01530",black:"#000000",
+  white:"#FFFFFF",lightBlue:"#2C5FAD",
+  green:"#16a34a",amber:"#d97706",purple:"#7c3aed",
+};
+const LOGO = "data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAMZAxkDASIAAhEBAxEB/8QAHQABAAMBAQEBAQEAAAAAAAAAAAYICQcFBAMCAf/EAFcQAQABAgMEBAkHBwkEBgsAAAABAgMEBQYHCBEhMTdBdQkSOFFydrKztBMUMjNhc7EiNkJSVnGRFRYjgZWhpMHSF2KTwiVVY3Sj0SQ0RGWCkpSi4fDx/8QAHAEBAAMAAwEBAAAAAAAAAAAAAAQFBgEDCAIH/8QANBEBAAEDAwEFBgUDBQAAAAAAAAECAwQFM3EREjE0QcEGITVRsbITImFygQeR0RRSoeHw/9oADAMBAAIRAxEAPwC5YAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOcbVdruQaImvAW6f5Tznh/6rar4U2uPRNyr9H90cZ/dE8XzXXTRHWqUrCwcjOuxZx6Zqqn5f+90cujimOqtsmvs+u1/9NXMssTP5NnL/wChin/4o/Ln+upFrmq9U3J43NS5zXPnqx12f+ZDnOpjuhuLH9PMyqnrdu00z8o6z/hfcUG/nRqX9os3/wDrbn/mm2wnP89xe1nIcPi86zLEWa71cV27uKrqpq/oq+mJnhJTmxVVEdHGX7A3saxXem9E9mJnunyjr81wwE5+fArzv+5rmmT7FMBisozLGZfiKs9sUTdwt+q1XNM2b8zHGmYnhxiOX2KH/wA+9cftlqL+073+oGuwyJ/n3rj9stRf2ne/1H8+9cftlqL+073+oGuwyJ/n3rj9stRf2ne/1H8+9cftlqL+073+oGuwqD4ObPs8zu9rmM5zrMcy+RpwHyXzvFV3vE4ziOPi+NM8OPCOPDzQt8ACLbX797DbJtYYnDXrlm9ayLG127luqaaqKosVzExMc4mJ58QSkZE/z71x+2Wov7Tvf6j+feuP2y1F/ad7/UDXYZE/z71x+2Wov7Tvf6j+feuP2y1F/ad7/UDXYZE/z71x+2Wov7Tvf6mmG7Li8Xj9gmj8ZjsTexWJu5dTVcvXrk111z41XOap5zIOjAADlG93mGPyvd11ZjssxuJwWLt2sP8AJ38Pdqt3KeOJtRPCqmYmOMTMfumWcH8+9cftlqL+073+oGuwyKjXmuInjGs9Rf2ne/1PSyfa1tPyjE0X8BtA1NbqpnjFNeZXblE/voqqmmf64BrGKN7IN8rPcDibOX7Ssut5rg5mKZzLBW6bWIt/71VuOFFcej4s/v6Fz9JajyPVmQYbPtOZnh8yy3E0+Nav2auMT54mOmmqOiaZ4TE9MA9UAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHL94LaNOichowGV3Kf5bzCmYsz0/IW+ibkx5+yn7eM9nBUK/du4i/cv37td27cqmquuuqaqqqp5zMzPTKUbWtSXNVbQM1zabk12JvTZw0ceUWaJ8Wjh++I4/vmUUUuRdm5X+j989mdGo0vCpjp+eqOtU/r8uI7v8AkAR2iE83f+uHT331z3VaBp5u/wDXDp77657qt2WtynmFdrHw+/8Asq+2V1AF885K2eEV6isv9YMP7i+z6aC+EV6isv8AWDD+4vs+gAAAAXJ8GZ9fr70cu/HErnqYeDM+v196OXfjiVzwES20dTutfV/H/D1paiW2jqd1r6v4/wCHrBkoAAAA1M3V/J50V3bT7VTLNqZur+Tzoru2n2qgdMABx/fO8mfWH3eG+Kssx2nG+d5M+sPu8N8VZZjgAAOsbtW2TNtkusrd6q5exGnMbcppzTAxPGJp6PlaI7LlP98cp7Jjk4DY/K8fg80yzC5ll+It4nB4uzTfsXrc8ablFURNNUT5piYl9Ksvg9db3s+2YZhpLG3puYjTuJiLE1Tz+bXvGqpj7eFdNyPsiaYWaAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAedqjEV4TTWaYq3PCuzg71ymfNMUTMfg9F5Gt/zMzzu7Ee7qcVd0u7HiJvURPzj6qDAM89MAACebv8A1w6e++ue6rQNPN3/AK4dPffXPdVuy1uU8wrtY+H3/wBlX2yuoAvnnJWzwivUVl/rBh/cX2fTQXwivUVl/rBh/cX2fQAAAALk+DM+v196OXfjiVz1MPBmfX6+9HLvxxK54CI7bKvF2M63qjs09j5/w9xLkP239S2uPV3MPhrgMlwAAAGpm6v5POiu7afaqZZtTN1fyedFd20+1UDpgAOP753kz6w+7w3xVlmO043zvJn1h93hvirLMcAAAAFofBv4u7Rtez/ARP8AQ3sgrvVR/vUYizEf3XKl91APBxdd+c+rd/4nDL/gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPI1v+Zmed3Yj3dT13ka3/MzPO7sR7upxV3S78Xfo5j6qDAM89LgACebv/XDp77657qtA083f+uHT331z3VbstblPMK7WPh9/9lX2yuoAvnnJWzwivUVl/rBh/cX2fTQXwivUVl/rBh/cX2fQAAAALk+DM+v196OXfjiVz1MPBmfX6+9HLvxxK54CH7b+pbXHq7mHw1xMEP239S2uPV3MPhrgMlwAAAGpm6v5POiu7afaqZZtTN1fyedFd20+1UDpgAOP753kz6w+7w3xVlmO043zvJn1h93hvirLMcAAAAFmfBxdd+c+rd/4nDL/AKgHg4uu/OfVu/8AE4Zf8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB5Gt/zMzzu7Ee7qeu8jW/5mZ53diPd1OKu6Xfi79HMfVQYBnnpcAATzd/64dPffXPdVoGnm7/1w6e++ue6rdlrcp5hXax8Pv/sq+2V1AF885K2eEV6isv8AWDD+4vs+mgvhFeorL/WDD+4vs+gAAAAXJ8GZ9fr70cu/HErnqYeDM+v196OXfjiVzwEO25VeLsT11Vw48NOZhP8AhriYoZt26kNeereY/DXAZNAAAANTN1fyedFd20+1Uyzambq/k86K7tp9qoHTAAcf3zvJn1h93hvirLMdpxvneTPrD7vDfFWWY4AAAALM+Di67859W7/xOGX/AFAPBxdd+c+rd/4nDL/gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPI1v+Zmed3Yj3dT13ka3/MzPO7sR7upxV3S78Xfo5j6qDAM89LgACebv/XDp77657qtA083f+uHT331z3VbstblPMK7WPh9/9lX2yuoAvnnJWzwivUVl/rBh/cX2fTQXwivUVl/rBh/cX2fQAAAALk+DM+v196OXfjiVz1MPBmfX6+9HLvxxK54CGbdupDXnq3mPw1xM0M27dSGvPVvMfhrgMmgAAAGpm6v5POiu7afaqZZtTN1fyedFd20+1UDpgAOP753kz6w+7w3xVlmO043zvJn1h93hvirLMcAAAAFmfBxdd+c+rd/4nDL/AKgHg4uu/OfVu/8AE4Zf8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB5Gt/zMzzu7Ee7qeu8jW/5mZ53diPd1OKu6Xfi79HMfVQYBnnpcAATzd/64dPffXPdVoGn+7xarvbY8giiJnxa7tc/ZEWa5dlrcp5hXazPTTr8z/sq+2V0QF885K2eEV6isv9YMP7i+z6aC+EV6isv9YMP7i+z6AAAABcnwZn1+vvRy78cSueph4Mz6/X3o5d+OJXPAQvbxVFOw/Xkz+zeYR/HDXE0Qnb51G679Xcf8PWDJ0AAABqZur+Tzoru2n2qmWbUzdX8nnRXdtPtVA6YADj++d5M+sPu8N8VZZjtON87yZ9Yfd4b4qyzHAAAABZnwcXXfnPq3f+Jwy/6gHg4uu/OfVu/8Thl/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHka3/MzPO7sR7up67yNb/mZnnd2I93U4q7pd+Lv0cx9VBgGeelwAB3PdE0/cxWqMx1Jdtz8hgcP83tVTHTduTz4fupiePpQ47pvJcy1DnWGyfKcNViMXia/FopjojzzM9kRHOZ7IXc2b6Uwei9I4TIsJMXKrcePiL3Dh8rdn6VX+UeaIiEzDtTVX2vKGK9t9XoxMGcWmfz3PdxT5z/Pd/f5JGAtn4srZ4RXqKy/1gw/uL7PpoL4RXqKy/1gw/uL7PoAAAAFyfBmfX6+9HLvxxK56mHgzPr9fejl344lc8BCdvnUbrv1dx/w9abITt86jdd+ruP+HrBk6AAAA1M3V/J50V3bT7VTLNqZur+Tzoru2n2qgdMABx/fO8mfWH3eG+Kssx2nG+d5M+sPu8N8VZZjgAAAAsz4OLrvzn1bv/E4Zf8AVB3A9kuqdO5ljNo+fWP5PweY5ZVg8DhLtMxeu0V3LVz5aY/Rp/o4iInnVx48o4TNvgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHka3/MzPO7sR7up67yNb/mZnnd2I93U4q7pd+Lv0cx9VBgGeelx7OjtM5xq3PLWUZJhZv4ivnVVPKi1T211z2Ux/8AiOM8n37ONDZ3rnO4y/KrXiWaJicTiq4n5OxT5588z2U9M/u4zFxNnui8k0RkdOWZRZ/Kq4TiMRXEfKX6/PVP4R0R/FKx8abs9Z7mU9pPaizpNH4dv812e6PKP1n/AB5vN2UbOcn0DlXyeGiMVmd6mIxWNqp4VV/7tP6tHHs7e3imwLammKY6Q/FMrKvZd2q9eq7VU98gD6R1bPCK9RWX+sGH9xfZ9NBfCK9RWX+sGH9xfZ9AAAAAuT4Mz6/X3o5d+OJXPUw8GZ9fr70cu/HErngIRt+mKdhmu5n9nsdH/gVpug28F1Fa69X8b7msGUAAAADUzdX8nnRXdtPtVMs2pm6v5POiu7afaqB0wAHH987yZ9Yfd4b4qyzHacb53kz6w+7w3xVlmOAD7shyjM8+zjC5Pk2Bv4/MMXci3Yw9iiaq7lU9kR/n2RzB8li1dv3qLFi3Xdu3KooooopmaqqpnhEREdMyu5ur7rtrKvmmtNpmCou5hyu4HJrscaMP2xXfjoqr81HRT28Z5UzLdd3b8s2cWbGptVUWMy1bXT41EcqrOXcY+jb/AFrnnr7Oinlxmqw4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADyNb/mZnnd2I93U9d5Gt/zMzzu7Ee7qcVd0u/F36OY+qgyd7JNmub6+zPjb8bCZRZqiMTjaqeUf7lH61f90dM9kT62xXZLj9bYijNMzi7g8gt1c7nDhXiZjppt/Z56uzojjPHhbTJ8twGT5ZYy3LMJawmEw9PiWrVuOEUx/nPnnplV4+LNf5qu5+u+0/tdRgRONiT1u+c+VP8Amf08vP5Pk0np3KNLZJZyjJcJThsLa5+equrtqqntqnz/AOT1gWkRER0h+PXLld2ua656zPfMgDl8AAK2eEV6isv9YMP7i+z6aC+EV6isv9YMP7i+z6AAAABcnwZn1+vvRy78cSueph4Mz6/X3o5d+OJXPAQbeC6itder+N9zWnKDbwXUVrr1fxvuawZQAAAANTN1fyedFd20+1Uyzambq/k86K7tp9qoHTAAcf3zvJn1h93hvirLMdpxvneTPrD7vDfFWVAti+yvVO1XU9OT6ew3iYe1MVY3H3Yn5DCUT21T21Tz4Uxzn90TMB4mz7Ruo9eanw2nNMZdcx2Ovzx4RyotUdtddXRTTHHnM/u5zMQ0b3dNhWnNkmTxepi3mWpcTb4YzM6qOiO23aifoUf31dM9kRI9i+yzS2yrTFOT6ew3j4i5EVY3H3Yj5fF1x21T2Uxz4Uxyj98zMzoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB+eLw9nF4W9hcRbi5ZvUVW7lE9FVMxwmP4S/QHMTMT1h+eGsWcNh7eHw1q3Zs2qYot26KYppopjlEREdEP0AJmZnrIAOAAAAFbPCK9RWX+sGH9xfZ9NBfCK9RWX+sGH9xfZ9AAAAAuT4Mz6/X3o5d+OJXPUw8GZ9fr70cu/HErngILvCTEbCtdTM8P+gMbH/g1J0ge8T1D657hxfuqgZRgAAANTN1fyedFd20+1Uyzambq/k86K7tp9qoHTAARLbBou1tD2d5no6/jq8DZzGbEXb9FEVVU0UXqLlXCJ5cZiiYjj0TPHn0Pt2f6N07oPTGG05pjLreBwFiOPCOdd2vtrrq6aqp4c5n93REQkAAAADke3fbPlug8PcyjKJtY/UddPK1x428LExyqucO3tijp7Z4Rw49tmzXeriiiOsvi5cpt09qp0+c1y6M8oyT55a/lKvDVYqMNFXGv5Kmqmma5jsjxqojn08+HRL7VTN0XNsyzzbTnea5vjLuMxuIya9XdvXauM1T8vY/hEdERHKI5Qtm7szG/wBNc/D69fc+LF38WntACI7gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFbPCK9RWX+sGH9xfZ9NBfCK9RWX+sGH9xfZ9AAAAAuT4Mz6/X3o5d+OJXPUw8GZ9fr70cu/HErngIHvE9Q+ue4cX7qpPED3ieofXPcOL91UDKMAAABqZur+Tzoru2n2qmWbUzdX8nnRXdtPtVA6YAAAAP5uV0WrdVy5XTRRRE1VVVTwiIjpmZVb2/7eq8f840vobFVW8Jzt4vM7c8Kr3ZNFqeynz19M9nLnMnFxLmTX2aP7/J1Xr1NqnrUk+3/bvZyL5xpnRmIt381jjbxWOp4VUYWe2mjsqufb0U/bPRU/E372JxFzEYi7cvXrtU13Llyqaqq6pnjMzM85mfO/MbDExLeNR2aP5n5qK9fqvVdanc9ynrUzPuS77+wuAp/uU9amZ9yXff2FwGb1nxM8QtcDZAFUmgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAK2eEV6isv9YMP7i+z6aC+EV6isv8AWDD+4vs+gAAAAXJ8GZ9fr70cu/HErnqYeDM+v196OXfjiVzwEC3iZiNg+ueP/UWL91Unrn+8f1Ca47kxPu5BlOAAAA1M3V/J50V3bT7VTLNqZur+Tzoru2n2qgdMAAfNmuYYLKsuv5jmWKtYTCYeia7t67V4tNFMdsy+bVGeZbprIMZnucX/AJDA4Ojx7tcUzVPTERERHTMzMRH2ypNtq2tZztEzGbEePgcis18cNgoq+lPZXcmPpVfZ0U9nbMzsHAryqvd7qY75R8jJpsx+qQbe9tuO1pcvZDp2u9gtO0z4tdX0bmN4dtXmo81Pb0z5o4uDYWLFFijsUR0hRXLlVyrtVADtfDue5T1qZn3Jd9/YXAU/3KetTM+5Lvv7C4DI6z4meIXeBsgCqTQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFbPCK9RWX+sGH9xfZ9NBfCK9RWX+sGH9xfZ9AAAAAuT4Mz6/X3o5d+OJXPUw8GZ9fr70cu/HErngOf7x/UJrjuTE+7l0Bz/eP6hNcdyYn3cgynAAAAambq/k86K7tp9qplm1M3V/J50V3bT7VQOmAA5vvN9RupPQsfEW1FF695vqN1J6Fj4i2oo1Wh7FXPpCm1HcjgAXKAAA7nuU9amZ9yXff2FwFP9ynrUzPuS77+wuAyOs+JniF3gbIAqk0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWzwivUVl/rBh/cX2fTQXwivUVl/rBh/cX2fQAAAALk+DM+v196OXfjiVz1MPBmfX6+9HLvxxK54Dn+8f1Ca47kxPu5dAc83leoHXHc1/2QZVAAAANTN1fyedFd20+1Uyzambq/k86K7tp9qoHTAAc33m+o3UnoWPiLaii9e831G6k9Cx8RbUUarQ9irn0hTajuRwALlAAAdz3KetTM+5Lvv7C4Cn+5T1qZn3Jd9/YXAZHWfEzxC7wNkAVSaAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAArZ4RXqKy/1gw/uL7PpoL4RXqKy/wBYMP7i+z6AAAB++X4TFZhj8PgMFYuYjFYm7Tas2rdPGq5XVPCmmI7ZmZiAXb8Gtk92xpHV+fVUzFrG47D4SiZ6JmzRVVPD/jwtsgmwPQlGzfZRkmlZ8SrF2LPyuOrp6K8RXPjXOfbETPixPmphOwHPN5XqB1x3Nf8AZdDc83leoHXHc1/2QZVAAAANTN1fyedFd20+1Uyzambq/k86K7tp9qoHTAAc33m+o3UnoWPiLaii9e831G6k9Cx8RbUUarQ9irn0hTajuRwALlAAAdz3KetTM+5Lvv7C4Cn+5T1qZn3Jd9/YXAZHWfEzxC7wNkAVSaAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAArZ4RXqKy/1gw/uL7PpoL4RXqKy/wBYMP7i+z6AB9uRZTmee5xhcnybA38fmGLuRbsYexRNVdyqeyI//eAPlsWrt+/bsWLdd27cqiiiiimaqqqpnhEREdMzK9257u53dIXLGvddYWmM+qo45dl9ccfmMTH1lz/tZieER+jE/rfRkG67u35Zs4sWNTaqosZlq2unxqI5V2cu4x9G3+tc89fZ0U8uM1WHAAAcm3vs0tZTu56uvXKoiq/hqMLRHbVVdu0UcI/qqmf6nWVOfCOa7tRg8j2dYO9FV2q5/KeYRTP0aYiqizTP75murh/u0z2gpaAAAA1M3V/J50V3bT7VTLNqZur+Tzoru2n2qgdMABzfeb6jdSehY+ItqKL17zfUbqT0LHxFtRRqtD2KufSFNqO5HAAuUAAB3Pcp61Mz7ku+/sLgKf7lPWpmfcl339hcBkdZ8TPELvA2QBVJoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACtnhFeorL/WDD+4vs+mgvhFeorL/AFgw/uL6mWxvZfqnanqijJdOYXhao4VYzG3YmLGEtz+lXPnnnwpjnPDzRMwHjaB0fqHXWp8NpzTGXXMdj8RP0aeVNuntrrq6KaY7Zn8ZiGje7nsJ07skyeMR/R5nqbE2+GMzKqj6MT027MT9Gj++rpnsiJDsU2U6W2U6YjKcgw/ymKuxFWOzC7THy2KrjtmeymOfCmOUfbMzMz0AAAHOdu22DS+yXTnz/OLsYrM79M/MMstVxF3EVR2z+rRE9Nc9HZxnhEh6O2baRkGy7RWJ1Hnl2Kq4iaMHhKauFzF3uH5NFP4zPZHGfsZb671Rm+tNX5lqjPb/AMtmGY35u3Zj6NMdFNFMdlNNMRTEeaIeptY2i6n2maqu6g1PjflbnOnD4e3xizhbfHlRbp7I889M9MzKIAAAAANTN1fyedFd20+1Uyzambq/k86K7tp9qoHTAAc33m+o3UnoWPiLaii9e831G6k9Cx8RbUUarQ9irn0hTajuRwALlAAAdz3KetTM+5Lvv7C4Cn+5T1qZn3Jd9/YXAZHWfEzxC7wNkAVSaAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA5fvJbMcTtZ0flOl7OYW8vw9vObOLxl+qnxqqbNFq7TV4kdtUzXTEceEc+PZwS3Z1onTez/S+H05pfL6MHgrPOqem5er7blyrpqqnh0/uiOEREJGAAAArZvTbyuB0FRidJ6LvWMfqmYmi/iOVdnLv39lV3zU9EfpfqyEq3lNv2Q7J8tqy7B/I5pqvEW+OGwHjfk2InouXpjnFPbFPTV2cI5xnTrTVGfay1HitQ6kzG9mGY4qrjcu3J6I7KaY6KaY6IpjlD4M2zDHZtmWIzPM8ZfxmNxNybt+/ermuu5XPOZmZ5zL5QAAAAAAGpm6v5POiu7afaqZZtTN1fyedFd20+1UDpgAOb7zfUbqT0LHxFtRReveb6jdSehY+ItqKNVoexVz6QptR3I4AFygAAO57lPWpmfcl339hcBT/cp61Mz7ku+/sLgMjrPiZ4hd4GyAKpNAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACZiI4zPCIfjjsXhcBgr2NxuIs4bC2Lc3L167XFFFuiI4zVVM8oiI7ZUQ3qd5vFaunFaN2f4m9hNPc7eLzCnjRdx8dE009tFqf41dvCOMSEy3qt6KnC/O9FbMcdFV/nax+d2auMW+ybeHntq7Judn6PP8qKWXK67ldVddVVVdUzNVVU8ZmfPL+QAAAAAAAABqZur+Tzoru2n2qmWbUzdX8nnRXdtPtVA6YADm+831G6k9Cx8RbUUXr3m+o3UnoWPiLaijVaHsVc+kKbUdyOABcoAADue5T1qZn3Jd9/YXAU/3KetTM+5Lvv7C4DI6z4meIXeBsgCqTQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB5mqc/ybS+Q4vPdQZjYy/LcJR496/eq4U0x5vPMzPKIjjMzMRHN5e0zXemtnelr+otUY+nC4W3+Tbtxzu4i5w5W7dP6VU/wjpmYiJlnBvA7atS7XM++Vx1VWAyLDVzOAyu3Xxot9nj1z+ncmP0p6OcREc+ISXec3hs52pY25keSzfyvSNqv8jD8eF3GTE8q73Ds7Yo6I6Z4zwmOEAAAAAACwGnt3XNMFsO1HtM1rTfy+vD5dVfyrLZ/Ju1TMxEXb3bTHCeMUdM9M8I5SFfwAAAGpm6v5POiu7afaqZZtTN1fyedFd20+1UDpgAOb7zfUbqT0LHxFtRReveb6jdSehY+ItqKNVoexVz6QptR3I4AFygAAO57lPWpmfcl339hcBT/cp61Mz7ku+/sLgMjrPiZ4hd4GyAKpNAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHPtuG1vS+yfTU5nnl75fHXomMBltqqPlsVXHm/VojtrnlH2zMRMd3kNvOn9kuUzg7XyWZ6oxFvjhMuirlbiei7emOdNHmjpq6I4RxqjObXWrNQa21LitRamzG7j8xxM/lV1zyop7KKKeimmOyI5A9fa9tL1RtQ1Tcz3UuL8bxeNOFwluZixhbcz9Cin+HGZ5z2yhgAAAAAP0w1i/isTaw2Gs3L9+7XFFu3bpmqquqZ4RTERzmZnsfVkOU5nn2cYXJ8mwN/H5hi7kW7GHs0eNXcqnsiP8+yObQfdc3css2a4azqXU9FjMdXXKONM8qrWXxMc6bfnr7Jr/qp5cZqCLbqe7HY03801rtEwlvEZ3yu4HK64iq3gp6YrudlV3zR0U/bV9HsG9R5POte7avapdMcz3qPJ51r3bV7VIMswAAAGpm6v5POiu7afaqZZtTN1fyedFd20+1UDpgAOb7zfUbqT0LHxFtRReveb6jdSehY+ItqKNVoexVz6QptR3I4AFygAAO57lPWpmfcl339hcBT/AHKetTM+5Lvv7C4DI6z4meIXeBsgCqTQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABXPek3ksu2eWsRpbSNyxmGrKqZpu3OVdnLuPbX2VXPNR2dNXZFUQ3qt6G3lnzvRWzPHU3cdztY7ObVXGmx2TRYntr89fRT2cZ500lvXLl67Xdu3Krlyuqaq66p4zVM85mZ7ZB9OdZpmOdZtic2zbG38dj8Vcm7fxF+uaq7lU9MzMvjAAAAAB7uhdJag1vqbC6d0zl13H5hiZ/Joo5U0U9tddXRTTHbM8nqbJNm+p9p2qreQaZwfylXKrE4q5xizhbfH6dyrs+yOmeiIlpLsN2R6Y2TaZjLMktfOMffiJx+ZXaIi9iq49miOyiOUfbMzMh4O7hsJ0/skyeMTX8lmWp8Tb4YzMZo5URPTasxPOmj7emrhxnsiOwAA5nvUeTzrXu2r2qXTHMd6yqad3fWkx/1dMfxrpBlqAAAA1M3V/J50V3bT7VTLNqZur+Tzoru2n2qgdMABzfeb6jdSehY+ItqKL17zfUbqT0LHxFtRRqtD2KufSFNqO5HAAuUAAB3Pcp61Mz7ku+/sLgKf7lPWpmfcl339hcBkdZ8TPELvA2QBVJoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADz9SZ3lOm8jxed57mFjL8uwlubl/EXquFNEf5zPRERzmZiI5g+vF4jD4TC3cVi79rD4ezRNy7du1xTRRTEcZqmZ5RERz4yovvVbzuI1N870Xs7xV3DZHPG1jczo403MbHRNFvtpteeemr7I4+NEd5/eKzbadirun9P1X8s0jar5WuPi3cdMTyru8Ointijo7Z4zw4cCAAAAAAAdL2CbHNTbW9RfM8ronB5Rh64+f5ncombdiP1af17kx0Ux++eEc3v7tOwLPNrGZ05jjflss0ph7nDE47xeFd+Y6bVnjymrsmrop+2eU6L6O0zkWkNOYTT2nMus5fluEo8W1Ztx/GqqemqqZ5zVPGZnpB5my7Z/pnZvpWzp3TGBjD4ej8q9eq4TdxNzhzuXKv0qp/hEcoiIjglQAAAOX713k7a07v8A+el1By/eu8nbWnd//PSDLcAAABqZur+Tzoru2n2qmWbUzdX8nnRXdtPtVA6YADm+831G6k9Cx8RbUUXr3m+o3UnoWPiLaijVaHsVc+kKbUdyOABcoAADue5T1qZn3Jd9/YXAVD3J7NyraXm2Iin+joyeuiqfNNV6zMezK3jI6z4qeIXmBsgCqTAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHh671ZkWiNK43U2o8bThMuwdHjV1dNVc9FNFMfpVTPCIhm1vD7b9SbXM8/p5ry/T2GuTOByyivjTHZFy5P6dyY7eiOPCO2Zm2/ZtPv6t2lXNG5fiav5E05cm1XRTP5N7GdFyufP4n1ceaYr/WVyAAAAAAAWP3WN23H7QbuH1XrG1fwGlKaors2udF3MeHZT202vPX0z0U/rRKt1PdguZt801ttKwNVvL+V3AZPdp4VYjti5ejso7Yo6au3hHKq7tq3bs2qLVqim3bopimiimOEUxHRER2QD58oy7AZRlmGyzK8HYwWCwtuLVixZoiii3RHRERHRD6gAAAAAcv3rvJ21p3f/wA9LqDl29lV4u7prSeHH/0CI/jcogGXAAAADUzdX8nnRXdtPtVMs2pm6v5POiu7afaqB0wAHN95vqN1J6Fj4i2oovXvN9RupPQsfEW1FGq0PYq59IU2o7kcAC5QAHWtgWx/H68zK1m2a2rmG01YucblyeNNWLmJ527f2dk1dnOI59HVevUWaJrrnpD7t26rlXZpdk3ONJXcm0RjNSYy1NF/OrtPyMVRz+Qt8Ypn7PGqqrn7YimXdX54WxYwuFtYXDWqLNizRFu3bojhTRTEcIiI7IiH6MRk35v3ark+bQ2rcW6IpjyAHQ7AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB5uqc0oyPTGa51ciJoy/BXsVVE9Exbomqfwekh23Hxv9iuufEnhV/NzMOE+afm1wGT+PxeIx+OxGOxd2q7iMRdqu3a6umquqZmZn98zL8AAAAB9mS5XmOd5thspyjBX8dj8Vci1Yw9iiaq7lU9EREA+axZu4i/bsWLVd27cqii3bopmqqqqZ4RERHTMz2Lx7qe7DayH5prbaPg6L2bcruAym5EVUYSemLl2Oiq55qeint41fRlW61u4Zds5sWNUart2Mw1bXT41unlXay6Jj6NHZVc89fZ0U8uM1WIAAAAAAAAAcs3tfJz1n/3Gn3tDqblm9r5Oes/+40+9oBl0AAAA1M3V/J50V3bT7VTLNqZur+Tzoru2n2qgdMABzfeb6jdSehY+ItqKL17zfUbqT0LHxFtRRqtD2KufSFNqO5HAEc54Qsru+7BpvfN9U66wkxb5XMJld2nnV2xXejzeajt7fNNjk5VvGo7dc/8AaLas1XauzSj27/sOxOqqrGpNV2ruGyLjFdjDTxpuY3zT56bf29M9nnW5wWFw2CwlrB4Oxaw+Hs0RRatW6YppopjlEREcoh+tNMU0xTTERTEcIiI5Q/1j8vMuZVfaq7vKF7YsU2aekACI7gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABD9t/Utrj1dzD4a4mCH7b+pbXHq7mHw1wGS4AAAC+Pg8dH6etbOcXrX+TrdefX8fewfzuv8qq3ZppomKKP1Ymap48Oc8uPRChzQ3wekzOwS9E9md4iI/wDktAsWAAAAAAAAAA5Zva+TnrP/ALjT72h1Nyve3q8Xdy1nPD/2KiP43aIBl2AAAA1M3V/J50V3bT7VTLNqZur+Tzoru2n2qgdMABzfeb6jdSehY+ItqMYaxexOIt4fDWrl69dqii3bt0zVVXVM8IiIjnMz5l8t4LLMfnOyHPMryvCXcXjcT83os2bccaq5+cW//wC8eyOaPbBti+X6Ew9vOc5i1jtR3Kfp9NvCRMc6bfnq7Jq/qjhHHje6fm28XFqmr3z190fxCuyseq9eiI7ujwN37YXZ0/GH1PrGxbv5vyrw2Cq4VUYSeyqrsquf3U/bPOO+gqcjIuZFfbrlNtWqbVPZpAHQ7AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABD9t/Utrj1dzD4a4mCH7b+pbXHq7mHw1wGS4AAADQrweNXHYNio4fRz3ER/4dmWerQjwdtUTsIxsR2Z9iIn/g2AWQAAAAAAAAAAcj3xMVhsNu46tjE4i1Zm/YtWrUV1xTNyub1ExTTx6Z4RM8I80pbtZ2jaY2ZaVu6g1NjPk6OdOGw1vhN7FXOHKi3T2z556IjnMwza257XNT7WdTTmWdXfm+X2KpjAZbarmbWGon2q57a55z9kREQHOwAAAGpm6v5POiu7afaqZZtTN1iJjd50Vxjh/0bT7VQOmAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIftv6ltceruYfDXEwRHbZT42xrW9PHhx09j4/w9wGSoAAADQXwdUxOwvMeE9GoMRx/4GHZ9NAvBzdRua+sV/wCHw4LLAAAAAAAAOb7eNsOmdkmm/n2bXIxWaYimf5Pyy3XEXcRVHbP6tET01T+6OM8IeFvJ7esh2S5TOCw/yOZ6pxNvjhMvir8m1E9F29w500eaOmrojhHGqM5ta6pz7WepMXqHUmY3swzHFVcbl25PRHZTTHRTTHRFMcoB6W1TaFqbaVqq9qHU+Nm/eq402LFHGLOGt8eVu3T2RH8ZnnMzPNEwAAAAB/tMTVVFNMTMzPCIjta37JchuaX2X6Y09fp8W/l+VYexfj/tIt0+P/8AdxUE3MNluI1/tSw2cY3DVTp/T92jF4quqPybt6J42rMefjVEVTH6tMxPTDSMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABEttHU7rX1fx/w9aWolto6nda+r+P+HrBkoAAAAv8A+Dj6kM59ZL/w2GUAX98HDM/7Fc7p7I1Hen/DYYFmwAAAAAFd96XeOy7ZxYv6Y0pcsZhq2unxa6uVdrLomPpV9lVztijs6auXCKoxvW7zlnT3zvROznGW7+cc7WOzW3MVUYOeiaLU9FV3z1dFPRzq+jRrEXr2IxFzEYi7XevXapruXK6pqqrqmeMzMzzmZntB9GdZpmOd5tic2zfG38dj8Vcm7fxF+uaq7lU9MzMvjAAAAAB0/d/2L6l2uag+QwFNWByTDVxGPzS5RxotR0+JRH6dyY6KY6OmeEJDuzbv2dbVswozbM/l8r0lYucL2M8XhXipieduzx6Z7Jr6Kftnk0T0np3JdKafwmQaey6xl+W4SjxLNi1HCI88zPTNUzzmZ4zM85B8WzjRWn9n+ksJpjTWDjDYHDRxmap43L1c/SuV1fpVT2z+6I4REREiAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABEttHU7rX1fx/w9aWolto6nda+r+P+HrBkoAAAAv14OCrjsbz2nh0ahuz/h8P/wCSgq/Hg36o/wBkGf09sZ/XP+Hsf+QLQAAA+fM8dgssy7EZjmOLs4TB4a3N2/fvVxRRboiOM1VTPKIgH7XK6Lduq5crpoopiaqqqp4RER0zMqT71u8/XmHzvRGzTHVUYLnax+c2auFV7sm3Ynso7JrjnV+jy51Rbep3lMbry5idI6KvXsFpaJmjEYmONF3Mf39tNrzU9NX6X6sVqAAAAAAAWW3Vt2rG67rw2rtbWL2C0vExXh8NPGi7mPm4dtNr/e6av0f1olm6nuv1Yz5prbaZgJow3K7gMlvU8Ju9sXL8T0U9sW56f0uXKbq0UU26KaKKaaaKY4U0xHCIjzQD8MswOCyzL8Pl2XYSzhMHhrcWrFizRFFFuiI4RTTEcoiH0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAiW2jqd1r6v4/4etLUU2x0+Nsh1nTPbkGOj/D1gySAAAAX18G9Mf7JtQxx5/y7V7iyoUvl4Nzqs1H33PuLQLTAjW0nXOm9nulsRqPVGPpwuDtcqKY53L9zhyt26f0qp4dHZzmeERMg9HVeocl0rp/F5/qDMbGX5bhKPHvX7s8IiOyIjpmZnlERxmZmIhnZvNbwOdbVsxryjK/l8s0lYucbOE8bhcxUxPK5e4dPnijop+2eaP7wW2nUm1zUHy2NqqwOR4auZwGV26+NFvs8euf07kx29nRHCOPHlwAAAAAPv0/k+aagznC5NkuAv4/MMXci3Yw9mnxq66p80f3zPRERMyD5cLh7+LxVrC4Wxcv371cW7Vq3TNVddUzwimIjnMzPLhC9W6nuyWNMfNNabQ8JbxGe8ruCyyuIqt4GemK7nZVd80dFP21fRlO67u6ZXszwtnUepKLGZauuUcYr+lay+JjnRa89fZNf9UcI4zVYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABFtsHVJrHuHHfD1pSi22Dqk1j3Djvh6wZIAAAAL3+Db6stSx/75j3NCiCzO7FtryDZDsX1LXiqYx+eYvNOOXZbTVwmufkaYm5XP6NuJ7emeiO2YC4m2nanpfZVparOdQYjx8RciacDgLVUfLYu5HZTHZTHLjVPKPtmYic2dsm0/VG1PVVed6ixPC3RxpweCtzPyOEtzP0aI888uNU85/qiI8raJrXUev9U4nUep8wrxmOvzwiOi3Zo7Ldunoppjjyj98zxmZlHQAAAAATPZDs11RtQ1VbyHTWE8bxeFWLxdyJizhLcz9Our+PCI5z2QDytBaQ1DrnU+F05pnLrmOzDETypp5U26e2uuroppjtmfxmGju7lsL09sjyaL39HmWpcTbiMbmVVH0Y6ZtWonnTRx/rq4cZ7Ij3diGybS+yfTEZVkVn5bG3oicfmN2mPlsVXHn/VojnwojlH2zMzPQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEW2wdUmse4cd8PWlKLbYOqTWPcOO+HrBkgAAAAAAAAAADt27Pu/53tXzGjNcx+WyvSVi5wv4zxeFeJmJ527PHpnsmrop+2eQI/sB2M6l2uah+bZdRVgsmw1cRj80uUcbdmOnxaY/TuTHRTH75mIaRbMdBaa2c6Vsac0vgacNhbf5V25Vzu4i5w53LlX6VU/wjoiIiIh6ekdOZJpPT2EyDTuXWcvy3CUeJas2o5R55memqqZ5zM8ZmecvVAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAARbbB1Sax7hx3w9aUoxtbpirZTq6meicjxsT/wKwZHAAAAAAAAAuBup7r9eP+aa22mYGqjCcruAyW9TwqvdsXL8T0U9sW55z+ly5SET3V92vG69uYbVutbN/A6WiYrw+HnjRdzH93bTa89XTV+j+tF+8rwGCyvLsPluW4Sxg8HhrcWrFizRFFFuiI4RTTEcoh+9uii3bpt26KaKKYimmmmOEREdERD+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEZ2s9Vere5Mb7itJkZ2s9Vere5Mb7isGRoAAAAAD9MLYv4rE2sNhrNy/fu1xRbt26ZqqrqmeEUxEc5mZ7H1ZDlGZ59nOFyfJsDfx+YYu5Fuxh7NHjV11T2RH+fZHOWhG65u55Zs0w1nUmpqLGY6uuUcYn6VrL4mOdNvz19k1/1U8uM1BFt1Pdjsaa+aa12iYS3iM75XcDldcRVbwU9MV3Oyq75o6Kftq+jasAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEZ2s9Vere5Mb7itJkZ2s9Vere5Mb7isGRoAAAD3dB6R1BrjU2F05pnLruOzDEz+TRTypop7a66uimmO2Zersi2bao2n6qt5DprCePMcKsVirkTFnC2+P066uz7IjnPZDSXYdsl0vsn0zGV5HZ+Xx16InH5jdpj5bFVx5/wBWiOfCiOUfbMzMh4O7jsK0/skyaMRPyWZamxNvhjMymj6MdtqzE86aPt6auHGeyI6+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACM7WeqvVvcmN9xWkyN7U4irZjqqmecTkuMif+DWDIsAB03YFsa1Ntc1F81y2icFk+Grj5/mlyiZt2Y6fFp/XuTHRTH754RzSDdo2AZ5tXzKjM8f8ALZXpOxc4YjG+LwrxExPO3Z49M9k1dFP2zyaK6Q03kekdO4TT+ncus5fluEo8W1ZtRy+2Znpqqmec1TxmZ5yDzNl+gdM7ONK2NO6XwMYfDUflXbtXCbuIucOdy5V+lVP8IjlERERCUgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjm1Hqy1T3NjPc1pGjm1Hqy1T3NjPc1gyKWS3V92zHa+uYbVus7N/A6VpmK7FjnRdzH93bTa89XTPRT+tEs3U91+vMfmmttpmBqt4LldwGTXqeFV/ti5fjso81HTV+ly5VXYt0UWrdNu3RTRRREU000xwiIjoiIB+GVZfgcqy3D5blmEsYPBYa3FqxYs0RRRboiOEU0xHKIfSAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP//Z";
+
+// ── THEMES ─────────────────────────────────────────────────
+const LIGHT={bg:"#F0F3F9",card:"#FFFFFF",border:"#DDE3EF",muted:"#64748b",text:"#0f172a",sub:"#334155",input:"#FFFFFF",row:"#F8F9FC",row2:"#F0F3F9"};
+const DARK ={bg:"#0d1526",card:"#1a2540",border:"#2a3a5c",muted:"#8899bb",text:"#e8edf5",sub:"#b0bdd6",input:"#162035",row:"#1e2d4a",row2:"#162035"};
+
+// ── BLOG TYPES ─────────────────────────────────────────────
+const DEFAULT_TYPES=[
+  {id:"medicare",   label:"Medicare",        emoji:"🏥",color:B.blue,     protocol:"standard"},
+  {id:"home",       label:"Home",            emoji:"🏠",color:B.lightBlue,protocol:"home"},
+  {id:"commercial", label:"Commercial",      emoji:"🏢",color:B.black,    protocol:"commercial"},
+  {id:"life",       label:"Life",            emoji:"❤️",color:B.red,      protocol:"life"},
+  {id:"auto",       label:"Auto",            emoji:"🚗",color:B.blue,     protocol:"standard"},
+  {id:"motorcycle", label:"Motorcycle",      emoji:"🏍️",color:B.red,      protocol:"standard"},
+  {id:"barber",     label:"Barber/Beauty",   emoji:"✂️",color:B.black,    protocol:"barber"},
+  {id:"restaurant", label:"Restaurant",      emoji:"🍽️",color:B.red,      protocol:"restaurant"},
+  {id:"foodtruck",  label:"Food Truck",      emoji:"🚚",color:B.blue,     protocol:"standard"},
+  {id:"workers_comp",label:"Workers Comp",   emoji:"🦺",color:B.black,    protocol:"standard"},
+  {id:"mobile_home",label:"Mobile Home",     emoji:"🏡",color:B.lightBlue,protocol:"home"},
+  {id:"hvac",       label:"HVAC",            emoji:"❄️",color:B.blue,     protocol:"standard"},
+  {id:"plumber",    label:"Plumber",         emoji:"🔧",color:B.blue,     protocol:"standard"},
+  {id:"electrician",label:"Electrician",     emoji:"⚡",color:B.amber,    protocol:"standard"},
+  {id:"atv",        label:"ATV/Specialty",   emoji:"🏎️",color:B.red,      protocol:"standard"},
+  {id:"pet",        label:"Pet",             emoji:"🐾",color:B.purple,   protocol:"standard"},
+  {id:"detailing",  label:"Mobile Detailing",emoji:"🚿",color:B.blue,     protocol:"commercial"},
+  {id:"contractor", label:"Contractor/CSLB", emoji:"🔨",color:B.black,    protocol:"commercial"},
+  {id:"habitational",label:"Habitational",   emoji:"🏗️",color:B.black,    protocol:"standard"},
+  {id:"generic",    label:"Generic",         emoji:"📝",color:B.blue,     protocol:"standard"},
+];
+
+const DEFAULT_AUDIENCES=[
+  {id:"newlyweds",  label:"Newlyweds",            emoji:"💍"},
+  {id:"parents",    label:"First-Time Parents",    emoji:"👶"},
+  {id:"men2550",    label:"Men Ages 25-50",        emoji:"👨"},
+  {id:"influencers",label:"Influencers/Creators",  emoji:"📱"},
+  {id:"seniors",    label:"Seniors 65+",           emoji:"👴"},
+  {id:"smallbiz",   label:"Small Business Owners", emoji:"💼"},
+  {id:"spanish",    label:"Spanish Speakers",      emoji:"🇪🇸"},
+  {id:"veterans",   label:"Veterans",              emoji:"🎖️"},
+  {id:"renters",    label:"Renters",               emoji:"🔑"},
+  {id:"contractors",label:"Contractors/Trades",    emoji:"🔧"},
+];
+
+const GSC={
+  medicare:["UCard 2026 Complete Store & Item Guide","Where Can You Use Your UCard — Every Store Confirmed","UCard vs OTC Card — What's Actually Different in 2026","What Groceries Are Covered by the UnitedHealthcare UCard","How to Check Your UCard Balance and Reload It"],
+  home:["Mobile Home Lot Rent Laws in California","What Happens When a Neighbor Tree Damages Your Property","How Many Home Claims Before You Get Dropped in California","Why California Homeowners Are Losing Coverage","What Backyard Clutter Can Do to Your Home Coverage"],
+  commercial:["Mobile Detailing Business — Licenses Costs & Risks","Why California Businesses Are Denied Loans at Record Rates","What Painting Contractors Really Pay for Business Coverage","General Liability vs Commercial Auto for Mobile Businesses","CSLB Requirements That Affect Your Business Eligibility"],
+  life:["Spring Life Changes That Leave California Families Exposed","What Happens to Your Family If You Have No Life Policy","Term vs Whole Life — The Decision Most Californians Get Wrong","How Much Life Coverage Does a New Parent Really Need","Life Coverage Mistakes That Leave Newlyweds Underprotected"],
+  auto:["Electric Vehicle Ownership Costs in California","Why California Auto Rates Are Rising and What Drivers Can Do","Rideshare Drivers in California — The Coverage Gap Nobody Talks About","Classic Car Coverage — What Collectors Get Wrong","What Happens to Your Auto Coverage When You Move in California"],
+  motorcycle:["Stated Value vs Agreed Value Motorcycle Coverage","First-Time Motorcycle Owner Checklist for California Riders","Customized Bike Coverage — What Standard Policies Wont Cover","Motorcycle or Car as a First Vehicle","How Much Should You Really Pay for Motorcycle Coverage"],
+  barber:["Working in a Barbershop Without a License — What You Risk","Should You Tip a Barber Who Owns Their Own Shop","What Barber School Doesnt Teach You About Running a Chair","Independent Contractor vs Employee — What Barbers Need to Know","Booth Rental Agreements in California — What to Watch For"],
+  restaurant:["Food Truck vs Restaurant — Which Brings Higher Profits","Should You Tip at Fast Food Restaurants and Food Trucks","What California Restaurant Owners Pay for Business Coverage","Health Inspection Failures That Shut Down California Restaurants","Ghost Kitchen Business Model — Risks California Owners Miss"],
+  foodtruck:["Food Truck Profit Margins — What the Numbers Show","California Food Truck Permit Requirements by City","What Happens When Your Food Truck Gets in an Accident","Commissary Kitchen Requirements for California Food Truck Owners","Food Truck vs Brick and Mortar — Real Cost Comparison"],
+  workers_comp:["What Painting Contractors Really Pay for Workers Comp","When Workers Comp Doesnt Cover What You Think","California Workers Comp Audit — What Triggers One","Independent Contractors vs Employees — Workers Comp Liability","What Happens When an Uninsured Worker Gets Hurt on Your Job"],
+  mobile_home:["Mobile Home Lot Rent Laws — What California Parks Can Charge","Why Mobile Homes Are Hard to Sell When Lot Rent Keeps Rising","Mobile Home vs Apartment — True Cost Comparison in California","Mobile Home Park Disputes — Your Rights as a California Resident","What Mobile Home Owners Need to Know About California Coverage"],
+  hvac:["Why California HVAC Companies Are Paying More for Coverage","What Happens When an HVAC Technician Gets Hurt on the Job","HVAC Contractor Licensing in California — What You Must Have","Indoor Air Quality and Liability — What HVAC Pros Need to Know","Heat Wave Season in California — What HVAC Businesses Risk"],
+  plumber:["Why Most Plumbers Charge a Service Fee — Why It Makes Sense","What Plumbing Contractors Pay for Coverage in California","Unlicensed Plumber Liability — What California Homeowners Risk","Plumber vs Electrician — Who Earns More in California","Water Damage Liability for California Plumbing Contractors"],
+  electrician:["Why Electricians Are Earning Less Compared to Average Workers","What California Electricians Pay for Business Coverage in 2026","Journeyman vs Master Electrician — What the Difference Costs","Solar Panel Installation Liability — What Electricians Need","Electrical Contractor Licensing Requirements in California"],
+  atv:["ATV vs Motorcycle Coverage — What California Riders Need","Off-Road Vehicle Laws in California That Riders Get Wrong","ATV Accidents on Private Property — Who Is Liable in California","Customized Off-Road Vehicle Coverage — What's Actually Covered","Side-by-Side UTV Coverage in California — The Complete Guide"],
+  pet:["Does Your Homeowner Policy Cover Your Dog Breed in California","What Happens When Your Dog Bites Someone in California","Exotic Pet Ownership in California — The Liability Nobody Talks About","Renters With Pets in California — Coverage Gaps That Hurt","Pet-Friendly Home Coverage — What Landlords and Owners Need"],
+  detailing:["Mobile Detailing Business — Licenses Costs What Can Go Wrong","What General Liability Covers for Mobile Detail Businesses","Car Detailing at Customer Homes — Liability Risks in California","Mobile Detailing Equipment Coverage — What Youre Not Protected For","How to Price Your Mobile Detailing Services in California"],
+  contractor:["CSLB Contractor Requirements That Affect Your Eligibility","What General Contractors Pay for Coverage in California 2026","Subcontractor Liability in California — What GCs Are Responsible For","California Contractor Bond Requirements — Whats Actually Required","Unlicensed Contractor Penalties in California — What You Risk"],
+  habitational:["Habitational Property Coverage in California — What Landlords Need","Multi-Family Property Risks in California That Landlords Miss","Tenant Lawsuits in California — What Landlord Coverage Actually Does","Vacation Rental Coverage vs Homeowner Policy — The Difference","California Landlord Requirements in 2026 That Affect Coverage"],
+  generic:["What Every California Family Should Review Before Summer","The Coverage Gap Most Californians Dont Know They Have","5 Financial Mistakes Young California Families Make in Year One","How to Review Your Coverage Without Talking to an Agent","What Changes in 2026 That Every California Homeowner Should Know"],
+};
+
+const buildProtocol=(type)=>{
+  const p=type.protocol||"standard";
+  const base=`- 1300-1400 words total\n- Never use "insurance" in the blog title\n- Insurance content ONLY in the final paragraph\n- 4 Unsplash image suggestions placed naturally throughout body\n- 2-3 italicized quotes with interpretive commentary\n- 2-3 credible news sources (Reuters, AP, NPR, USA Today, ABC News, CBS News, The Guardian)\n- Internal link to anchor ${type.label} blog in first body paragraph\n- CTA: fill out a quote form at https://youngdouglasinsurance.com/pages/get-a-free-insurance-quote-california\n- Article schema JSON-LD + FAQ schema at end`;
+  if(p==="home")return`HOME BLOG PROTOCOL:\n${base}\n- Insurance content in section 9 only`;
+  if(p==="commercial")return`COMMERCIAL BLOG PROTOCOL:\n${base}\n- 9-section structure\n- 2-3 business owner quotes\n- 6 social snippets at end`;
+  if(p==="life")return`LIFE BLOG PROTOCOL:\n${base}\n- BANNED: "death benefit","when you die","if you pass away"`;
+  if(p==="barber")return`BARBER PROTOCOL:\n- 1300-1400 words\n- 1 Unsplash image\n- 2-3 owner quotes\n- Insurance ONLY in final paragraph\n- CTA: fill out a quote form at https://youngdouglasinsurance.com/pages/get-a-free-insurance-quote-california`;
+  if(p==="restaurant")return`RESTAURANT PROTOCOL:\n${base}\n- 2-3 restaurant owner quotes`;
+  return`${type.label.toUpperCase()} BLOG PROTOCOL:\n${base}`;
+};
+
+const buildSystemPrompt=(type,audience)=>`You are the lead content writer for Young Douglas Insurance Services (YDI), a Farmers Insurance agency serving all of California.
+AGENCY: Young Douglas Insurance Services / Farmers Insurance - Ontario CA (Inland Empire) - serves ALL of California
+QUOTE URL: https://youngdouglasinsurance.com/pages/get-a-free-insurance-quote-california
+TARGET AUDIENCE: ${audience}
+UNIVERSAL RULES:
+1. NEVER use "insurance" in the blog title
+2. Insurance content ONLY in the final paragraph
+3. Warm authoritative conversational tone
+4. Credible sources only: Reuters, AP, NPR, USA Today, ABC News, CBS News, The Guardian
+5. Italicize all quotes followed by interpretive commentary
+6. Images: [IMAGE: descriptive Unsplash search term] placed naturally in body
+7. Include Article schema JSON-LD and FAQ schema (3-5 questions) at end
+8. SEO metadata at top: Published date, Meta Title (55-60 chars), Meta Description (150-155 chars), Word Count
+${buildProtocol(type)}
+Write the COMPLETE blog now. Do not truncate.`;
+
+// ── HELPERS ────────────────────────────────────────────────
+const wc=t=>t.trim().split(/\s+/).filter(Boolean).length;
+const fmt=d=>new Date(d).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"});
+const uid=()=>Math.random().toString(36).slice(2,10);
+
+const lsGet=(k,fb)=>{try{const v=localStorage.getItem(k);return v?JSON.parse(v):fb;}catch{return fb;}};
+const lsSet=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch{}};
+
+// ── TREND HELPERS ──────────────────────────────────────────
+const ONE_WEEK=7*24*60*60*1000;
+const ONE_MONTH=30*24*60*60*1000;
+
+function calcTrend(current,previous){
+  if(previous===0&&current===0)return{pct:0,dir:"flat"};
+  if(previous===0)return{pct:100,dir:"up"};
+  const pct=Math.round(((current-previous)/previous)*100);
+  return{pct:Math.abs(pct),dir:pct>0?"up":pct<0?"down":"flat"};
+}
+
+function TrendBadge({current,previous,suffix=""}){
+  const{pct,dir}=calcTrend(current,previous);
+  const color=dir==="up"?B.green:dir==="down"?B.red:"#888";
+  const arrow=dir==="up"?"↑":dir==="down"?"↓":"→";
+  if(previous===0&&current===0)return null;
+  return(
+    <span style={{fontSize:11,color,fontWeight:700,marginLeft:6,display:"inline-flex",alignItems:"center",gap:2}}>
+      {arrow}{pct}%{suffix} <span style={{fontSize:9,opacity:0.7}}>vs last wk</span>
+    </span>
+  );
+}
+
+function MiniSparkline({data,color}){
+  if(!data||data.length<2)return null;
+  const max=Math.max(...data,1);
+  const w=80,h=28,pts=data.length;
+  const coords=data.map((v,i)=>`${(i/(pts-1))*w},${h-(v/max)*(h-4)+2}`).join(" ");
+  return(
+    <svg width={w} height={h} style={{display:"block"}}>
+      <polyline points={coords} fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" opacity="0.8"/>
+      <circle cx={(((pts-1)/(pts-1))*w)} cy={h-(data[data.length-1]/max)*(h-4)+2} r="3" fill={color}/>
+    </svg>
+  );
+}
+
+// ── MAIN APP ───────────────────────────────────────────────
+function App(){
+  const[isDark,setIsDark]=useState(()=>lsGet("ydi_dark",false));
+  const T=isDark?DARK:LIGHT;
+  const[tab,setTab]=useState("dashboard");
+  const[types,setTypes]=useState(()=>lsGet("ydi_types",DEFAULT_TYPES));
+  const[audiences,setAudiences]=useState(()=>lsGet("ydi_audiences",DEFAULT_AUDIENCES));
+  const[blogs,setBlogs]=useState(()=>lsGet("ydi_blogs",[]));
+  const[links,setLinks]=useState(()=>lsGet("ydi_links",{}));
+
+  useEffect(()=>{lsSet("ydi_dark",isDark);},[isDark]);
+  const saveBlogs=b=>{setBlogs(b);lsSet("ydi_blogs",b);};
+  const saveLinks=l=>{setLinks(l);lsSet("ydi_links",l);};
+  const saveTypes=t=>{setTypes(t);lsSet("ydi_types",t);};
+  const saveAudiences=a=>{setAudiences(a);lsSet("ydi_audiences",a);};
+  const addBlog=blog=>{const b=[blog,...blogs];saveBlogs(b);};
+  const deleteBlog=id=>saveBlogs(blogs.filter(b=>b.id!==id));
+  const toggleLink=(from,to)=>{const k=`${from}__${to}`;saveLinks({...links,[k]:!links[k]});};
+
+  const TABS=[
+    {id:"dashboard",label:"Dashboard",icon:"📊"},
+    {id:"generator",label:"Generator",icon:"✍️"},
+    {id:"library",  label:"Library",  icon:"📚",badge:blogs.length},
+    {id:"links",    label:"Links",    icon:"🔗"},
+    {id:"settings", label:"Settings", icon:"⚙️"},
+  ];
+
+  const sharedProps={types,audiences,T,isDark};
+
+  return(
+    <div style={{background:T.bg,minHeight:"100vh",color:T.text,transition:"background 0.3s,color 0.3s"}}>
+      {/* NAV */}
+      <div style={{background:B.blue,color:B.white,display:"flex",alignItems:"center",padding:"0 24px",boxShadow:"0 2px 20px rgba(28,66,138,0.25)",position:"sticky",top:0,zIndex:100}}>
+        <div style={{display:"flex",alignItems:"center",gap:10,padding:"10px 0",marginRight:28,flexShrink:0}}>
+          <img src={LOGO} alt="YDI" style={{height:40,width:40,borderRadius:6,objectFit:"contain",background:B.white,padding:2}}/>
+          <div>
+            <div style={{fontWeight:800,fontSize:14,letterSpacing:0.5}}>Blog Command Center</div>
+            <div style={{fontSize:10,opacity:0.6}}>Young Douglas Insurance · California</div>
+          </div>
+        </div>
+        <div style={{display:"flex",flex:1,overflowX:"auto"}}>
+          {TABS.map(t=>(
+            <button key={t.id} onClick={()=>setTab(t.id)} style={{
+              background:tab===t.id?"rgba(255,255,255,0.15)":"transparent",
+              color:B.white,border:"none",padding:"16px 16px",fontSize:12,fontWeight:tab===t.id?700:400,
+              cursor:"pointer",borderBottom:tab===t.id?`3px solid ${B.red}`:"3px solid transparent",
+              display:"flex",alignItems:"center",gap:5,whiteSpace:"nowrap",flexShrink:0,
+              transition:"all 0.15s",
+            }}>
+              {t.icon} {t.label}
+              {t.badge>0&&<span style={{background:B.red,borderRadius:20,padding:"1px 6px",fontSize:10,fontWeight:700}}>{t.badge}</span>}
+            </button>
+          ))}
+        </div>
+        <div style={{display:"flex",alignItems:"center",gap:10,marginLeft:12,flexShrink:0}}>
+          <button onClick={()=>setIsDark(d=>!d)} style={{background:"rgba(255,255,255,0.12)",border:"1px solid rgba(255,255,255,0.2)",borderRadius:20,padding:"5px 14px",color:B.white,fontSize:12,fontWeight:700,cursor:"pointer"}}>
+            {isDark?"☀️ Light":"🌙 Dark"}
+          </button>
+        </div>
+      </div>
+
+      <div style={{maxWidth:1200,margin:"0 auto",padding:"24px 20px"}}>
+        {tab==="dashboard" && <Dashboard blogs={blogs} links={links} {...sharedProps}/>}
+        {tab==="generator" && <Generator onSave={addBlog} {...sharedProps}/>}
+        {tab==="library"   && <Library blogs={blogs} onDelete={deleteBlog} {...sharedProps}/>}
+        {tab==="links"     && <LinkTracker blogs={blogs} links={links} onToggle={toggleLink} {...sharedProps}/>}
+        {tab==="settings"  && <Settings onSaveTypes={saveTypes} onSaveAudiences={saveAudiences} {...sharedProps}/>}
+      </div>
+    </div>
+  );
+}
+
+// ── DASHBOARD ──────────────────────────────────────────────
+function Dashboard({blogs,links,types,audiences,T,isDark}){
+  const now=Date.now();
+  const inRange=(b,a,z)=>{const age=now-new Date(b.date);return age>=a&&age<z;};
+
+  const total=blogs.length;
+  const thisWeek=blogs.filter(b=>inRange(b,0,ONE_WEEK));
+  const lastWeek=blogs.filter(b=>inRange(b,ONE_WEEK,2*ONE_WEEK));
+  const thisMonth=blogs.filter(b=>inRange(b,0,ONE_MONTH));
+  const lastMonth=blogs.filter(b=>inRange(b,ONE_MONTH,2*ONE_MONTH));
+
+  const compliant=b=>b.wordCount>=1300&&b.wordCount<=1400;
+  const compRate=arr=>arr.length>0?Math.round(arr.filter(compliant).length/arr.length*100):0;
+
+  const twComp=compRate(thisWeek);
+  const lwComp=compRate(lastWeek);
+  const linksDone=Object.values(links).filter(Boolean).length;
+  const totalPairs=blogs.length*(blogs.length-1);
+  const linkPct=totalPairs>0?Math.round((linksDone/totalPairs)*100):0;
+
+  // 8-week sparkline
+  const sparkData=Array.from({length:8},(_,i)=>
+    blogs.filter(b=>{const age=now-new Date(b.date);return age>=(7-i)*ONE_WEEK&&age<(8-i)*ONE_WEEK;}).length
+  );
+  const compSpark=Array.from({length:8},(_,i)=>{
+    const wk=blogs.filter(b=>{const age=now-new Date(b.date);return age>=(7-i)*ONE_WEEK&&age<(8-i)*ONE_WEEK;});
+    return compRate(wk);
+  });
+
+  const typeCounts=types.reduce((a,t)=>{a[t.id]=blogs.filter(b=>b.typeId===t.id).length;return a;},{});
+  const audCounts=audiences.reduce((a,au)=>{a[au.id]=blogs.filter(b=>b.audienceId===au.id).length;return a;},{});
+  const maxTC=Math.max(...Object.values(typeCounts),1);
+
+  const Card=({label,value,icon,color,prev,curr,sparkline,sparkColor,extra})=>(
+    <div style={{background:T.card,borderRadius:14,padding:"20px 22px",border:`1px solid ${T.border}`,boxShadow:"0 1px 6px rgba(0,0,0,0.07)",position:"relative",overflow:"hidden"}}>
+      <div style={{position:"absolute",right:16,top:16,opacity:0.08,fontSize:52}}>{icon}</div>
+      <div style={{fontSize:22,marginBottom:4}}>{icon}</div>
+      <div style={{fontSize:34,fontWeight:900,color,lineHeight:1}}>{value}</div>
+      <div style={{display:"flex",alignItems:"center",marginTop:4,flexWrap:"wrap",gap:4}}>
+        <span style={{fontSize:12,color:T.muted,fontWeight:600,textTransform:"uppercase",letterSpacing:0.5}}>{label}</span>
+        {prev!==undefined&&curr!==undefined&&<TrendBadge current={curr} previous={prev}/>}
+      </div>
+      {extra&&<div style={{fontSize:11,color:T.muted,marginTop:4}}>{extra}</div>}
+      {sparkline&&<div style={{marginTop:10}}><MiniSparkline data={sparkline} color={sparkColor||color}/></div>}
+    </div>
+  );
+
+  const topType=Object.entries(typeCounts).sort((a,b)=>b[1]-a[1])[0];
+  const topAud=Object.entries(audCounts).sort((a,b)=>b[1]-a[1])[0];
+
+  return(
+    <div>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:20}}>
+        <h2 style={{fontWeight:800,fontSize:22,color:B.blue}}>📊 Dashboard</h2>
+        <div style={{fontSize:12,color:T.muted}}>Last updated: {new Date().toLocaleString("en-US",{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"})}</div>
+      </div>
+
+      {/* KPI GRID */}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:14,marginBottom:20}}>
+        <Card label="Total Blogs" value={total} icon="📝" color={B.blue}
+          curr={thisMonth.length} prev={lastMonth.length} sparkline={sparkData} sparkColor={B.blue}
+          extra={`${thisMonth.length} this month`}/>
+        <Card label="This Week" value={thisWeek.length} icon="📅" color={B.green}
+          curr={thisWeek.length} prev={lastWeek.length} sparkline={sparkData} sparkColor={B.green}
+          extra={`${lastWeek.length} last week`}/>
+        <Card label="Word Count ✓" value={`${compRate(blogs)}%`} icon="✅"
+          color={compRate(blogs)>=80?B.green:B.amber}
+          curr={twComp} prev={lwComp} sparkline={compSpark} sparkColor={B.green}
+          extra={`${blogs.filter(compliant).length} of ${total} compliant`}/>
+        <Card label="Links Confirmed" value={linksDone} icon="🔗" color={B.purple}
+          extra={`${linkPct}% of ${totalPairs} pairs`}/>
+      </div>
+
+      {/* SECONDARY KPIs */}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:14,marginBottom:20}}>
+        <div style={{background:T.card,borderRadius:14,padding:"16px 18px",border:`1px solid ${T.border}`,boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
+          <div style={{fontSize:11,color:T.muted,fontWeight:700,textTransform:"uppercase",letterSpacing:0.5,marginBottom:6}}>🏆 Top Blog Type</div>
+          {topType?<>
+            <div style={{fontWeight:800,fontSize:20,color:B.blue}}>{types.find(t=>t.id===topType[0])?.emoji} {topType[1]}</div>
+            <div style={{fontSize:12,color:T.muted,marginTop:2}}>{types.find(t=>t.id===topType[0])?.label}</div>
+          </>:<div style={{fontSize:12,color:T.muted}}>No blogs yet</div>}
+        </div>
+        <div style={{background:T.card,borderRadius:14,padding:"16px 18px",border:`1px solid ${T.border}`,boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
+          <div style={{fontSize:11,color:T.muted,fontWeight:700,textTransform:"uppercase",letterSpacing:0.5,marginBottom:6}}>👥 Top Audience</div>
+          {topAud&&topAud[1]>0?<>
+            <div style={{fontWeight:800,fontSize:20,color:B.red}}>{audiences.find(a=>a.id===topAud[0])?.emoji} {topAud[1]}</div>
+            <div style={{fontSize:12,color:T.muted,marginTop:2}}>{audiences.find(a=>a.id===topAud[0])?.label}</div>
+          </>:<div style={{fontSize:12,color:T.muted}}>No blogs yet</div>}
+        </div>
+        <div style={{background:T.card,borderRadius:14,padding:"16px 18px",border:`1px solid ${T.border}`,boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
+          <div style={{fontSize:11,color:T.muted,fontWeight:700,textTransform:"uppercase",letterSpacing:0.5,marginBottom:6}}>📐 Avg Word Count</div>
+          <div style={{fontWeight:800,fontSize:20,color:B.blue}}>
+            {blogs.length>0?Math.round(blogs.reduce((a,b)=>a+b.wordCount,0)/blogs.length):0}
+          </div>
+          <div style={{fontSize:12,color:T.muted,marginTop:2}}>Target: 1,300–1,400</div>
+        </div>
+        <div style={{background:T.card,borderRadius:14,padding:"16px 18px",border:`1px solid ${T.border}`,boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
+          <div style={{fontSize:11,color:T.muted,fontWeight:700,textTransform:"uppercase",letterSpacing:0.5,marginBottom:6}}>🗂️ Type Coverage</div>
+          <div style={{fontWeight:800,fontSize:20,color:B.purple}}>
+            {types.filter(t=>typeCounts[t.id]>0).length}<span style={{fontSize:14,fontWeight:400,color:T.muted}}>/{types.length}</span>
+          </div>
+          <div style={{fontSize:12,color:T.muted,marginTop:2}}>Types with blogs</div>
+        </div>
+      </div>
+
+      {/* BOTTOM ROW */}
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14,marginBottom:16}}>
+        {/* Type bars */}
+        <div style={{background:T.card,borderRadius:14,padding:20,border:`1px solid ${T.border}`,boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
+          <div style={{fontWeight:700,fontSize:13,color:B.blue,marginBottom:14}}>📂 Blog Type Coverage</div>
+          <div style={{maxHeight:260,overflowY:"auto"}}>
+            {types.map(t=>(
+              <div key={t.id} style={{marginBottom:10}}>
+                <div style={{display:"flex",justifyContent:"space-between",fontSize:12,marginBottom:3}}>
+                  <span style={{color:T.text}}>{t.emoji} {t.label}</span>
+                  <span style={{fontWeight:700,color:typeCounts[t.id]>0?B.green:T.muted}}>{typeCounts[t.id]}</span>
+                </div>
+                <div style={{background:T.row,borderRadius:4,height:6}}>
+                  <div style={{background:typeCounts[t.id]>0?t.color:T.row,width:`${Math.min((typeCounts[t.id]/maxTC)*100,100)}%`,height:"100%",borderRadius:4,transition:"width 0.4s"}}/>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Recent + Audience */}
+        <div style={{display:"flex",flexDirection:"column",gap:14}}>
+          <div style={{background:T.card,borderRadius:14,padding:20,border:`1px solid ${T.border}`,boxShadow:"0 1px 6px rgba(0,0,0,0.07)"}}>
+            <div style={{fontWeight:700,fontSize:13,color:B.blue,marginBottom:12}}>👥 Audience Coverage</div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
+              {audiences.map(a=>(
+                <div key={a.id} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"5px 9px",background:audCounts[a.id]>0?isDark?"#1e3a5f":"#EFF6FF":T.row,borderRadius:7,border:`1px solid ${audCounts[a.id]>0?B.blue+"33":T.border}`}}>
+                  <span style={{fontSize:11,color:T.text}}>{a.emoji} {a.label}</span>
+                  <span style={{fontSize:12,fontWeight:700,color:audCounts[a.id]>0?B.blue:T.muted}}>{audCounts[a.id]}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div style={{background:T.card,borderRadius:14,padding:20,border:`1px solid ${T.border}`,boxShadow:"0 1px 6px rgba(0,0,0,0.07)",flex:1}}>
+            <div style={{fontWeight:700,fontSize:13,color:B.blue,marginBottom:12}}>🕐 Recent Activity</div>
+            {blogs.length===0&&<div style={{color:T.muted,fontSize:13}}>No blogs yet.</div>}
+            {blogs.slice(0,5).map(b=>{
+              const ok=b.wordCount>=1300&&b.wordCount<=1400;
+              return(
+                <div key={b.id} style={{display:"flex",alignItems:"center",gap:8,marginBottom:8,padding:"7px 9px",background:T.row,borderRadius:8}}>
+                  <span style={{fontSize:16}}>{b.typeEmoji}</span>
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{fontSize:11,fontWeight:600,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",color:T.text}}>{b.title}</div>
+                    <div style={{fontSize:10,color:T.muted}}>{fmt(b.date)} · {b.audienceEmoji}</div>
+                  </div>
+                  <span style={{fontSize:9,padding:"2px 6px",borderRadius:20,background:ok?isDark?"#0d2a1a":"#dcfce7":isDark?"#2a0d0d":"#fee2e2",color:ok?B.green:B.red,fontWeight:700,whiteSpace:"nowrap"}}>{ok?"✓":"⚠"} {b.wordCount}w</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      <div style={{background:isDark?"#2a2010":"#FFF8E1",border:`1px solid ${isDark?"#665520":"#FFD54F"}`,borderRadius:10,padding:"11px 16px",fontSize:12,color:isDark?"#e8cc80":"#5D4037"}}>
+        <strong>⚠️ MANDATORY QA:</strong> Fact-check all news sources before publishing at <a href="https://toolbox.google.com/factcheck/explorer/search/list:recent;hl=en" target="_blank" style={{color:B.blue}}>Google Fact Check Explorer</a>. Flag any claim rated false or misleading.
+      </div>
+    </div>
+  );
+}
+
+// ── GENERATOR ──────────────────────────────────────────────
+function Generator({types,audiences,onSave,T,isDark}){
+  const[typeId,setTypeId]=useState(types[0]?.id||"medicare");
+  const[audId,setAudId]=useState(audiences[0]?.id||"newlyweds");
+  const[topic,setTopic]=useState("");
+  const[blog,setBlog]=useState("");
+  const[generating,setGenerating]=useState(false);
+  const[error,setError]=useState("");
+  const[saved,setSaved]=useState(false);
+  const[copied,setCopied]=useState(false);
+
+  const st=types.find(t=>t.id===typeId)||types[0];
+  const sa=audiences.find(a=>a.id===audId)||audiences[0];
+  const words=blog?wc(blog):0;
+  const wcOk=words>=1300&&words<=1400;
+
+  const generate=async()=>{
+    if(!topic.trim()){setError("Enter a topic or select a suggestion.");return;}
+    setError("");setBlog("");setSaved(false);setGenerating(true);
+    try{
+      const res=await fetch("https://api.anthropic.com/v1/messages",{
+        method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:4000,
+          system:buildSystemPrompt(st,sa.label),
+          messages:[{role:"user",content:`Write a complete YDI blog post on: "${topic}"\nType: ${st.label}\nAudience: ${sa.label}\nFollow all protocols. Write 1300-1400 words. Do not truncate.`}]
+        }),
+      });
+      const d=await res.json();
+      setBlog(d.content?.[0]?.text||"");
+    }catch{setError("Generation failed. Try again.");}
+    setGenerating(false);
+  };
+
+  const handleSave=()=>{
+    if(!blog)return;
+    const tm=blog.match(/(?:^|\n)#+\s*(.+)/);
+    const title=tm?tm[1].trim():topic;
+    onSave({id:uid(),typeId,typeLabel:st.label,typeEmoji:st.emoji,audienceId:audId,audienceLabel:sa.label,audienceEmoji:sa.emoji,title,topic,content:blog,wordCount:words,date:new Date().toISOString()});
+    setSaved(true);
+  };
+
+  const sugg=GSC[typeId]||[];
+
+  return(
+    <div style={{display:"grid",gridTemplateColumns:"250px 1fr",gap:18}}>
+      <div>
+        <div style={{background:T.card,borderRadius:12,padding:16,marginBottom:12,border:`1px solid ${T.border}`}}>
+          <div style={{fontWeight:700,fontSize:11,color:T.muted,textTransform:"uppercase",letterSpacing:1,marginBottom:10}}>Blog Type</div>
+          <div style={{maxHeight:300,overflowY:"auto",display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
+            {types.map(t=>(
+              <button key={t.id} onClick={()=>{setTypeId(t.id);setTopic("");}} style={{background:typeId===t.id?t.color:T.row,color:typeId===t.id?B.white:T.text,border:`2px solid ${typeId===t.id?t.color:T.border}`,borderRadius:8,padding:"7px 4px",fontSize:10,cursor:"pointer",fontWeight:typeId===t.id?700:400,textAlign:"center",transition:"all 0.15s"}}>
+                <div style={{fontSize:14,marginBottom:2}}>{t.emoji}</div>{t.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div style={{background:T.card,borderRadius:12,padding:16,marginBottom:12,border:`1px solid ${T.border}`}}>
+          <div style={{fontWeight:700,fontSize:11,color:T.muted,textTransform:"uppercase",letterSpacing:1,marginBottom:10}}>Target Audience</div>
+          {audiences.map(a=>(
+            <button key={a.id} onClick={()=>setAudId(a.id)} style={{display:"block",width:"100%",textAlign:"left",background:audId===a.id?B.blue:"transparent",color:audId===a.id?B.white:T.text,border:`2px solid ${audId===a.id?B.blue:T.border}`,borderRadius:8,padding:"7px 11px",fontSize:12,cursor:"pointer",fontWeight:audId===a.id?700:400,marginBottom:5,transition:"all 0.15s"}}>
+              {a.emoji} {a.label}
+            </button>
+          ))}
+        </div>
+        <div style={{background:isDark?"#2a2010":"#FFF8E1",borderRadius:12,padding:13,border:`1px solid ${isDark?"#665520":"#FFD54F"}`,fontSize:11,lineHeight:1.7,color:isDark?"#e8cc80":"#5D4037"}}>
+          <strong>✅ Protocol Active</strong><br/>
+          1,300-1,400w · No "insurance" in title · Insurance → final ¶ · Fact-check · CTA → quote form
+        </div>
+      </div>
+      <div>
+        {!blog&&(
+          <div style={{background:T.card,borderRadius:12,padding:22,border:`1px solid ${T.border}`}}>
+            <div style={{fontWeight:700,fontSize:14,color:B.blue,marginBottom:16}}>{st.emoji} {st.label} · {sa.emoji} {sa.label}</div>
+            <div style={{fontWeight:700,fontSize:11,color:T.muted,textTransform:"uppercase",letterSpacing:1,marginBottom:9}}>📊 GSC-Powered Suggestions</div>
+            <div style={{display:"flex",flexDirection:"column",gap:6,marginBottom:18}}>
+              {sugg.map((s,i)=>(
+                <button key={i} onClick={()=>setTopic(s)} style={{background:topic===s?isDark?"#1e3a5f":"#EFF6FF":T.row,border:`2px solid ${topic===s?B.blue:T.border}`,borderRadius:8,padding:"9px 13px",textAlign:"left",cursor:"pointer",fontSize:13,color:topic===s?B.blue:T.text,fontWeight:topic===s?600:400,transition:"all 0.15s"}}>
+                  {topic===s&&"✓ "}{s}
+                </button>
+              ))}
+            </div>
+            <div style={{fontWeight:700,fontSize:11,color:T.muted,textTransform:"uppercase",letterSpacing:1,marginBottom:7}}>Or Custom Topic</div>
+            <input value={topic} onChange={e=>setTopic(e.target.value)} placeholder="Enter your blog topic..."
+              style={{width:"100%",padding:"11px 13px",borderRadius:8,border:`2px solid ${T.border}`,fontSize:13,outline:"none",boxSizing:"border-box",color:T.text,background:T.input,marginBottom:14}}/>
+            {error&&<div style={{background:isDark?"#2a0d0d":"#FEE2E2",border:"1px solid #FECACA",borderRadius:8,padding:"9px 13px",fontSize:12,color:"#DC2626",marginBottom:12}}>⚠️ {error}</div>}
+            <button onClick={generate} disabled={generating} style={{width:"100%",background:generating?"#94a3b8":B.blue,color:B.white,border:"none",borderRadius:10,padding:"14px",fontSize:15,fontWeight:700,cursor:generating?"not-allowed":"pointer"}}>
+              {generating?"✍️ Generating...":` 🚀 Generate ${st.label} Blog`}
+            </button>
+          </div>
+        )}
+        {blog&&(
+          <div>
+            <div style={{display:"flex",gap:9,marginBottom:12,flexWrap:"wrap",alignItems:"center"}}>
+              <button onClick={()=>{navigator.clipboard.writeText(blog);setCopied(true);setTimeout(()=>setCopied(false),2000);}} style={{background:copied?B.green:B.blue,color:B.white,border:"none",borderRadius:8,padding:"9px 16px",fontSize:12,fontWeight:700,cursor:"pointer"}}>{copied?"✅ Copied!":"📋 Copy Blog"}</button>
+              <button onClick={handleSave} disabled={saved} style={{background:saved?B.green:"transparent",color:saved?B.white:B.blue,border:`2px solid ${saved?B.green:B.blue}`,borderRadius:8,padding:"9px 16px",fontSize:12,fontWeight:700,cursor:"pointer"}}>{saved?"✅ Saved!":"💾 Save to Library"}</button>
+              <button onClick={()=>{setBlog("");setTopic("");setSaved(false);}} style={{background:"transparent",color:T.muted,border:`2px solid ${T.border}`,borderRadius:8,padding:"9px 16px",fontSize:12,fontWeight:700,cursor:"pointer"}}>← New Blog</button>
+              <div style={{marginLeft:"auto",fontSize:12,fontWeight:700,color:wcOk?B.green:B.red}}>{words}w {wcOk?"✅":words<1300?"⚠️ Short":"⚠️ Long"}</div>
+            </div>
+            <div style={{background:isDark?"#162035":"#EFF6FF",border:`1px solid ${B.blue}33`,borderRadius:9,padding:"9px 14px",marginBottom:12,fontSize:11,color:B.blue}}>
+              <strong>⚠️ MANDATORY QA:</strong> Fact-check all sources at <a href="https://toolbox.google.com/factcheck/explorer/search/list:recent;hl=en" target="_blank" style={{color:B.blue}}>Google Fact Check Explorer</a>.
+            </div>
+            <div style={{background:T.card,borderRadius:12,padding:24,border:`1px solid ${T.border}`,fontSize:14,lineHeight:1.85,color:T.text,whiteSpace:"pre-wrap",wordBreak:"break-word",maxHeight:"65vh",overflowY:"auto",fontFamily:"Georgia,serif"}}>
+              {blog}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── LIBRARY ────────────────────────────────────────────────
+function Library({blogs,types,audiences,onDelete,T,isDark}){
+  const[ft,setFt]=useState("all");
+  const[fa,setFa]=useState("all");
+  const[sel,setSel]=useState(null);
+  const[copied,setCopied]=useState(false);
+  const[del,setDel]=useState(null);
+
+  const filtered=blogs.filter(b=>ft==="all"||b.typeId===ft).filter(b=>fa==="all"||b.audienceId===fa);
+
+  if(sel){
+    const b=blogs.find(x=>x.id===sel);
+    if(!b){setSel(null);return null;}
+    const ok=b.wordCount>=1300&&b.wordCount<=1400;
+    return(
+      <div>
+        <div style={{display:"flex",gap:9,marginBottom:14,alignItems:"center"}}>
+          <button onClick={()=>setSel(null)} style={{background:"transparent",color:B.blue,border:`2px solid ${B.blue}`,borderRadius:8,padding:"8px 14px",fontSize:12,fontWeight:700,cursor:"pointer"}}>← Library</button>
+          <button onClick={()=>{navigator.clipboard.writeText(b.content);setCopied(true);setTimeout(()=>setCopied(false),2000);}} style={{background:copied?B.green:B.blue,color:B.white,border:"none",borderRadius:8,padding:"8px 14px",fontSize:12,fontWeight:700,cursor:"pointer"}}>{copied?"✅ Copied!":"📋 Copy"}</button>
+          <div style={{marginLeft:"auto",fontSize:12,fontWeight:700,color:ok?B.green:B.red}}>{b.wordCount}w {ok?"✅":"⚠️"}</div>
+        </div>
+        <div style={{background:isDark?"#162035":"#EFF6FF",border:`1px solid ${B.blue}33`,borderRadius:9,padding:"9px 14px",marginBottom:12,fontSize:11,color:B.blue}}>
+          <strong>⚠️ MANDATORY QA:</strong> Fact-check all sources at <a href="https://toolbox.google.com/factcheck/explorer/search/list:recent;hl=en" target="_blank" style={{color:B.blue}}>Google Fact Check Explorer</a>.
+        </div>
+        <div style={{background:T.card,borderRadius:12,padding:24,border:`1px solid ${T.border}`,fontSize:14,lineHeight:1.85,color:T.text,whiteSpace:"pre-wrap",wordBreak:"break-word",maxHeight:"70vh",overflowY:"auto",fontFamily:"Georgia,serif"}}>{b.content}</div>
+      </div>
+    );
+  }
+
+  return(
+    <div>
+      <div style={{display:"flex",gap:10,marginBottom:18,alignItems:"center",flexWrap:"wrap"}}>
+        <h2 style={{fontWeight:800,fontSize:22,color:B.blue,margin:0}}>📚 Blog Library</h2>
+        <div style={{marginLeft:"auto",display:"flex",gap:8}}>
+          <select value={ft} onChange={e=>setFt(e.target.value)} style={{padding:"7px 11px",borderRadius:8,border:`1px solid ${T.border}`,fontSize:12,background:T.card,color:T.text}}>
+            <option value="all">All Types</option>
+            {types.map(t=><option key={t.id} value={t.id}>{t.emoji} {t.label}</option>)}
+          </select>
+          <select value={fa} onChange={e=>setFa(e.target.value)} style={{padding:"7px 11px",borderRadius:8,border:`1px solid ${T.border}`,fontSize:12,background:T.card,color:T.text}}>
+            <option value="all">All Audiences</option>
+            {audiences.map(a=><option key={a.id} value={a.id}>{a.emoji} {a.label}</option>)}
+          </select>
+        </div>
+      </div>
+      {filtered.length===0&&<div style={{background:T.card,borderRadius:12,padding:48,textAlign:"center",border:`1px solid ${T.border}`,color:T.muted,fontSize:15}}>📝 No blogs yet. Use the Generator tab.</div>}
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
+        {filtered.map(b=>{
+          const ok=b.wordCount>=1300&&b.wordCount<=1400;
+          return(
+            <div key={b.id} style={{background:T.card,borderRadius:12,padding:16,border:`1px solid ${T.border}`,boxShadow:"0 1px 4px rgba(0,0,0,0.05)"}}>
+              <div style={{display:"flex",gap:9,marginBottom:9}}>
+                <span style={{fontSize:22}}>{b.typeEmoji}</span>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontWeight:700,fontSize:12,lineHeight:1.4,color:T.text}}>{b.title}</div>
+                  <div style={{fontSize:10,color:T.muted,marginTop:2}}>{fmt(b.date)} · {b.audienceEmoji} {b.audienceLabel} · {b.typeLabel}</div>
+                </div>
+              </div>
+              <div style={{display:"flex",gap:7,alignItems:"center"}}>
+                <span style={{fontSize:10,padding:"3px 9px",borderRadius:20,background:ok?isDark?"#0d2a1a":"#dcfce7":isDark?"#2a0d0d":"#fee2e2",color:ok?B.green:B.red,fontWeight:700}}>{ok?"✅":"⚠️"} {b.wordCount}w</span>
+                <button onClick={()=>setSel(b.id)} style={{background:B.blue,color:B.white,border:"none",borderRadius:7,padding:"5px 13px",fontSize:11,fontWeight:700,cursor:"pointer"}}>View</button>
+                {del===b.id?<>
+                  <button onClick={()=>{onDelete(b.id);setDel(null);}} style={{background:B.red,color:B.white,border:"none",borderRadius:7,padding:"5px 11px",fontSize:11,fontWeight:700,cursor:"pointer"}}>Confirm</button>
+                  <button onClick={()=>setDel(null)} style={{background:"transparent",color:T.muted,border:`1px solid ${T.border}`,borderRadius:7,padding:"5px 11px",fontSize:11,cursor:"pointer"}}>Cancel</button>
+                </>:
+                  <button onClick={()=>setDel(b.id)} style={{background:"transparent",color:T.muted,border:`1px solid ${T.border}`,borderRadius:7,padding:"5px 9px",fontSize:11,cursor:"pointer",marginLeft:"auto"}}>🗑️</button>
+                }
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ── LINK TRACKER ───────────────────────────────────────────
+function LinkTracker({blogs,types,links,onToggle,T,isDark}){
+  const[ft,setFt]=useState("all");
+  const filtered=blogs.filter(b=>ft==="all"||b.typeId===ft);
+  const total=filtered.length*(filtered.length-1);
+  const done=filtered.flatMap(a=>filtered.filter(b=>b.id!==a.id).map(b=>links[`${a.id}__${b.id}`])).filter(Boolean).length;
+  const pct=total>0?Math.round((done/total)*100):0;
+  return(
+    <div>
+      <div style={{display:"flex",gap:12,alignItems:"center",marginBottom:18,flexWrap:"wrap"}}>
+        <h2 style={{fontWeight:800,fontSize:22,color:B.blue,margin:0}}>🔗 Internal Link Tracker</h2>
+        <div style={{marginLeft:"auto",display:"flex",gap:10,alignItems:"center"}}>
+          <div style={{fontSize:13,fontWeight:700,color:pct===100?B.green:pct>=50?B.amber:B.red}}>{done}/{total} links · {pct}%</div>
+          <select value={ft} onChange={e=>setFt(e.target.value)} style={{padding:"7px 11px",borderRadius:8,border:`1px solid ${T.border}`,fontSize:12,background:T.card,color:T.text}}>
+            <option value="all">All Types</option>
+            {types.map(t=><option key={t.id} value={t.id}>{t.emoji} {t.label}</option>)}
+          </select>
+        </div>
+      </div>
+      {blogs.length===0&&<div style={{background:T.card,borderRadius:12,padding:48,textAlign:"center",border:`1px solid ${T.border}`,color:T.muted,fontSize:15}}>Generate some blogs first, then track their internal links here.</div>}
+      {filtered.length>0&&(
+        <div style={{background:T.card,borderRadius:12,padding:18,border:`1px solid ${T.border}`,overflowX:"auto"}}>
+          <div style={{fontSize:11,color:T.muted,marginBottom:12}}>Rows = source blog · Columns = linked blog · Click to toggle ✅</div>
+          <table style={{borderCollapse:"collapse",width:"100%",fontSize:10}}>
+            <thead>
+              <tr>
+                <th style={{padding:"7px 9px",textAlign:"left",background:T.row2,minWidth:140,position:"sticky",left:0,zIndex:1,color:T.text}}>Source →</th>
+                {filtered.map(b=>(
+                  <th key={b.id} style={{padding:"5px 6px",background:T.row2,maxWidth:70,fontWeight:600,color:T.muted,textAlign:"center"}}>
+                    <div title={b.title}>{b.typeEmoji}</div>
+                    <div style={{fontSize:8,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:60,color:T.muted}}>{b.title.slice(0,16)}…</div>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map(from=>(
+                <tr key={from.id}>
+                  <td style={{padding:"7px 9px",background:T.row,position:"sticky",left:0,zIndex:1,borderBottom:`1px solid ${T.border}`,color:T.text}}>
+                    <div style={{fontWeight:600,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",maxWidth:130}} title={from.title}>{from.typeEmoji} {from.title.slice(0,18)}…</div>
+                  </td>
+                  {filtered.map(to=>{
+                    const same=from.id===to.id;
+                    const key=`${from.id}__${to.id}`;
+                    const done=links[key];
+                    return(
+                      <td key={to.id} style={{textAlign:"center",padding:"3px",borderBottom:`1px solid ${T.border}`}}>
+                        {same?<div style={{background:T.row2,width:26,height:26,borderRadius:5,margin:"0 auto"}}/>:
+                          <button onClick={()=>onToggle(from.id,to.id)} title={`${from.title} → ${to.title}`} style={{width:26,height:26,borderRadius:5,border:`2px solid ${done?B.green:T.border}`,background:done?isDark?"#0d2a1a":"#dcfce7":T.row,cursor:"pointer",fontSize:12,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto",transition:"all 0.15s"}}>
+                            {done?"✅":"□"}
+                          </button>
+                        }
+                      </td>
+                    );
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── SETTINGS ───────────────────────────────────────────────
+function Settings({types,audiences,onSaveTypes,onSaveAudiences,T,isDark}){
+  const[tab,setTab]=useState("types");
+  const[nt,setNt]=useState({label:"",emoji:"📝",color:B.blue,protocol:"standard"});
+  const[na,setNa]=useState({label:"",emoji:"👤"});
+  const[saved,setSaved]=useState("");
+  const PROTOS=["standard","home","commercial","life","barber","restaurant"];
+
+  const addType=()=>{
+    if(!nt.label.trim())return;
+    onSaveTypes([...types,{...nt,id:nt.label.toLowerCase().replace(/\s+/g,"_")+"_"+uid()}]);
+    setNt({label:"",emoji:"📝",color:B.blue,protocol:"standard"});
+    setSaved("type");setTimeout(()=>setSaved(""),2000);
+  };
+  const addAud=()=>{
+    if(!na.label.trim())return;
+    onSaveAudiences([...audiences,{...na,id:na.label.toLowerCase().replace(/\s+/g,"_")+"_"+uid()}]);
+    setNa({label:"",emoji:"👤"});
+    setSaved("aud");setTimeout(()=>setSaved(""),2000);
+  };
+  const isDefaultType=id=>DEFAULT_TYPES.some(t=>t.id===id);
+  const isDefaultAud=id=>DEFAULT_AUDIENCES.some(a=>a.id===id);
+
+  return(
+    <div>
+      <h2 style={{fontWeight:800,fontSize:22,color:B.blue,marginBottom:18}}>⚙️ Settings</h2>
+      <div style={{display:"flex",gap:9,marginBottom:18}}>
+        {["types","audiences"].map(t=>(
+          <button key={t} onClick={()=>setTab(t)} style={{background:tab===t?B.blue:"transparent",color:tab===t?B.white:B.blue,border:`2px solid ${B.blue}`,borderRadius:8,padding:"8px 18px",fontSize:12,fontWeight:700,cursor:"pointer"}}>
+            {t==="types"?"📂 Blog Types":"👥 Audiences"}
+          </button>
+        ))}
+      </div>
+      {tab==="types"&&(
+        <div style={{background:T.card,borderRadius:12,padding:22,border:`1px solid ${T.border}`}}>
+          <div style={{fontWeight:700,fontSize:13,color:B.blue,marginBottom:14}}>Add New Blog Type</div>
+          <div style={{display:"flex",gap:9,marginBottom:18,flexWrap:"wrap"}}>
+            <input value={nt.label} onChange={e=>setNt(p=>({...p,label:e.target.value}))} placeholder="Type name (e.g. HVAC)"
+              style={{flex:1,minWidth:140,padding:"9px 12px",borderRadius:8,border:`1px solid ${T.border}`,fontSize:13,background:T.input,color:T.text,outline:"none"}}/>
+            <input value={nt.emoji} onChange={e=>setNt(p=>({...p,emoji:e.target.value}))} placeholder="Emoji"
+              style={{width:60,padding:"9px",borderRadius:8,border:`1px solid ${T.border}`,fontSize:18,textAlign:"center",background:T.input,color:T.text}}/>
+            <input type="color" value={nt.color} onChange={e=>setNt(p=>({...p,color:e.target.value}))}
+              style={{width:46,height:40,padding:2,borderRadius:8,border:`1px solid ${T.border}`,cursor:"pointer"}}/>
+            <select value={nt.protocol} onChange={e=>setNt(p=>({...p,protocol:e.target.value}))}
+              style={{padding:"9px 12px",borderRadius:8,border:`1px solid ${T.border}`,fontSize:13,background:T.card,color:T.text}}>
+              {PROTOS.map(p=><option key={p} value={p}>{p}</option>)}
+            </select>
+            <button onClick={addType} style={{background:B.blue,color:B.white,border:"none",borderRadius:8,padding:"9px 18px",fontSize:13,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap"}}>
+              {saved==="type"?"✅ Added!":"+ Add Type"}
+            </button>
+          </div>
+          <div style={{fontWeight:700,fontSize:12,color:T.muted,marginBottom:11}}>All Types ({types.length})</div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:9}}>
+            {types.map(t=>(
+              <div key={t.id} style={{display:"flex",alignItems:"center",gap:9,padding:"9px 12px",background:T.row,borderRadius:10,border:`1px solid ${T.border}`}}>
+                <span style={{fontSize:18}}>{t.emoji}</span>
+                <div style={{flex:1,minWidth:0}}>
+                  <div style={{fontWeight:600,fontSize:12,color:T.text}}>{t.label}</div>
+                  <div style={{fontSize:10,color:T.muted}}>{t.protocol}</div>
+                </div>
+                <div style={{width:10,height:10,borderRadius:"50%",background:t.color,flexShrink:0}}/>
+                {!isDefaultType(t.id)?
+                  <button onClick={()=>onSaveTypes(types.filter(x=>x.id!==t.id))} style={{background:"transparent",color:B.red,border:"none",cursor:"pointer",fontSize:14,padding:0}}>✕</button>:
+                  <span style={{fontSize:9,color:T.muted}}>core</span>
+                }
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      {tab==="audiences"&&(
+        <div style={{background:T.card,borderRadius:12,padding:22,border:`1px solid ${T.border}`}}>
+          <div style={{fontWeight:700,fontSize:13,color:B.blue,marginBottom:14}}>Add New Audience</div>
+          <div style={{display:"flex",gap:9,marginBottom:18}}>
+            <input value={na.label} onChange={e=>setNa(p=>({...p,label:e.target.value}))} placeholder="Audience name (e.g. Veterans)"
+              style={{flex:1,padding:"9px 12px",borderRadius:8,border:`1px solid ${T.border}`,fontSize:13,background:T.input,color:T.text,outline:"none"}}/>
+            <input value={na.emoji} onChange={e=>setNa(p=>({...p,emoji:e.target.value}))} placeholder="Emoji"
+              style={{width:60,padding:"9px",borderRadius:8,border:`1px solid ${T.border}`,fontSize:18,textAlign:"center",background:T.input,color:T.text}}/>
+            <button onClick={addAud} style={{background:B.blue,color:B.white,border:"none",borderRadius:8,padding:"9px 18px",fontSize:13,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap"}}>
+              {saved==="aud"?"✅ Added!":"+ Add Audience"}
+            </button>
+          </div>
+          <div style={{fontWeight:700,fontSize:12,color:T.muted,marginBottom:11}}>All Audiences ({audiences.length})</div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:9}}>
+            {audiences.map(a=>(
+              <div key={a.id} style={{display:"flex",alignItems:"center",gap:9,padding:"9px 12px",background:T.row,borderRadius:10,border:`1px solid ${T.border}`}}>
+                <span style={{fontSize:20}}>{a.emoji}</span>
+                <div style={{flex:1,fontWeight:600,fontSize:12,color:T.text}}>{a.label}</div>
+                {!isDefaultAud(a.id)?
+                  <button onClick={()=>onSaveAudiences(audiences.filter(x=>x.id!==a.id))} style={{background:"transparent",color:B.red,border:"none",cursor:"pointer",fontSize:14,padding:0}}>✕</button>:
+                  <span style={{fontSize:9,color:T.muted}}>core</span>
+                }
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
